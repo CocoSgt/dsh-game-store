@@ -6,6 +6,8 @@
 
 A game store for DeepSeek Harness (DSH). With this plugin you browse games, read about them, install with one click and play full screen, all inside DSH. Games run on your own computer.
 
+The first game in the store is [Tidemark](https://dsh-game-store.com/games/tidemark/), turn-based strategy in the spirit of Advance Wars. It is open source at [CocoSgt/dsh-game-tidemark](https://github.com/CocoSgt/dsh-game-tidemark) and also plays in the browser.
+
 ## Add your game
 
 Copy this line and give it to your agent (Claude Code, Codex, DSH and so on):

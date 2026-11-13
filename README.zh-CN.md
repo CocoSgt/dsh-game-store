@@ -6,6 +6,8 @@
 
 DeepSeek Harness（DSH）上的游戏商店。装上这个插件，就能在 DSH 里浏览游戏、看说明、一键安装、全屏开玩。游戏都在你自己的电脑上运行。
 
+第一个上架的游戏是[《潮汐战线》](https://dsh-game-store.com/games/tidemark/)：《高级战争》式的回合制战棋，开源在 [CocoSgt/dsh-game-tidemark](https://github.com/CocoSgt/dsh-game-tidemark)，网页上也能直接玩。
+
 ## 把你的游戏放进来
 
 复制这句话，交给你的 agent（Claude Code、Codex、DSH……）：
