@@ -261,3 +261,13 @@ a.ext:hover, article.ext:hover { border-color: var(--line2); color: var(--ink); 
 .md { overflow-wrap: anywhere; }
 @media (max-width: 900px) { .docwrap { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .hero h1 { gap: 12px; } .buy { padding: 18px; } .buy h1 { font-size: 26px; } .btn.big { height: 50px; padding: 0 20px; font-size: 16px; } .thumbs button { min-width: 84px; } }
+
+/* ---------- GitHub stars */
+.btn.star { background: #1f2430; border-color: #3a4256; color: var(--ink); }
+.btn.star:hover { background: #2a3142; color: var(--ink); border-color: var(--gold); }
+.stars { color: var(--gold); font-weight: 700; font-size: 13px; }
+.stars:empty { display: none; }
+.tools .gh { width: auto; padding: 0 9px; gap: 6px; display: inline-flex; align-items: center; height: 34px; }
+.ghlink { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); vertical-align: -3px; }
+.ghlink:hover { color: var(--ink); }
+.ghlink svg { width: 15px; height: 15px; }

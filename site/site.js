@@ -8,6 +8,19 @@
     else { const a = document.createElement('textarea'); a.value = b.dataset.copy; document.body.append(a); a.select(); document.execCommand('copy'); a.remove(); done() }
   })
 
+  // ---- GitHub stars: the count beside every GitHub link (asked once per repository per visit)
+  const starEls = [...document.querySelectorAll('[data-stars]')]
+  for (const repo of new Set(starEls.map(e => e.dataset.stars))) {
+    const put = n => { for (const e of starEls) if (e.dataset.stars === repo) e.textContent = `★ ${n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n}` }
+    const key = `stars:${repo}`
+    let saved; try { saved = sessionStorage.getItem(key) } catch (e) {}
+    if (saved !== null && saved !== undefined) { put(Number(saved)); continue }
+    fetch(`https://api.github.com/repos/${repo}`, { headers: { accept: 'application/vnd.github+json' } }).then(r => (r.ok ? r.json() : null)).then(j => {
+      if (!j || typeof j.stargazers_count !== 'number') return
+      put(j.stargazers_count); try { sessionStorage.setItem(key, String(j.stargazers_count)) } catch (e) {}
+    }).catch(() => {})
+  }
+
   // ---- galleries: a thumbnail becomes the big picture (or the clip, which plays by itself like an animated picture)
   for (const g of document.querySelectorAll('[data-gallery]')) {
     const thumbs = [...g.querySelectorAll('.thumbs button')], cap = g.querySelector('[data-cap]:not(button)')

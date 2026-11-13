@@ -58,6 +58,7 @@ const TEXT = SITE => ({
     playersOne: '1 人', playersRange: (a, b) => `${a}–${b} 人`, sep: '、',
     preview: '预览：这个游戏的包还没有发布到 npm，页面内容来自本地的包。', delisted: '这个游戏已下架：',
     footAbout: '开源的游戏平台，建在 DeepSeek Harness 和 GitHub 上。', footPlay: '玩', footMake: '做', footRepo: 'GitHub 仓库',
+    star: '在 GitHub 点个星', starStore: '给商店点个星', viewSource: '看源码',
     playBack: '回到游戏页', playFull: '全屏', playManual: '手册', manualOf: '手册', docs: '文档', onThisPage: '本页内容',
   },
   en: {
@@ -98,6 +99,7 @@ const TEXT = SITE => ({
     playersOne: '1 player', playersRange: (a, b) => `${a}–${b} players`, sep: ', ',
     preview: 'Preview: this game is not on npm yet. The page is built from a local package.', delisted: 'This game was taken down: ',
     footAbout: 'An open game platform built on DeepSeek Harness and GitHub.', footPlay: 'Play', footMake: 'Make', footRepo: 'GitHub repository',
+    star: 'Star on GitHub', starStore: 'Star the store', viewSource: 'View source',
     playBack: 'Back to the game page', playFull: 'Full screen', playManual: 'Manual', manualOf: 'Manual', docs: 'Docs', onThisPage: 'On this page',
   },
 })
@@ -141,7 +143,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
 <header class="top"><div class="in">
   <a class="brand" href="${base}"><span class="mark">${ICON.pad}</span>${esc(t.site)}</a>
   <nav><a href="${base}#games"${path === '' ? ' class="on"' : ''}>${esc(t.nav.games)}</a><a href="${base}workshop/"${on('workshop/')}>${esc(t.nav.workshop)}</a><a href="${base}publish/"${on('publish/')}>${esc(t.nav.publish)}</a><a href="${base}install/"${on('install/')}>${esc(t.nav.install)}</a><a href="${base}docs/"${path.startsWith('docs/') || path.startsWith('spec/') ? ' class="on"' : ''}>${esc(t.nav.docs)}</a></nav>
-  <div class="tools"><a class="lang" href="${otherHref}">${esc(t.other)}</a><a class="gh" href="${REPO}" aria-label="GitHub">${ICON.github}</a><span id="auth"></span></div>
+  <div class="tools"><a class="lang" href="${otherHref}">${esc(t.other)}</a><a class="gh" href="${REPO}" aria-label="${esc(t.starStore)}" title="${esc(t.starStore)}">${ICON.github}<span class="stars" data-stars="${REPO.replace('https://github.com/', '')}"></span></a><span id="auth"></span></div>
 </div></header>
 <main>${body}</main>
 <footer class="foot"><div class="in">
@@ -168,7 +170,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
     return `<article class="card">
   <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="/games/${g.id}/${esc(m.cover)}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
   <a class="cin" href="${base}games/${g.id}/"><img src="/games/${g.id}/${esc(m.icon)}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
-  <div class="meta"><span>${esc(m.author.name)} · v${esc(g.version)}</span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
+  <div class="meta"><span>${esc(m.author.name)} · v${esc(g.version)} · <a class="ghlink" href="${esc(g.repository)}" target="_blank" rel="noopener" aria-label="GitHub">${ICON.github}<span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a></span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
 </article>`
   }
 
@@ -263,6 +265,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
       <p class="sum">${esc(pickText(m.summary, t.lang))}</p>
       <div class="chips">${chips(t, g)}</div>
       ${listedGame ? `<a class="btn gold big wide" href="${playHref(base, g)}">${ICON.play}${esc(t.playNow)}</a><a class="btn ghost wide" href="${base}install/">${esc(t.inDsh)}</a>${m.manual ? `<a class="btn ghost wide" href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}` : ''}
+      <a class="btn star wide" href="${esc(g.repository)}" target="_blank" rel="noopener">${ICON.github}<span>${esc(t.star)}</span><span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a>
       <dl class="facts"><div><dt>${esc(t.author)}</dt><dd>${esc(m.author.name)}</dd></div><div><dt>${esc(t.version)}</dt><dd>${esc(g.version)}</dd></div><div><dt>${esc(t.download)}</dt><dd>${mb(g.tarballBytes)}</dd></div><div><dt>${esc(t.rating)}</dt><dd>${esc(t.ratingName[m.content.rating])}</dd></div></dl>
     </aside>
   </div>
