@@ -186,7 +186,8 @@ At most 300 MB unpacked.
 | Install | One click installs the version registered in the catalog |
 | Play | The game fills the window and goes full screen. Moving the pointer to the top edge shows a small strip: Restart, Full screen, Quit game |
 | Manual | When the package has one, the game page shows a Manual button |
-| Update | When the catalog has a newer version, the button reads "Update to x.y.z" |
+| Update | Automatic. After it starts and once a day the store reads the catalog and updates installed games and extensions in the background; a game being played is updated after it closes. The next start runs the new version. "Update to x.y.z" on the game page does it by hand |
+| Updating the store | Also automatic: once a day the store checks npm and installs a release that has been out for a day through DSH's plugin manager. In the desktop app it takes effect after DSH restarts; the store says so at the top |
 | Uninstall | Removes the game's files and keeps the saves |
 | Workshop | A section of the game page: browse, install, switch on and off, and uninstall the game's extensions; see section 8 |
 | My Games | Lists the installed games |

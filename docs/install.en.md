@@ -24,7 +24,7 @@ Replace `web` with the profile you use. Start that profile again afterwards.
 3. Click Play. The game fills the whole window and goes full screen.
 4. Move the pointer to the top edge of the window for a small strip: Restart, Full screen, Quit game.
 
-Installed games are under My Games. When a game has a new version, the button reads "Update to x.y.z".
+Installed games are under My Games. Games and the store update themselves; after the store updates, restart DSH to use it.
 
 ## Where saves are kept
 
