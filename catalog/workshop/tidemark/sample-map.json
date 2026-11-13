@@ -1,0 +1,9 @@
+{
+  "id": "sample-map",
+  "game": "tidemark",
+  "package": "dsh-game-tidemark-sample-map",
+  "version": "1.0.0",
+  "integrity": "sha512-ZTkLuJjcpL6nkRQyRDTfTJns3oXdcLQ54Yfwsd9Q3Srtm0hUJGnqNSiQc7pSj5yAYwAN9TwkN6xjdBrmHFVEgg==",
+  "repository": "https://github.com/CocoSgt/dsh-game-tidemark-sample-map",
+  "addedAt": "2026-11-13"
+}

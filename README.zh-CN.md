@@ -10,7 +10,7 @@ DeepSeek Harness（DSH）上的游戏商店。装上这个插件，就能在 DSH
 | --- | --- |
 | `lib/`、`cordis.patch.yml` | 商店插件本体（npm 包 `dsh-game-store`） |
 | `SPEC.md`、`docs/` | 平台规范、安装说明、发布说明 |
-| `catalog/games/` | 游戏目录：每个游戏一个文件 |
+| `catalog/games/`、`catalog/workshop/` | 目录：每个游戏、每个扩展一个文件 |
 | `site/` | 网站 dsh-game-store.com 的生成脚本 |
 
 ![商店首页](docs/shots/store.png)
@@ -46,9 +46,11 @@ npx dsh-game-store check dsh-game-my-game
 - **商店只装目录里登记的版本**，装前装后各核对一次校验值。
 - **每个游戏在自己的本地地址里运行**，占满窗口，联不了网，碰不到 DSH 的数据。
 - **网站上也能玩**：每个游戏在自己的子域名 `<id>.play.dsh-game-store.com` 里运行。
+- **插件工坊**：一切皆插件。给游戏做的扩展（地图、指挥官、语言包……）也是 npm 包，登记在 `catalog/workshop/<游戏>/`，在游戏页的“插件工坊”里安装、启用、停用。见[插件工坊说明](docs/workshop.zh.md)。
+- **自动合并**：只动自己的条目、账号是仓库主人、检查全过的 Pull Request 不用等人。日常巡检的安排见[免维护方案](docs/maintenance.zh.md)。
 - **留言板用 GitHub issue**，账号就是 GitHub 账号。
 
-安全方面做到了什么、做不到什么，见[规范第 8 节](SPEC.md#8-安全)。
+安全方面做到了什么、做不到什么，见[规范第 9 节](SPEC.md#9-安全)。
 
 ## 开发
 
@@ -60,6 +62,10 @@ npm test
 
 ```bash
 node scripts/check-catalog.mjs
+```
+
+```bash
+node scripts/patrol.mjs
 ```
 
 ```bash

@@ -10,7 +10,7 @@ This repository holds four things:
 | --- | --- |
 | `lib/`, `cordis.patch.yml` | The store plugin (npm package `dsh-game-store`) |
 | `SPEC.en.md`, `docs/` | The platform spec, the install guide, the publishing guide |
-| `catalog/games/` | The game catalog: one file per game |
+| `catalog/games/`, `catalog/workshop/` | The catalog: one file per game and per extension |
 | `site/` | The generator for dsh-game-store.com |
 
 ![The store's front page](docs/shots/store.png)
@@ -46,9 +46,11 @@ Then publish to npm and open a pull request here that adds one file to `catalog/
 - **The store installs only versions registered in the catalog**, and compares the checksum before and after installing.
 - **Each game runs at its own local address**, fills the window, has no network access and cannot reach DSH data.
 - **Games also play on the site**, each on its own subdomain `<id>.play.dsh-game-store.com`.
+- **The Workshop**: everything is a plugin. An extension for a game (a map, a commander, a language pack) is an npm package too, registered in `catalog/workshop/<game>/` and installed, switched on and off in the Workshop section of the game page. See the [Workshop guide](docs/workshop.en.md).
+- **Automatic merge**: a pull request that changes only its author's own entries and passes every check merges by itself.
 - **Message boards are GitHub issues**; the account is a GitHub account.
 
-What the safety measures do and do not cover: [section 8 of the spec](SPEC.en.md#8-safety).
+What the safety measures do and do not cover: [section 9 of the spec](SPEC.en.md#9-safety).
 
 ## Development
 

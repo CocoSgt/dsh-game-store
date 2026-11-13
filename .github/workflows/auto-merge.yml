@@ -1,0 +1,52 @@
+# A catalog pull request merges by itself when:
+#   - it touches only its author's own catalog entries (scripts/check-pr.mjs), and
+#   - the "Check" workflow passed on it (spec tests, package checks, site build).
+# Everything else waits for a maintainer. The scripts run from main, never from the pull request,
+# and nothing from the pull request or from a game package is executed.
+name: Auto-merge catalog entries
+on:
+  workflow_run:
+    workflows: [Check]
+    types: [completed]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  merge:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr=$(gh pr list --state open --search "$HEAD_SHA" --json number,headRefOid,author,isDraft --jq ".[] | select(.headRefOid == \"$HEAD_SHA\" and (.isDraft | not))" | head -1)
+          [ -z "$pr" ] && { echo "no open pull request for $HEAD_SHA"; exit 0; }
+          number=$(echo "$pr" | jq -r .number); author=$(echo "$pr" | jq -r .author.login)
+          git fetch --quiet origin "pull/$number/head:pr-head"
+          [ "$(git rev-parse pr-head)" = "$HEAD_SHA" ] || { echo "the pull request moved on; waiting for its next check"; exit 0; }
+          node scripts/check-pr.mjs --author "$author" --base origin/main --head pr-head | tee result.txt
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          grep -q '^auto-merge: yes$' result.txt && echo "ok=yes" >> "$GITHUB_OUTPUT" || true
+      - name: Merge
+        if: steps.decide.outputs.ok == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: gh pr merge "${{ steps.decide.outputs.number }}" --squash --match-head-commit "$HEAD_SHA"
+      - name: Say why it waits
+        if: steps.decide.outputs.number != '' && steps.decide.outputs.ok != 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo "The checks passed. This pull request waits for a maintainer because:"; echo; grep '^review needed' result.txt | sed 's/^review needed: /- /'; } > body.md
+          gh pr comment "${{ steps.decide.outputs.number }}" --body-file body.md

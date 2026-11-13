@@ -2,7 +2,7 @@
 
 Version 1. [中文](SPEC.md)
 
-The Game Store is a plugin for DeepSeek Harness (DSH), published as `dsh-game-store`. This spec covers five things: what a game package looks like, what the store does, how games are listed and taken down, how community features such as message boards live on GitHub, and how the store protects players.
+The Game Store is a plugin for DeepSeek Harness (DSH), published as `dsh-game-store`. This spec covers six things: what a game package looks like, what the store does, how games are listed and taken down, how community features such as message boards live on GitHub, how the Workshop (extensions for games) works, and how the store protects players.
 
 To get started right away, read [Publish your game](docs/publish.en.md).
 
@@ -131,6 +131,7 @@ It tells DSH that the package adds no plugin code to DSH.
 | `controls` | yes | Any of `keyboard`, `mouse`, `touch`, `gamepad` |
 | `players` | yes | `{ "min": 1, "max": 4 }` |
 | `content.rating` | yes | `everyone`, `teen` (13 and up) or `mature` (18 and up) |
+| `workshop` | no | Present when the game takes extensions; see section 8 |
 | `content.notes` | sometimes | Content notes, at most 200 characters. Required for `teen` and `mature`: say what the content is |
 
 The version and the license are in `package.json`; the manifest does not repeat them.
@@ -174,6 +175,7 @@ At most 300 MB unpacked.
 | Manual | When the package has one, the game page shows a Manual button |
 | Update | When the catalog has a newer version, the button reads "Update to x.y.z" |
 | Uninstall | Removes the game's files and keeps the saves |
+| Workshop | A section of the game page: browse, install, switch on and off, and uninstall the game's extensions; see section 8 |
 | My Games | Lists the installed games |
 | Play in the browser | Every game page on `dsh-game-store.com` has "Play in the browser", which needs no DSH. The game runs on its own subdomain `<id>.play.dsh-game-store.com`, from the same files as the package |
 
@@ -211,7 +213,7 @@ A new game and an update go the same way:
 1. The developer publishes the game package to npm.
 2. The developer opens a pull request against `dsh-game-store` that adds or changes the file of their game.
 3. CI checks it (section 5.1).
-4. A maintainer reviews it (section 5.2) and merges.
+4. It is merged. A pull request that changes only its author's own entry, comes from the GitHub account that owns the game's repository, and passes every check merges by itself (section 5.3). Anything else waits for a maintainer's review (section 5.2).
 5. The site is rebuilt and the catalog with it. Players' stores see the change within a day, or at once with "Refresh catalog".
 
 **Every version goes through a pull request.** The catalog names one exact version and its checksum, and the store installs only that. A new version on npm changes nothing for players until the catalog changes.
@@ -237,9 +239,9 @@ When game files load something from the internet, CI warns: the store blocks tho
 
 Developers run the same checks on their own computer: `npx dsh-game-store check <folder or package@version>`.
 
-### 5.2 Review by a person
+### 5.2 Content review
 
-A maintainer installs the game, plays it, and confirms:
+Before or after the merge, a maintainer (or an automatic patrol a maintainer set up) installs the game, plays it, and confirms:
 
 - **It plays**: it starts, a game can be played, it fills the window, it runs offline.
 - **The description is true**: summary, screenshots and content rating match the game.
@@ -248,6 +250,20 @@ A maintainer installs the game, plays it, and confirms:
 - **It follows the rules**: no attempt to use the network, collect player data, mine coins or get around the store's limits, and no code obfuscated to avoid review. Minified code is fine when the source repository has the original source or says how it was built.
 
 For an update, the review looks at what changed.
+
+### 5.3 Automatic merge
+
+A pull request merges by itself, with nobody waiting, when all of this holds:
+
+1. It changes only entry files in the catalog (`.json` under `catalog/games/` or `catalog/workshop/`), at most 3.
+2. The `repository` of every entry belongs to the GitHub account that opened the pull request. For an existing entry, the previous owner must be that account too. **So nobody else can change your entry.**
+3. An existing entry keeps its `id` and package, and its version only goes up.
+4. It does not touch `status` or `reason` (takedowns are done by maintainers) and deletes no entry.
+5. Every automatic check of section 5.1 passes.
+
+A game merged this way then goes through content review. If a problem is found, it is delisted or blocked under section 6.
+
+Touching any file outside the catalog means a maintainer looks before the merge.
 
 ## 6. Takedown rules
 
@@ -291,15 +307,164 @@ Every game has its own page: `https://dsh-game-store.com/games/<id>/` on the sit
 These follow the same approach. They are written down to fix the direction, and will be added to the spec when they exist.
 
 - **Signing in on the site**: sign in with a GitHub account (you are asked to share your email), then post on a game page directly and sync saves to your own GitHub. This needs a GitHub OAuth app and a small piece of server code to exchange the sign-in token.
-- **Workshop**: maps, mods and skins players make for a game. Each item is an npm package registered in `catalog/workshop/<game id>/<item id>.json`, with the same pull request, CI and checksum as a game. A game says in its manifest which kinds of items it accepts and where they go; the store installs an item and hands its files to the game.
 - **More material**: soundtracks, art books, guide pages. They go in the package's `extras/` folder and are listed in the manifest; the game page gains a section for each, and soundtracks play on the page.
 - **Ratings and recommendations**: counted from 👍 reactions on message issues.
 
-## 8. Safety
+## 8. The Workshop
+
+**Everything is a plugin.** The store is a DSH plugin, a game is a plugin, and an extension made for a game is a plugin too. All of them are npm packages, all are registered in the same catalog, and the store installs and removes all of them. An extension can be a map, a commander, a language pack, a skin, a balance change; which kinds exist is up to each game.
+
+### 8.1 How a game says it takes extensions
+
+A game adds `workshop` to its manifest `game.json`:
+
+```json
+"workshop": {
+  "types": ["map", "language", "commander", "balance"],
+  "mount": "game/mods",
+  "list": { "path": "game/mods/mods.js", "template": "window.AWModList = {{ids}};" },
+  "guide": { "en": "How to write an extension: game/mods/README.md" }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `types` | The kinds of extensions the game accepts. The game picks the names: lowercase letters, digits, hyphens |
+| `mount` | The folder of the game where extensions appear; it must be inside `game/` |
+| `list` | Optional. A list file the store writes for the game: `path` is where (inside `mount`), and `{{ids}}` in `template` becomes the ids of the enabled extensions, such as `["a","b"]`, in load order |
+| `guide` | Optional. One sentence telling extension authors where to read more |
+
+A game without this section takes no extensions.
+
+### 8.2 The platform only hands extensions to the game
+
+What an extension contains and how the game reads it is each game's own business. The platform fixes only the handover:
+
+- The files of every enabled extension appear under `<mount>/<extension id>/`. In the example above, the `mod.js` of the extension `sample-map` is at `game/mods/sample-map/mod.js`.
+- If the game declares `list`, the store serves a list file at `list.path` naming the enabled extension ids.
+- The game reads the list when it starts, then reads each extension's files.
+
+The store serves these files directly at the game's local address and copies nothing into the game package. The game package stays exactly as it was installed, and its checksum keeps matching.
+
+What a game must do: **when one extension fails, skip it and keep running.** The game checks what extensions contain, and tells the player inside the game which extensions are active, which were skipped, and why.
+
+### 8.3 The extension package
+
+An extension is an npm package. The recommended name is `dsh-game-<game id>-<name>`.
+
+```
+dsh-game-tidemark-sample-map/
+├── package.json
+├── extension.json      extension manifest
+├── cordis.patch.yml    the same standard file as in a game package
+├── LICENSE
+└── mod/                the files handed to the game
+    └── mod.js
+```
+
+`package.json` follows the rules of a game package (section 2.2) with one difference: `"dshGameExtension": "./extension.json"` takes the place of `"dshGame": "./game.json"`.
+
+The extension manifest `extension.json`:
+
+```json
+{
+  "spec": 1,
+  "id": "sample-map",
+  "game": "tidemark",
+  "gameVersion": "1.x",
+  "types": ["map"],
+  "name": { "en": "Sample Map: Three Fords", "zh": "示例地图：三岔河" },
+  "summary": { "en": "A small map for two factions.", "zh": "一张两方小地图。" },
+  "author": { "name": "Your Name" },
+  "files": "mod"
+}
+```
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `spec` | yes | Always `1` |
+| `id` | yes | The extension's name, unique within one game. This is the id the game sees |
+| `game` | yes | The `id` of the game it extends |
+| `gameVersion` | yes | The game versions it works with; see below |
+| `types` | yes | What it adds; each must be a type the game accepts |
+| `name` | yes | Name, at most 40 characters |
+| `summary` | yes | One sentence, at most 120 characters |
+| `author.name` | yes | The author |
+| `files` | yes | The name of the folder handed to the game |
+
+How to write `gameVersion`:
+
+| Value | Meaning |
+| --- | --- |
+| `"1.0"` | Game 1.0.x |
+| `"1.x"` | Every version starting with 1 |
+| `"*"` | Every version |
+| `["1.x", "2.0"]` | Any one of the listed |
+
+It is compared with the game package's version (`version` in `package.json`).
+
+An extension package is at most 50 MB unpacked.
+
+### 8.4 Listing an extension
+
+By pull request, like a game. The file is `catalog/workshop/<game id>/<extension id>.json`:
+
+```json
+{
+  "id": "sample-map",
+  "game": "tidemark",
+  "package": "dsh-game-tidemark-sample-map",
+  "version": "1.0.0",
+  "integrity": "sha512-…",
+  "repository": "https://github.com/you/dsh-game-tidemark-sample-map",
+  "addedAt": "2026-11-13"
+}
+```
+
+CI runs the same checks as for a game, plus two: the game is in the catalog and takes extensions, and the extension's types are ones the game accepts. When the versions an extension asks for do not include the game version in the catalog, CI warns.
+
+The review criteria and takedown rules are those of sections 5 and 6. Making an extension for someone else's game needs no permission from the game's author; a game author who sees a problem with an extension opens an issue.
+
+### 8.5 In the store
+
+For every game that takes extensions, the game page has a Workshop section:
+
+| Action | What happens |
+| --- | --- |
+| Browse | Lists the game's extensions in the catalog: name, types, summary, author, version, game versions |
+| Install | Install the game first, then the extension. It is switched on once installed |
+| Switch on, switch off | An extension that is off stays on the computer and is not handed to the game |
+| Reorder | With several extensions installed, one can be moved earlier or later |
+| Update | "Update to x.y.z" shows when the catalog has a newer version |
+| Uninstall | Removes the extension's files. Uninstalling a game removes its extensions too |
+
+Changes take effect **the next time the game starts**.
+
+### 8.6 Load order and conflicts
+
+- Extensions load from top to bottom of the list, which is the order of ids in the list file. A newly installed one goes last.
+- Two extensions of one game never share an id: the catalog has one file per id.
+- What happens when two extensions change the same thing (the numbers of the same unit, say) is decided by the game, which tells the player. The platform's advice: the one loaded later wins. Players can reorder or switch one off.
+
+### 8.7 After a game update
+
+Each time a game starts, the store compares every extension's `gameVersion` with the installed game version:
+
+- It matches: the extension is handed to the game as usual.
+- It does not match: the extension stays on the computer and is not handed to the game. The Workshop section says "it is for game version x; you have y". When the extension's author publishes a fitting version and updates the catalog, the player clicks Update and it is back.
+- The game should check again by itself and skip what it cannot use.
+
+A game author who changes the extension interface raises the game's major or minor version, so old extensions are stopped automatically and never load with errors.
+
+### 8.8 Playing on the site
+
+Games on the site are the game package as it is, with no extensions. Extensions work in the store inside DSH.
+
+## 9. Safety
 
 Installing someone else's game means running someone else's code on your computer. The store sets the limits below. Some things it cannot do; those are written here as well.
 
-### 8.1 What the store does
+### 9.1 What the store does
 
 **What gets installed**
 
@@ -318,6 +483,12 @@ Installing someone else's game means running someone else's code on your compute
 - Playing on the site has the same separation: one subdomain per game, the same content security policy, and only pages of `dsh-game-store.com` may embed it. The site's own address does not serve game files.
 - The store's own API answers local addresses only, and its write operations accept JSON requests only, so another web page cannot click Install or Uninstall for the player.
 
+**Extensions**
+
+- An extension package follows the same rules as a game package: no dependencies, no install scripts, no code for DSH, only the version registered in the catalog, checksum compared.
+- Only the folder `files` names is handed to the game, and only under `<mount>/<extension id>/`; it cannot replace the game's own files.
+- A blocked extension is no longer handed to the game.
+
 **What players can see**
 
 - The game page names the author, the license, the npm package, the source repository and the checksum.
@@ -327,19 +498,20 @@ Installing someone else's game means running someone else's code on your compute
 
 - Messages come from GitHub's public API and the store shows them as text only: links, images and HTML in them do nothing. Clicking a message opens it on GitHub.
 
-### 8.2 What the store cannot do
+### 9.2 What the store cannot do
 
 - **The store does not read game code line by line.** The automatic checks look at the package's structure; a person installs the game, plays it and looks through the source. A well-hidden problem can be missed.
 - **A game's JavaScript really runs on your computer.** It is held inside what a browser allows a web page: it cannot touch your files or use the network. It can use CPU and memory, and a security hole in the browser engine could let it out. Keep DSH up to date.
 - **Navigation cannot be stopped.** A game can make its own frame load another address (it can send the request but not read the answer). DSH's own API needs a sign-in token and the store's write operations accept JSON only, so nothing changes that way; but another unprotected service on your computer could receive such a request.
 - **Connections such as WebRTC are outside the content security policy.** A game has none of your data to send, but in theory it could talk to the outside this way.
 - **The catalog is where trust starts.** The store trusts the catalog on `dsh-game-store.com` (over HTTPS) and npm. If the catalog repository or the site were taken over, a malicious version registered there would look like a normal one.
+- **An extension's code runs in the same page as the game.** It has the same limits as the game (no network, no DSH), but it can read and write that game's saves and change how the game behaves. Install only extensions you trust.
 - **Packages installed by hand are not covered.** A "game package" outside the catalog, installed with `dsh plugin add`, is an ordinary plugin if it has a `main` or its own patch: its code runs inside DSH. The store only tells you it is not in the catalog.
 - **The store page itself contacts two places**: `dsh-game-store.com` (catalog, pictures, videos) and GitHub (messages and avatars). Both see your network address. Games themselves have no network access.
 - **Saves made on the site stay in that browser.** They are separate from the saves inside DSH, and clearing the browser's data removes them.
 - **The desktop app has not been fully tested.** The limits above were tested in DSH's web UI. The desktop app uses the same browser engine, but they have not been checked there one by one.
 
-## 9. Versions
+## 10. Versions
 
 This is version 1 of the spec; a game manifest says `"spec": 1`. An incompatible change will be version 2, and the store will accept both for a time so developers can move.
 

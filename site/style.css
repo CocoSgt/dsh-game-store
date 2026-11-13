@@ -88,3 +88,8 @@ h2 { margin: 44px 0 16px; font-size: 22px; }
 .msg .text { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
 .ghead .btn.play { margin-left: auto; background: #1f9d55; flex: none; }
 @media (max-width: 640px) { .ghead { flex-wrap: wrap; } .ghead .btn.play { margin-left: 0; } }
+
+.exts { display: grid; gap: 12px; margin: 12px 0 8px; }
+.ext { padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.ext .tag { margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--line); color: var(--muted); font-size: 12px; font-weight: 400; }
+.ext .meta { margin-top: 6px; color: var(--muted); font-size: 13px; }
