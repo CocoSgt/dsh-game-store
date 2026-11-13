@@ -5,20 +5,20 @@
  "community": {
   "repo": "CocoSgt/dsh-game-store"
  },
- "generatedAt": "2026-11-13T10:52:59.975Z",
+ "generatedAt": "2026-11-13T12:03:52.568Z",
  "games": [
   {
    "id": "tidemark",
    "package": "dsh-game-tidemark",
    "version": "1.0.0",
-   "integrity": "sha512-v/rUOpK81RRnVyu66jLhGbnSdz+MRV/hViIUkfWcvCNDdJwmAjmK+ABxzCdfdummieLfbwCdlTiIECzZO61VEw==",
+   "integrity": "sha512-6ZlfhMNeI8iXaVgHdPpY/PupAofo1fxZdfDnLkzYOYn2VVJFbzdjZ6lm1re5jMROMe/YH/xTKlkGeEtQ91TnTw==",
    "repository": "https://github.com/CocoSgt/dsh-game-tidemark",
    "status": "listed",
    "addedAt": "2026-11-13",
    "updatedAt": "2026-11-13",
    "license": "SEE LICENSE IN LICENSE.md",
-   "packageBytes": 114639943,
-   "tarballBytes": 90911284,
+   "packageBytes": 105572829,
+   "tarballBytes": 86013771,
    "manifest": {
     "spec": 1,
     "id": "tidemark",
