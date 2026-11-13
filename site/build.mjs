@@ -38,6 +38,7 @@ const storePkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
 // ------------------------------------------------------------------ catalog
 const games = []
+const snapPics = []
 let failed = 0
 const dir = join(root, 'catalog/games')
 for (const file of readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
@@ -61,6 +62,8 @@ for (const file of readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
     const keep = rel => /\.html?$/i.test(rel) || statSync(join(got.dir, rel)).size > CDN_FILE_LIMIT || !cdn
     const pics = [m.icon, m.cover, ...m.screenshots.map(s => s.src), ...(m.videos ?? []).flatMap(v => [v.src, v.poster].filter(Boolean))]
     for (const rel of pics.filter(keep)) { mkdirSync(dirname(join(out, 'games', id, rel)), { recursive: true }); cpSync(join(got.dir, rel), join(out, 'games', id, rel)) }
+    // The copy of the catalog shipped inside the plugin carries its own pictures, so the store looks right offline.
+    snapPics.push(...pics.map(rel => ({ id, rel, from: join(got.dir, rel) })))
     const playDir = join(out, '_play', id)
     rmSync(playDir, { recursive: true, force: true })
     const localFiles = []
@@ -143,7 +146,7 @@ if (argv.includes('--snapshot')) {
   rmSync(snap, { recursive: true, force: true })
   mkdirSync(snap, { recursive: true })
   writeFileSync(join(snap, 'catalog.json'), JSON.stringify(catalog, null, 1))
-  if (existsSync(join(out, 'games'))) cpSync(join(out, 'games'), join(snap, 'games'), { recursive: true, filter: src => !src.endsWith('.html') })
+  for (const p of snapPics) { mkdirSync(dirname(join(snap, 'games', p.id, p.rel)), { recursive: true }); cpSync(p.from, join(snap, 'games', p.id, p.rel)) }
   console.log('catalog-snapshot/ updated')
 }
 
