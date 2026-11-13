@@ -1,0 +1,81 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "true",
+  "buildCommand": "node site/build.mjs",
+  "outputDirectory": "site/dist",
+  "cleanUrls": false,
+  "trailingSlash": true,
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "destination": "/_play/:game/:path*"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/_play/:game/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(www\\.)?dsh-game-store\\.com"
+        }
+      ],
+      "destination": "https://:game.play.dsh-game-store.com/:path*",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://dsh-game-store.com https://www.dsh-game-store.com"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
+    },
+    {
+      "source": "/(catalog|dsh-index)\\.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/games/(.*)\\.(png|jpg|jpeg|webp|mp4|webm)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
+}

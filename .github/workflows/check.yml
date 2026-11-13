@@ -1,0 +1,28 @@
+# Runs on every pull request: the spec tests, the catalog check and a site build.
+# A pull request from a fork gets no secrets, and nothing from a game package is ever executed.
+name: Check
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Spec tests
+        run: node --test test/*.test.mjs
+      - name: Catalog check
+        run: node scripts/check-catalog.mjs
+      - name: Site build
+        run: node site/build.mjs
+      - name: The catalog copy inside the plugin is up to date
+        if: github.event_name == 'push'
+        run: |
+          node site/build.mjs --snapshot
+          git diff --exit-code --stat -- catalog-snapshot ':!catalog-snapshot/catalog.json' || echo "::warning::catalog-snapshot/ differs from the catalog; run node site/build.mjs --snapshot before the next plugin release"

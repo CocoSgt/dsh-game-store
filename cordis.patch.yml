@@ -1,0 +1,4 @@
+# dsh-game-store bundle patch: adds the store's host plugin (and the web client declared in package.json) to the profile.
+- insert:
+    - id: game-store
+      name: 'dsh-game-store'

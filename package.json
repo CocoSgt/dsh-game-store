@@ -1,0 +1,61 @@
+{
+  "name": "dsh-game-store",
+  "version": "0.1.0",
+  "description": "A game store for DeepSeek Harness: browse the catalog, read about a game, install, play, update and uninstall",
+  "type": "module",
+  "license": "MIT",
+  "author": "CocoSgt",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CocoSgt/dsh-game-store.git"
+  },
+  "homepage": "https://dsh-game-store.com",
+  "bugs": "https://github.com/CocoSgt/dsh-game-store/issues",
+  "engines": {
+    "dsh": ">=0.2.2-rc.1",
+    "node": ">=22"
+  },
+  "main": "lib/index.mjs",
+  "exports": {
+    ".": { "default": "./lib/index.mjs" },
+    "./client": { "default": "./lib/client.js" },
+    "./spec": { "default": "./lib/spec.mjs" },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "dsh-game-store": "bin/cli.mjs"
+  },
+  "icon": "./icon.svg",
+  "files": [
+    "lib",
+    "bin",
+    "template",
+    "catalog-snapshot",
+    "cordis.patch.yml",
+    "icon.svg",
+    "SPEC.md",
+    "SPEC.en.md",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node scripts/check-catalog.mjs",
+    "build": "node site/build.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "games", "game-store"]
+}

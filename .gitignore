@@ -1,0 +1,6 @@
+node_modules/
+site/dist/
+.cache/
+*.tgz
+.DS_Store
+catalog/local.json

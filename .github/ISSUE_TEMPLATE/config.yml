@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 发布游戏 / Publish a game
+    url: https://dsh-game-store.com/publish/
+    about: 上架和更新游戏走 Pull Request。Games are added and updated by pull request.

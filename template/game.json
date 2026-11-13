@@ -1,0 +1,18 @@
+{
+  "spec": 1,
+  "id": "my-game",
+  "name": { "en": "My Game", "zh": "我的游戏" },
+  "summary": { "en": "Catch the falling stars before the time runs out.", "zh": "在时间用完之前接住落下的星星。" },
+  "author": { "name": "Your Name", "url": "https://github.com/your-name" },
+  "entry": "game/index.html",
+  "icon": "store/icon.png",
+  "cover": "store/cover.png",
+  "screenshots": [
+    { "src": "store/shot-1.png", "caption": { "en": "In play", "zh": "游戏画面" } }
+  ],
+  "about": { "en": "store/about.en.md", "zh": "store/about.zh.md" },
+  "languages": ["en", "zh-CN"],
+  "controls": ["keyboard", "mouse", "touch"],
+  "players": { "min": 1, "max": 1 },
+  "content": { "rating": "everyone" }
+}
