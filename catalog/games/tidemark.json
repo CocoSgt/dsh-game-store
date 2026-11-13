@@ -1,8 +1,8 @@
 {
   "id": "tidemark",
   "package": "dsh-game-tidemark",
-  "version": "1.0.3",
-  "integrity": "sha512-T7lDpkRyKz17OtUmnMD5Fagts5R159f21sk5ugWbulVJhjGfySaEuPd8QNyYINCDg3W8qeeGr66PXJM69GVKDg==",
+  "version": "1.0.4",
+  "integrity": "sha512-c6EmtYpT2PUncqi45Nr8BLrNKp2VyL6QlpyewQIkwO7c6SsfRQYUIvsGC/HHIhh6VFzN26LzIVNaavJ6aSKA2g==",
   "repository": "https://github.com/CocoSgt/dsh-game-tidemark",
   "addedAt": "2026-11-13"
 }
