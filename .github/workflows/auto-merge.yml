@@ -1,15 +1,16 @@
-# A catalog pull request merges by itself when:
-#   - it touches only its author's own catalog entries (scripts/check-pr.mjs), and
-#   - the "Check" workflow passed on it (spec tests, package checks, site build).
-# Everything else waits for a maintainer. The scripts run from main, never from the pull request,
+# A catalog pull request merges without a maintainer when:
+#   - it touches only its author's own catalog entries (scripts/check-pr.mjs),
+#   - the "Check" workflow passed on it (spec tests, package checks, site build), and
+#   - the content review passed (scripts/reviewer.mjs, run on the maintainer's own machine, which does the merge).
+# This workflow tells the author which of the two it is: waiting for the review, or waiting for a maintainer. The scripts run from main, never from the pull request,
 # and nothing from the pull request or from a game package is executed.
-name: Auto-merge catalog entries
+name: Catalog pull requests
 on:
   workflow_run:
     workflows: [Check]
     types: [completed]
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 jobs:
   merge:
@@ -37,16 +38,16 @@ jobs:
           node scripts/check-pr.mjs --author "$author" --base origin/main --head pr-head | tee result.txt
           echo "number=$number" >> "$GITHUB_OUTPUT"
           grep -q '^auto-merge: yes$' result.txt && echo "ok=yes" >> "$GITHUB_OUTPUT" || true
-      - name: Merge
+      - name: Wait for the content review
         if: steps.decide.outputs.ok == 'yes'
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-        run: gh pr merge "${{ steps.decide.outputs.number }}" --squash --match-head-commit "$HEAD_SHA"
+        run: |
+          gh pr comment "${{ steps.decide.outputs.number }}" --body "检查全部通过，正在等内容审核（查恶意代码和不能接受的内容），通过后自动合并，一般在一小时内。The checks passed. A content review (malicious code, unacceptable content) runs next; the pull request merges by itself when it passes, usually within the hour."
       - name: Say why it waits
         if: steps.decide.outputs.number != '' && steps.decide.outputs.ok != 'yes'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          { echo "The checks passed. This pull request waits for a maintainer because:"; echo; grep '^review needed' result.txt | sed 's/^review needed: /- /'; } > body.md
+          { echo "检查通过了，但这个 Pull Request 要等维护者来看，原因：The checks passed. This pull request waits for a maintainer because:"; echo; grep '^review needed' result.txt | sed 's/^review needed: /- /'; } > body.md
           gh pr comment "${{ steps.decide.outputs.number }}" --body-file body.md

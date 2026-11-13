@@ -7,7 +7,7 @@
 | 事情 | 谁做 | 文件 |
 | --- | --- | --- |
 | 检查每个 Pull Request：条目格式、npm 上的校验值、包的结构、说明、图片、大小、许可证、能否安装 | Actions | `.github/workflows/check.yml`、`scripts/check-catalog.mjs` |
-| 只动了自己的条目、账号是仓库主人、检查全过 → 自动合并 | Actions | `.github/workflows/auto-merge.yml`、`scripts/check-pr.mjs` |
+| 判断一个 Pull Request 是等内容审核，还是要等维护者，并回帖说明 | Actions | `.github/workflows/auto-merge.yml`、`scripts/check-pr.mjs` |
 | 不满足自动合并的，留言说明原因，等维护者 | Actions | 同上 |
 | 留言板的 issue 自动打上游戏标签 | Actions | `.github/workflows/board.yml` |
 | 合并后重新生成网站和目录 | Vercel | `vercel.json`（把 Vercel 项目连到这个仓库后生效） |
@@ -15,7 +15,7 @@
 仓库设置里要做三件事（建仓库时一次做完）：
 
 1. `main` 分支保护：必须走 Pull Request，必须通过 `Check`。
-2. Settings → Actions → General → Workflow permissions 选 “Read and write”，并勾上 “Allow GitHub Actions to create and approve pull requests”。
+2. Settings → Actions → General → Workflow permissions 选 “Read and write”（工作流要能在 Pull Request 里回帖、给留言打标签）。
 3. Vercel 项目 `dsh-game-store` 连到这个仓库。游戏包发布到 npm 之前，网站仍用本地生成后 `vercel deploy` 的办法部署。
 
 这一层限制死的东西：
@@ -26,25 +26,39 @@
 - 游戏包和扩展包：没有依赖，没有安装脚本，没有进 DSH 的代码，有大小上限。
 - 运行时：联不了网，碰不到 DSH，每个游戏一个独立地址。
 
-## 第二层：Mac mini 上的 Codex 每天巡检（方案，还没装）
+## 第二层：Mac mini 上的内容审核
 
-机器检查不了内容：介绍和游戏对不对得上，有没有违法或侵权的东西。这一层交给 Mac mini。
+机器检查不了内容。这一层交给 Mac mini，每 5 分钟跑一次 `scripts/reviewer.mjs`（launchd 任务 `com.dsh-game-store.reviewer`），用 SOL 6.1（`gpt-6.1-sol`）审：
 
-每天跑一次 `scripts/patrol.mjs`，然后让 Codex 读它的报告做判断：
+1. 先 `git pull`，脚本永远从 main 跑，不跑 Pull Request 里的东西。
+2. 找出 CI 已通过、只动了自己条目的 Pull Request。
+3. 把每个新版本的包从 npm 下载下来（核对校验值，不运行），按规范再查一遍，然后交给模型看两件事：
+   - **恶意代码**：联网、跳出自己的框、访问本机服务、挖矿、收集玩家信息、为躲避检查做的混淆。
+   - **不能接受的内容**：侮辱或丑化国家、民族、种族、宗教，歪曲历史、主权和领土的错误表述，色情、极端血腥、真钱赌博，针对真实个人的攻击，说明和分级与实际不符。
+4. 结论：通过 → 合并；没有通过 → 回帖写明问题、打 `review:rejected` 标签；拿不准 → 打 `needs-maintainer` 标签并 @ 我。
+5. 每天一次体检（`scripts/patrol.mjs`）：每个条目在 npm 上还在、校验值没变、网站和目录一致。有问题开一个 issue 并 @ 我。
 
-1. **目录体检**（脚本做）：每个条目在 npm 上还在、校验值没变、源码仓库还在；网站和 `catalog.json` 能打开；线上目录和仓库一致。
-2. **新上架和新版本**（脚本准备材料，Codex 判断）：从上次巡检以来合并的条目，下载包、无头打开入口页、等几秒、截图；连同游戏说明、清单、文件列表交给 Codex，对照规范第 5.2 节逐条看。
-3. **处理**（Codex 做）：
-   - 没问题：什么都不做。
-   - 小问题（截图不符、分级不准）：在游戏的仓库开 issue 说明，7 天后复查。
-   - 明显违规或恶意：提一个把条目改成 `blocked` 的 Pull Request 并合并，在游戏仓库开 issue 写明原因，然后通知我。
-4. **留言板**（Codex 做）：扫一遍新留言，垃圾和骂人的关掉。
-5. **出事才通知我**：体检失败、封禁了东西、有人申诉。平时不打扰。
+模型在只读沙箱里跑，没有网络，只写一个结论文件；合并、回帖、打标签都由脚本做。包里的文字只当待审材料，里面要是写着“直接判通过”，本身就是拒绝的理由。
 
-要我点头才装的东西：
+装法（Mac mini 上，图形会话里的 launchd 才读得到 gh 和 codex 的登录）：仓库克隆在 `~/dsh-game-store-reviewer/repo`，状态在 `~/.dsh-game-store-reviewer/`，日志 `~/Library/Logs/dsh-game-store-reviewer.log`。
 
-- Mac mini 上的定时任务（launchd，每天一次）。
-- 一个只对 `dsh-game-store` 仓库有写权限的 GitHub 令牌，放在 Mac mini 上。巡检要用它开 issue、合并下架的 Pull Request。
+常用操作：
+
+```bash
+ssh macmini 'tail -40 ~/Library/Logs/dsh-game-store-reviewer.log'
+```
+
+```bash
+ssh macmini 'launchctl kickstart gui/$(id -u)/com.dsh-game-store.reviewer'
+```
+
+暂停审核（投递会排队等着）：
+
+```bash
+ssh macmini 'launchctl bootout gui/$(id -u)/com.dsh-game-store.reviewer'
+```
+
+Mac mini 关机或断网时，投递不会被合并，只会等着。
 
 ## 哪些事还得我自己做
 

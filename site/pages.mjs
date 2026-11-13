@@ -21,8 +21,9 @@ const ICON = {
 
 const TEXT = SITE => ({
   zh: {
-    lang: 'zh-CN', other: 'English', site: 'DSH 游戏商店', title: 'DSH 游戏商店 · 点开就能玩的游戏',
-    lead: 'DeepSeek Harness 上的游戏平台。在网页上点开就玩，也可以装进 DSH 全屏玩。谁都可以把自己的游戏放进来。',
+    lang: 'zh-CN', other: 'English', site: 'DSH 游戏商店', title: 'DSH 游戏商店 · 大家用 Agent 做的游戏',
+    lead: '这里的游戏，是大家用 Agent 做出来的。网页上点开就玩，也能装进 DeepSeek Harness 玩。',
+    introA: '大家用 Agent 做的游戏', introB: '网页上点开就玩，也能装进 DeepSeek Harness 玩。你的 Agent 做的游戏，也可以放进来。', introPlay: '看看有什么游戏', introSubmit: '把我的游戏放进来',
     nav: { games: '商店', workshop: '插件工坊', publish: '投稿', install: '装进 DSH', docs: '文档' },
     docNames: { install: '安装说明', publish: '发布游戏：分步说明', workshop: '做扩展：分步说明', spec: '平台规范' },
     wsHero: '新地图，新指挥官，新玩法', wsHeroLead: '玩家做的扩展，一键装进游戏。不想要了，一键停用。', wsCount: n => `${n} 个扩展`, wsGet: '去装', wsAllGames: '支持扩展的游戏', wsTypes: '接受', wsMakeTitle: '做一个扩展', wsMakeLead: '给你喜欢的游戏加一张地图、一位指挥官、一种语言。做好了和游戏一样上架，全平台的玩家都能装。',
@@ -31,7 +32,7 @@ const TEXT = SITE => ({
     wsGuide: '做扩展的分步说明',
     pubHero: '你的游戏，放进来', pubHeroLead: '能在浏览器里离线运行，就能上架。免费，开源，不用等人审批。',
     pubRulesTitle: '四条规矩', pubRules: [['离线', '游戏用到的文件全部打进包里。上架的游戏联不了网。'], ['占满窗口', '窗口多大画多大。玩家点开就是全屏。'], ['一个包装完', '没有依赖，没有安装脚本。玩家装到的就是审过的那一份。'], ['有头有脸', '封面、截图、一段说明、一个许可证。']],
-    pubAutoTitle: '检查全过，自动上架', pubAuto: '只改了自己的条目、提交的 GitHub 账号就是游戏仓库的主人、CI 全绿：Pull Request 自己合并，网站和商店自动更新。别人改不了你的条目。',
+    pubAutoTitle: '检查全过，自动上架', pubAuto: '只改了自己的条目、提交的 GitHub 账号就是游戏仓库的主人、自动检查全绿、内容审核通过：Pull Request 自己合并，网站和商店自动更新，一般在一小时内。别人改不了你的条目。',
     pubByHand: '想自己动手',
     insHero: '装进 DSH，全屏玩', insHeroLead: '网页上试过了？装进 DeepSeek Harness，游戏占满整个窗口，存档留在你的电脑上，还能装扩展。',
     insFaq: [['存档在哪', '在你的电脑上。更新游戏、卸载重装，进度都在。'], ['安全吗', '商店只装目录里登记的版本，并核对校验值。游戏联不了网，碰不到 DSH 的数据和你的文件。'], ['怎么卸载', '打开游戏页点“卸载”。存档会保留。']],
@@ -46,7 +47,7 @@ const TEXT = SITE => ({
     pubTitle: '把你的游戏放进来', pubLead: '一个能在浏览器里离线运行的游戏，就能上架。把下面这句话交给你的 agent，它会打包、检查、发布，再提一个 Pull Request。',
     agentCmd: `阅读 ${SITE}/SKILL.md，把我的游戏发布到 DSH 游戏商店`, copy: '复制指令', copied: '已复制', copyCmd: '复制',
     agentHint: '适用于 Claude Code、Codex、DSH 等 agent。题目、规则、每个游戏的条目，全部公开在 GitHub。',
-    pubSteps: [['打包', '一个游戏是一个 npm 包：游戏文件、清单、封面、截图、说明。'], ['检查', 'CI 逐项对照规范。只下载，不运行你的代码。'], ['上架', '只动自己的条目、检查全过，Pull Request 自动合并。']],
+    pubSteps: [['打包', '一个游戏是一个 npm 包：游戏文件、清单、封面、截图、说明。'], ['检查', 'CI 逐项对照规范。只下载，不运行你的代码。'], ['上架', '检查和内容审核都通过，Pull Request 自动合并。']],
     pubGuide: '自己动手的分步说明', pubSpec: '平台规范',
     wsTitle: '插件工坊', wsLead: '一切皆插件。给游戏做的地图、指挥官、语言包，和游戏一样上架，在商店的游戏页里一键安装、启用、停用。',
     wsMake: '怎么给游戏做扩展', wsFor: '适用', wsNone: '还没有扩展。', wsIn: '装好游戏后，在 DSH 商店的游戏页里安装和启用。',
@@ -62,8 +63,9 @@ const TEXT = SITE => ({
     playBack: '回到游戏页', playFull: '全屏', playManual: '手册', manualOf: '手册', docs: '文档', onThisPage: '本页内容',
   },
   en: {
-    lang: 'en', other: '中文', site: 'DSH Game Store', title: 'DSH Game Store · Games you can play right now',
-    lead: 'The game platform on DeepSeek Harness. Play in your browser with one click, or install into DSH and play full screen. Anyone can add a game.',
+    lang: 'en', other: '中文', site: 'DSH Game Store', title: 'DSH Game Store · Games people built with agents',
+    lead: 'The games here were built by people with their agents. Play in your browser with one click, or inside DeepSeek Harness.',
+    introA: 'Games people built with agents', introB: 'Play in your browser with one click, or inside DeepSeek Harness. A game your agent built can go here too.', introPlay: 'See the games', introSubmit: 'Add my game',
     nav: { games: 'Store', workshop: 'Workshop', publish: 'Submit', install: 'Get it in DSH', docs: 'Docs' },
     docNames: { install: 'Install guide', publish: 'Publish a game: step by step', workshop: 'Make an extension: step by step', spec: 'Platform spec' },
     wsHero: 'New maps, new commanders, new ways to play', wsHeroLead: 'Extensions made by players, installed into the game with one click, and switched off with one click.', wsCount: n => `${n} extension${n === 1 ? '' : 's'}`, wsGet: 'Get it', wsAllGames: 'Games with a workshop', wsTypes: 'Accepts', wsMakeTitle: 'Make an extension', wsMakeLead: 'Add a map, a commander or a language to a game you like. It is listed like a game, and every player on the platform can install it.',
@@ -72,7 +74,7 @@ const TEXT = SITE => ({
     wsGuide: 'Step-by-step guide',
     pubHero: 'Your game, on the store', pubHeroLead: 'If it runs offline in a browser, it can be listed. Free, open, and nobody to wait for.',
     pubRulesTitle: 'Four rules', pubRules: [['Offline', 'Every file the game needs is in the package. Listed games have no network access.'], ['Fill the window', 'Draw at whatever size the window is. Players get full screen from the first click.'], ['One package', 'No dependencies, no install scripts. Players get exactly what was checked.'], ['A face', 'A cover, screenshots, a description and a license.']],
-    pubAutoTitle: 'Pass the checks, get listed', pubAuto: 'A pull request that changes only your own entry, comes from the GitHub account that owns the game\'s repository, and is green in CI merges by itself. The site and the store update on their own. Nobody else can change your entry.',
+    pubAutoTitle: 'Pass the checks, get listed', pubAuto: 'A pull request that changes only your own entry, comes from the GitHub account that owns the game\'s repository, is green in CI and passes the content review merges by itself, usually within the hour. The site and the store update on their own. Nobody else can change your entry.',
     pubByHand: 'Prefer to do it by hand',
     insHero: 'Install into DSH, play full screen', insHeroLead: 'Tried it in the browser? In DeepSeek Harness the game fills the whole window, keeps its saves on your computer, and takes extensions.',
     insFaq: [['Where are saves kept', 'On your computer. They survive updates and reinstalls.'], ['Is it safe', 'The store installs only versions registered in the catalog and compares the checksum. A game has no network access and cannot reach DSH data or your files.'], ['How to uninstall', 'Open the game page and click Uninstall. Saves are kept.']],
@@ -87,7 +89,7 @@ const TEXT = SITE => ({
     pubTitle: 'Add your game', pubLead: 'Any game that runs offline in a browser can be listed. Give the line below to your agent: it packs, checks and publishes the game, then opens a pull request.',
     agentCmd: `Read ${SITE}/SKILL.md and publish my game to the DSH Game Store`, copy: 'Copy', copied: 'Copied', copyCmd: 'Copy',
     agentHint: 'Works with Claude Code, Codex, DSH and other agents. The rules and every game entry are public on GitHub.',
-    pubSteps: [['Pack', 'A game is an npm package: game files, a manifest, a cover, screenshots, a description.'], ['Check', 'CI compares it with the spec point by point. Your code is downloaded, never run.'], ['Listed', 'A pull request that changes only your own entry and passes every check merges by itself.']],
+    pubSteps: [['Pack', 'A game is an npm package: game files, a manifest, a cover, screenshots, a description.'], ['Check', 'CI compares it with the spec point by point. Your code is downloaded, never run.'], ['Listed', 'When the checks and the content review pass, the pull request merges by itself.']],
     pubGuide: 'Step-by-step guide', pubSpec: 'Platform spec',
     wsTitle: 'Workshop', wsLead: 'Everything is a plugin. Maps, commanders and language packs made for a game are listed like games, and installed, switched on and off with one click on the game page in the store.',
     wsMake: 'How to make an extension', wsFor: 'for', wsNone: 'No extensions yet.', wsIn: 'Install the game, then install and enable these on the game page in the DSH store.',
@@ -190,7 +192,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
       return `<section class="hero"><div class="bg" style="background-image:url('/games/${lead.id}/${esc(m.cover)}')"></div><div class="in">
   <div class="copy">
     <span class="kicker">${esc(t.featured)} · ${esc(t.isNew)}</span>
-    <h1><img src="/games/${lead.id}/${esc(m.icon)}" alt="" width="64" height="64">${esc(pickText(m.name, t.lang))}</h1>
+    <h2 class="h1"><img src="/games/${lead.id}/${esc(m.icon)}" alt="" width="64" height="64">${esc(pickText(m.name, t.lang))}</h2>
     ${m.tagline ? `<p class="tagline">${esc(pickText(m.tagline, t.lang))}</p>` : ''}
     <p class="sum">${esc(pickText(m.summary, t.lang))}</p>
     <div class="chips">${chips(t, lead)}</div>
@@ -203,7 +205,8 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
 </div></section>`
     })() : `<section class="hero plain"><div class="in"><div class="copy"><h1>${esc(t.site)}</h1><p class="sum">${esc(t.lead)}</p></div></div></section>`
 
-    page(lang, '', '', `${hero}
+    page(lang, '', '', `<section class="intro"><div class="in"><div><h1>${esc(t.introA)}</h1><p>${esc(t.introB)}</p></div><p class="row"><a class="btn gold" href="#games">${esc(t.introPlay)}</a><a class="btn ghost" href="${base}publish/">${esc(t.introSubmit)}</a></p></div></section>
+${hero}
 <section class="strip"><div class="in"><span><b>${listed.length}</b> ${esc(t.statGames)}</span><span><b>${exts.length}</b> ${esc(t.statExts)}</span><span class="grow">${esc(t.lead)}</span><a href="${REPO}">${ICON.github}${esc(t.statOpen)}</a></div></section>
 <section class="in block" id="games"><div class="head"><h2>${esc(t.all)}</h2><span class="muted">${esc(t.count(listed.length))}</span></div>
 ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')}</div>` : `<p class="muted">${esc(t.none)}</p>`}

@@ -213,7 +213,7 @@ A new game and an update go the same way:
 1. The developer publishes the game package to npm.
 2. The developer opens a pull request against `dsh-game-store` that adds or changes the file of their game.
 3. CI checks it (section 5.1).
-4. It is merged. A pull request that changes only its author's own entry, comes from the GitHub account that owns the game's repository, and passes every check merges by itself (section 5.3). Anything else waits for a maintainer's review (section 5.2).
+4. Content review (section 5.2), then the merge. A pull request that changes only its author's own entry, comes from the GitHub account that owns the game's repository, and passes both the automatic checks and the content review merges by itself (section 5.3). Anything else waits for a maintainer.
 5. The site is rebuilt and the catalog with it. Players' stores see the change within a day, or at once with "Refresh catalog".
 
 **Every version goes through a pull request.** The catalog names one exact version and its checksum, and the store installs only that. A new version on npm changes nothing for players until the catalog changes.
@@ -241,7 +241,22 @@ Developers run the same checks on their own computer: `npx dsh-game-store check 
 
 ### 5.2 Content review
 
-Before or after the merge, a maintainer (or an automatic patrol a maintainer set up) installs the game, plays it, and confirms:
+After the automatic checks and before the merge, every package goes through a content review. A review program on the maintainer's machine downloads the package (read only, nothing is run) and has an AI model read it file by file, looking for two things:
+
+- **Malicious code**: trying to use the network, to leave its frame, to reach services on the player's computer, to mine coins, to collect player data, or code obfuscated to avoid review.
+- **Unacceptable content**: content that insults or demeans a nation, an ethnic group, a race or a religion, distorted history, wrong statements about sovereignty and territory, pornography, extreme gore, gambling for real money, attacks on real people, and a description or rating that plainly does not match the game.
+
+There are three outcomes, each written on the pull request:
+
+| Outcome | What happens |
+| --- | --- |
+| Pass | The pull request merges by itself |
+| Rejected | The comment names the file and the problem; the pull request stays open. Publish a fixed version, push a new commit, and it is reviewed again |
+| Not sure | A maintainer looks at it |
+
+If you disagree with an outcome, reply on the pull request and a maintainer will look.
+
+Beyond that, maintainers spot-check listed games and confirm:
 
 - **It plays**: it starts, a game can be played, it fills the window, it runs offline.
 - **The description is true**: summary, screenshots and content rating match the game.
@@ -253,15 +268,16 @@ For an update, the review looks at what changed.
 
 ### 5.3 Automatic merge
 
-A pull request merges by itself, with nobody waiting, when all of this holds:
+A pull request merges by itself, with no maintainer involved, when all of this holds:
 
 1. It changes only entry files in the catalog (`.json` under `catalog/games/` or `catalog/workshop/`), at most 3.
 2. The `repository` of every entry belongs to the GitHub account that opened the pull request. For an existing entry, the previous owner must be that account too. **So nobody else can change your entry.**
 3. An existing entry keeps its `id` and package, and its version only goes up.
 4. It does not touch `status` or `reason` (takedowns are done by maintainers) and deletes no entry.
 5. Every automatic check of section 5.1 passes.
+6. The content review of section 5.2 passes.
 
-A game merged this way then goes through content review. If a problem is found, it is delisted or blocked under section 6.
+From opening the pull request to the merge usually takes less than an hour. If a problem is found after listing, the game is delisted or blocked under section 6.
 
 Touching any file outside the catalog means a maintainer looks before the merge.
 
@@ -500,7 +516,7 @@ Installing someone else's game means running someone else's code on your compute
 
 ### 9.2 What the store cannot do
 
-- **The store does not read game code line by line.** The automatic checks look at the package's structure; a person installs the game, plays it and looks through the source. A well-hidden problem can be missed.
+- **Review misses things.** The automatic checks look at the package's structure; the content review is an AI model reading code and assets. It can overlook a problem or be fooled by carefully disguised code. The limits at run time (no network, no access to DSH) are the floor.
 - **A game's JavaScript really runs on your computer.** It is held inside what a browser allows a web page: it cannot touch your files or use the network. It can use CPU and memory, and a security hole in the browser engine could let it out. Keep DSH up to date.
 - **Navigation cannot be stopped.** A game can make its own frame load another address (it can send the request but not read the answer). DSH's own API needs a sign-in token and the store's write operations accept JSON only, so nothing changes that way; but another unprotected service on your computer could receive such a request.
 - **Connections such as WebRTC are outside the content security policy.** A game has none of your data to send, but in theory it could talk to the outside this way.

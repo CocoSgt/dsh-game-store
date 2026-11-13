@@ -98,7 +98,7 @@ gh repo fork CocoSgt/dsh-game-store --clone && cd dsh-game-store && git checkout
 git add catalog/games/<id>.json && git commit -m "Add <游戏名>" && git push -u origin add-<id> && gh pr create --repo CocoSgt/dsh-game-store --title "Add <游戏名>" --body "<一两句话介绍这个游戏>"
 ```
 
-这个 Pull Request 只放这一个文件。满足下面三条，它会自动合并：只改了这一个条目文件；条目里的 `repository` 属于提 Pull Request 的 GitHub 账号；检查全部通过。
+这个 Pull Request 只放这一个文件。满足下面四条，它会自动合并，一般在一小时内：只改了这一个条目文件；条目里的 `repository` 属于提 Pull Request 的 GitHub 账号；自动检查全部通过；内容审核通过（查恶意代码和不能接受的内容，结论会写在 Pull Request 里）。
 
 ### 7. 交代结果
 
