@@ -31,14 +31,14 @@
   "bin": {
     "dsh-game-store": "bin/cli.mjs"
   },
-  "icon": "./icon.svg",
+  "icon": "./icon.png",
   "files": [
     "lib",
     "bin",
     "template",
     "catalog-snapshot",
     "cordis.patch.yml",
-    "icon.svg",
+    "icon.png",
     "SKILL.md",
     "SPEC.md",
     "SPEC.en.md",

@@ -271,3 +271,6 @@ a.ext:hover, article.ext:hover { border-color: var(--line2); color: var(--ink); 
 .ghlink { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); vertical-align: -3px; }
 .ghlink:hover { color: var(--ink); }
 .ghlink svg { width: 15px; height: 15px; }
+
+/* ---------- logo */
+img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; box-shadow: 0 4px 14px rgba(255, 190, 40, .28); background: none; }

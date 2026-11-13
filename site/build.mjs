@@ -117,7 +117,7 @@ writeFileSync(join(out, 'dsh-index.json'), JSON.stringify({
   description: { en: 'The game store plugin and the games in its catalog.', zh: '游戏商店插件，以及目录里的游戏。' },
   metadata: { categories: { store: { title: { en: 'Store', zh: '商店' } }, game: { title: { en: 'Games', zh: '游戏' } } } },
   plugins: [
-    { name: 'dsh-game-store', title: { en: 'Game Store', zh: '游戏商店' }, description: { en: storePkg.description, zh: 'DSH 上的游戏商店：浏览目录、看说明、安装、启动、更新、卸载。' }, author: 'CocoSgt', homepage: SITE, repository: { url: REPO }, metadata: { category: 'store' },
+    { name: 'dsh-game-store', icon: 'logo.png', title: { en: 'Game Store', zh: '游戏商店' }, description: { en: storePkg.description, zh: 'DSH 上的游戏商店：浏览目录、看说明、安装、启动、更新、卸载。' }, author: 'CocoSgt', homepage: SITE, repository: { url: REPO }, metadata: { category: 'store' },
       versions: [{ version: storePkg.version, publishTimestamp: stamp(), source: { type: 'npm' }, engines: { dsh: storePkg.engines.dsh } }] },
     ...games.filter(g => g.status === 'listed').map(g => ({
       name: g.package, title: g.manifest.name, description: g.manifest.summary, icon: `games/${g.id}/${g.manifest.icon}`, author: g.manifest.author.name,

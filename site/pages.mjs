@@ -108,7 +108,10 @@ export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }
   const T = TEXT(SITE)
   const BOARD_REPO = REPO.replace('https://github.com/', '')
   for (const f of ['style.css', 'site.js']) cpSync(join(root, 'site', f), join(out, f))
-  if (existsSync(join(root, 'icon.svg'))) cpSync(join(root, 'icon.svg'), join(out, 'icon.svg'))
+  // The logo, at the sizes pages and phones ask for.
+  cpSync(join(root, 'brand/logo-64.png'), join(out, 'favicon.png'))
+  cpSync(join(root, 'brand/logo-180.png'), join(out, 'apple-touch-icon.png'))
+  cpSync(join(root, 'brand/logo-256.png'), join(out, 'logo.png'))
   cpSync(join(root, 'SKILL.md'), join(out, 'SKILL.md'))
   // Sign-in and posting run as small server functions beside the static pages.
   if (existsSync(join(root, 'site/api'))) cpSync(join(root, 'site/api'), join(out, 'api'), { recursive: true })
@@ -135,19 +138,20 @@ export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }
 <meta property="og:description" content="${esc(description ?? t.lead)}">
 ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name="twitter:card" content="summary_large_image">` : ''}
 <meta name="theme-color" content="#0b0d14">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="alternate" hreflang="${T[lang === 'zh' ? 'en' : 'zh'].lang}" href="${otherHref}">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body class="${cls}" data-signin="${esc(t.signIn)}" data-signout="${esc(t.signOut)}">
 <header class="top"><div class="in">
-  <a class="brand" href="${base}"><span class="mark">${ICON.pad}</span>${esc(t.site)}</a>
+  <a class="brand" href="${base}"><img class="mark" src="/logo.png" alt="" width="34" height="34">${esc(t.site)}</a>
   <nav><a href="${base}#games"${path === '' ? ' class="on"' : ''}>${esc(t.nav.games)}</a><a href="${base}workshop/"${on('workshop/')}>${esc(t.nav.workshop)}</a><a href="${base}publish/"${on('publish/')}>${esc(t.nav.publish)}</a><a href="${base}install/"${on('install/')}>${esc(t.nav.install)}</a><a href="${base}docs/"${path.startsWith('docs/') || path.startsWith('spec/') ? ' class="on"' : ''}>${esc(t.nav.docs)}</a></nav>
   <div class="tools"><a class="lang" href="${otherHref}">${esc(t.other)}</a><a class="gh" href="${REPO}" aria-label="${esc(t.starStore)}" title="${esc(t.starStore)}">${ICON.github}<span class="stars" data-stars="${REPO.replace('https://github.com/', '')}"></span></a><span id="auth"></span></div>
 </div></header>
 <main>${body}</main>
 <footer class="foot"><div class="in">
-  <div class="about"><a class="brand" href="${base}"><span class="mark">${ICON.pad}</span>${esc(t.site)}</a><p>${esc(t.footAbout)}</p></div>
+  <div class="about"><a class="brand" href="${base}"><img class="mark" src="/logo.png" alt="" width="34" height="34">${esc(t.site)}</a><p>${esc(t.footAbout)}</p></div>
   <div><h4>${esc(t.footPlay)}</h4><a href="${base}#games">${esc(t.nav.games)}</a><a href="${base}install/">${esc(t.nav.install)}</a><a href="${base}workshop/">${esc(t.nav.workshop)}</a></div>
   <div><h4>${esc(t.footMake)}</h4><a href="${base}publish/">${esc(t.nav.publish)}</a><a href="${base}docs/">${esc(t.nav.docs)}</a><a href="/SKILL.md">SKILL.md</a></div>
   <div><h4>GitHub</h4><a href="${REPO}">${esc(t.footRepo)}</a><a href="${REPO}/tree/main/catalog">catalog/</a><a href="${REPO}/issues">Issues</a></div>

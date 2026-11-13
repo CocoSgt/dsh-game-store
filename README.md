@@ -1,3 +1,5 @@
+<img src="brand/logo-256.png" width="96" alt="">
+
 # DSH Game Store
 
 [中文](README.zh-CN.md) · Site: <https://dsh-game-store.com>
