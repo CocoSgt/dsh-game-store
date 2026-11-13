@@ -17,9 +17,15 @@
   },
   "main": "lib/index.mjs",
   "exports": {
-    ".": { "default": "./lib/index.mjs" },
-    "./client": { "default": "./lib/client.js" },
-    "./spec": { "default": "./lib/spec.mjs" },
+    ".": {
+      "default": "./lib/index.mjs"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./spec": {
+      "default": "./lib/spec.mjs"
+    },
     "./package.json": "./package.json"
   },
   "bin": {
@@ -33,6 +39,7 @@
     "catalog-snapshot",
     "cordis.patch.yml",
     "icon.svg",
+    "SKILL.md",
     "SPEC.md",
     "SPEC.en.md",
     "README.md",
@@ -57,5 +64,11 @@
       ]
     }
   },
-  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "games", "game-store"]
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "games",
+    "game-store"
+  ]
 }

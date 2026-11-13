@@ -5,20 +5,20 @@
  "community": {
   "repo": "CocoSgt/dsh-game-store"
  },
- "generatedAt": "2026-11-13T09:45:23.011Z",
+ "generatedAt": "2026-11-13T10:36:54.777Z",
  "games": [
   {
    "id": "tidemark",
    "package": "dsh-game-tidemark",
    "version": "1.0.0",
-   "integrity": "sha512-++KNYzqhkmSGHmbPfxveAATx8JtTjspLAMlDNBFplDPj3wb69hFpVeU1QTaoPnOnkWl8g2p2OkObtZ3IPDMs/w==",
+   "integrity": "sha512-XRoXYi0qBE0TK/FNz10iXbt7k78EuvVYX0vauaqDvnThWZUCPF9zHWFxReHCE1zArP25WcsnJ3Goh8LJnhcH0g==",
    "repository": "https://github.com/CocoSgt/dsh-game-tidemark",
    "status": "listed",
    "addedAt": "2026-11-13",
    "updatedAt": "2026-11-13",
    "license": "SEE LICENSE IN LICENSE.md",
-   "packageBytes": 112782090,
-   "tarballBytes": 89002296,
+   "packageBytes": 114665705,
+   "tarballBytes": 90937970,
    "manifest": {
     "spec": 1,
     "id": "tidemark",
@@ -45,12 +45,19 @@
      {
       "src": "store/shot-1.jpg",
       "caption": {
-       "en": "A battle on day one",
-       "zh": "第 1 天的战场"
+       "en": "Blue squares show where the tank can go; the arrow is its path",
+       "zh": "蓝色格子是坦克能到的地方，箭头是它要走的路线"
       }
      },
      {
       "src": "store/shot-2.jpg",
+      "caption": {
+       "en": "After the move: choose what the unit does",
+       "zh": "走到位置后，选这支部队做什么"
+      }
+     },
+     {
+      "src": "store/shot-3.jpg",
       "caption": {
        "en": "The turn menu",
        "zh": "回合菜单"
@@ -109,7 +116,17 @@
       "en": "An extension is a folder with a mod.js that calls AWMods.register. The fields are in game/mods/README.md.",
       "zh": "一个扩展是一个文件夹，里面的 mod.js 调用 AWMods.register。字段见 game/mods/README.md。"
      }
-    }
+    },
+    "videos": [
+     {
+      "src": "store/play.mp4",
+      "poster": "store/play-poster.jpg",
+      "caption": {
+       "en": "One move: pick a unit, see its range, draw the path",
+       "zh": "走一步：选中部队，看移动范围，画出路线"
+      }
+     }
+    ]
    },
    "about": {
     "en": "**Classic turn-based strategy.** One map, a few armies, one turn each. Build units, capture cities, take the factories, and push the front line square by square to the enemy headquarters.\n\nThe rules are easy to learn: units counter each other, terrain decides attack and defence, and money comes from the cities you hold. The hard part is the choice you make every turn: capture or build, hold the bridge or go around, use your commander's power now or save it.\n\n## Features\n\n- **Land, sea and air on one map**: infantry capture, tanks advance, artillery fires over mountains, fighters take the sky, warships close the sea lanes, and transports land troops where nobody expects them.\n- **Four nations, four ways to play**: each has its own commanders and technology. A commander with a full meter can use a power that turns a battle in one turn.\n- **A campaign in six acts**: one full story, mission after mission, with cutscenes.\n- **20 skirmish maps** for 2 to 4 sides. Each side is a player or the computer, and sides can form alliances.\n- **Fog of war**: switch it on and you see only what your units see. Scouting and ambushes start to matter.\n- **Research**: put part of your income into technology and your late-game army outclasses the enemy's.\n- **Codex**: look up every unit, terrain and commander at any time, with who counters whom.\n\n## Play with friends\n\nSeveral people take turns on one computer. Keyboard, mouse, touch and gamepad all work.\n\n## Ten languages\n\n简体中文, 繁體中文, English, 日本語, 한국어, Español, Français, Deutsch, Português and Русский. Switch at the top right of the title screen.\n\n## Install and play\n\nThe game runs on your own computer and stays offline. Saves are kept on this computer: uninstall, install again, and your progress is still there.\n\nThe package includes a manual in Chinese: the world, the rules, the units and the campaign. Open it with the Manual button on the game's store page.\n",

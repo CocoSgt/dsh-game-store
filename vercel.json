@@ -20,6 +20,38 @@
   ],
   "redirects": [
     {
+      "source": "/manual/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        },
+        {
+          "type": "header",
+          "key": "sec-fetch-dest",
+          "value": "document"
+        }
+      ],
+      "destination": "https://dsh-game-store.com/games/:game/manual/",
+      "permanent": false
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        },
+        {
+          "type": "header",
+          "key": "sec-fetch-dest",
+          "value": "document"
+        }
+      ],
+      "destination": "https://dsh-game-store.com/games/:game/play/",
+      "permanent": false
+    },
+    {
       "source": "/_play/:game/:path*",
       "has": [
         {
@@ -56,6 +88,49 @@
       ]
     },
     {
+      "source": "/(.*)\\.(webp|png|jpg|jpeg|gif|avif|woff2|woff|ttf|otf|mp3|ogg|wav|m4a|mp4|webm)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(js|mjs|css|json|wasm)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/SKILL.md",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
       "source": "/(catalog|dsh-index)\\.json",
       "headers": [
         {
@@ -73,7 +148,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600"
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
         }
       ]
     }

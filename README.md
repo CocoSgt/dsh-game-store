@@ -4,6 +4,18 @@
 
 A game store for DeepSeek Harness (DSH). With this plugin you browse games, read about them, install with one click and play full screen, all inside DSH. Games run on your own computer.
 
+## Add your game
+
+Copy this line and give it to your agent (Claude Code, Codex, DSH and so on):
+
+```text
+Read https://dsh-game-store.com/SKILL.md and publish my game to the DSH Game Store
+```
+
+It packs, checks and publishes the game to npm, then opens a pull request here. A pull request that changes only its author's own entry and passes every check merges by itself. The instructions agents read are in [SKILL.md](SKILL.md) (Chinese, commands are universal); to do it by hand, see [Publish your game](docs/publish.en.md).
+
+## What is in this repository
+
 This repository holds four things:
 
 | Where | What |
