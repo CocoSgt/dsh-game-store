@@ -35,7 +35,7 @@
           "value": "tidemark\\.play\\.dsh-game-store\\.com"
         }
       ],
-      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.2/:path*"
+      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.4/:path*"
     }
   ],
   "redirects": [
