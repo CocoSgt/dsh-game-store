@@ -8,14 +8,34 @@
   "trailingSlash": true,
   "rewrites": [
     {
+      "source": "/game/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "tidemark\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "destination": "/_play/tidemark/game/index.html"
+    },
+    {
+      "source": "/manual/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "tidemark\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "destination": "/_play/tidemark/manual/index.html"
+    },
+    {
       "source": "/:path*",
       "has": [
         {
           "type": "host",
-          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+          "value": "tidemark\\.play\\.dsh-game-store\\.com"
         }
       ],
-      "destination": "/_play/:game/:path*"
+      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.0/:path*"
     }
   ],
   "redirects": [

@@ -33,7 +33,8 @@ const TEXT = SITE => ({
     pubHero: '你的游戏，放进来', pubHeroLead: '能在浏览器里运行的游戏，就能上架。免费，开源，审核是自动的。',
     pubRulesTitle: '四条规矩', pubRules: [['文件自带', '游戏用到的文件全部打进包里。要联机，就在清单里写明连哪几个服务器，玩家会看到。'], ['占满窗口', '窗口多大画多大。玩家点开就是全屏。'], ['一个包装完', '没有依赖，没有安装脚本。玩家装到的就是审过的那一份。'], ['有头有脸', '封面、截图、一段说明、一个许可证。']],
     pubAutoTitle: '检查全过，自动上架', pubAuto: '只改了自己的条目、提交的 GitHub 账号就是游戏仓库的主人、自动检查全绿、内容审核通过：Pull Request 自己合并，网站和商店自动更新，一般在一小时内。别人改不了你的条目。',
-    pubByHand: '想自己动手',
+    pubByHand: '手动发布', pubByHandLead: '不用 Agent 也可以。在终端里按顺序运行这三条命令，每一步的说明见分步说明。',
+    handSteps: [['新建游戏包', '按模板建一个游戏包文件夹。把游戏文件放进 game/，再填写 game.json 和 store/ 里的内容。', 'npx dsh-game-store init dsh-game-my-game'], ['检查游戏包', '按平台规范逐项检查，结果和提交后的自动检查一致。', 'npx dsh-game-store check dsh-game-my-game'], ['生成目录条目', '用 npm publish 发布以后运行，生成提交 Pull Request 用的目录条目。', 'npx dsh-game-store entry dsh-game-my-game@0.1.0']],
     insHero: '装进 DSH，全屏玩', insHeroLead: '网页上试过了？装进 DeepSeek Harness，游戏占满整个窗口，存档留在你的电脑上，还能装扩展。',
     insFaq: [['存档在哪', '在你的电脑上。更新游戏、卸载重装，进度都在。'], ['安全吗', '商店只装目录里登记的版本，并核对校验值。游戏碰不到 DSH 的数据和你的文件；会联网的游戏，游戏页上写明了它连哪些服务器。'], ['怎么卸载', '打开游戏页点“卸载”。存档会保留。']],
     insMore: '完整的安装说明', backTo: '回到',
@@ -46,9 +47,9 @@ const TEXT = SITE => ({
     dshCmd: 'dsh plugin --profile web add dsh-game-store', dshMore: '完整的安装说明',
     pubTitle: '把你的游戏放进来', pubLead: '一个能在浏览器里运行的游戏，就能上架。把下面这句话交给你的 agent，它会打包、检查、发布，再提一个 Pull Request。',
     agentCmd: `阅读 ${SITE}/SKILL.md，把我的游戏发布到 DSH 游戏商店`, copy: '复制指令', copied: '已复制', copyCmd: '复制',
-    agentHint: '适用于 Claude Code、Codex、DSH 等 agent。题目、规则、每个游戏的条目，全部公开在 GitHub。',
-    pubSteps: [['打包', '一个游戏是一个 npm 包：游戏文件、清单、封面、截图、说明。'], ['检查', 'CI 逐项对照规范。只下载，不运行你的代码。'], ['上架', '检查和内容审核都通过，Pull Request 自动合并。']],
-    pubGuide: '自己动手的分步说明', pubSpec: '平台规范',
+    agentHint: '把这句话发给你的 Agent（Claude Code、Codex、DSH 都可以）。它会读取发布说明，替你打包、检查、发布到 npm，并提交 Pull Request。平台规范和所有游戏的目录都公开在 GitHub 上。',
+    pubSteps: [['打包', '把游戏做成一个 npm 包，包里有游戏文件、清单（game.json）、封面、截图和说明。'], ['检查与审核', '自动检查逐项对照平台规范；内容审核检查恶意代码和不能接受的内容。两项结论都写在 Pull Request 里。'], ['上架', '两项都通过后，Pull Request 自动合并，游戏出现在商店和网站上。']],
+    pubGuide: '分步说明', pubSpec: '平台规范',
     wsTitle: '插件工坊', wsLead: '一切皆插件。给游戏做的地图、指挥官、语言包，和游戏一样上架，在商店的游戏页里一键安装、启用、停用。',
     wsMake: '怎么给游戏做扩展', wsFor: '适用', wsNone: '还没有扩展。', wsIn: '装好游戏后，在 DSH 商店的游戏页里安装和启用。',
     about: '游戏说明', info: '信息', board: '留言板', media: '截图和视频',
@@ -75,7 +76,8 @@ const TEXT = SITE => ({
     pubHero: 'Your game, on the store', pubHeroLead: 'If it runs in a browser, it can be listed. Free, open, and reviewed automatically.',
     pubRulesTitle: 'Four rules', pubRules: [['Self-contained', 'Every file the game needs is in the package. To go online, name your servers in the manifest; players see them.'], ['Fill the window', 'Draw at whatever size the window is. Players get full screen from the first click.'], ['One package', 'No dependencies, no install scripts. Players get exactly what was checked.'], ['A face', 'A cover, screenshots, a description and a license.']],
     pubAutoTitle: 'Pass the checks, get listed', pubAuto: 'A pull request that changes only your own entry, comes from the GitHub account that owns the game\'s repository, is green in CI and passes the content review merges by itself, usually within the hour. The site and the store update on their own. Nobody else can change your entry.',
-    pubByHand: 'Prefer to do it by hand',
+    pubByHand: 'Publish by hand', pubByHandLead: 'No agent needed. Run these three commands in a terminal, in order; the step-by-step guide explains each one.',
+    handSteps: [['Create the package', 'Creates a game package folder from the template. Put the game in game/, then fill in game.json and the files in store/.', 'npx dsh-game-store init dsh-game-my-game'], ['Check the package', 'Checks it against the platform spec, the same way the automatic checks do after you submit.', 'npx dsh-game-store check dsh-game-my-game'], ['Create the catalog entry', 'Run after npm publish. Prints the catalog entry for your pull request.', 'npx dsh-game-store entry dsh-game-my-game@0.1.0']],
     insHero: 'Install into DSH, play full screen', insHeroLead: 'Tried it in the browser? In DeepSeek Harness the game fills the whole window, keeps its saves on your computer, and takes extensions.',
     insFaq: [['Where are saves kept', 'On your computer. They survive updates and reinstalls.'], ['Is it safe', 'The store installs only versions registered in the catalog and compares the checksum. A game cannot reach DSH data or your files; a game that goes online names its servers on its page.'], ['How to uninstall', 'Open the game page and click Uninstall. Saves are kept.']],
     insMore: 'Full install guide', backTo: 'Back to',
@@ -88,8 +90,8 @@ const TEXT = SITE => ({
     dshCmd: 'dsh plugin --profile web add dsh-game-store', dshMore: 'Full install guide',
     pubTitle: 'Add your game', pubLead: 'Any game that runs in a browser can be listed. Give the line below to your agent: it packs, checks and publishes the game, then opens a pull request.',
     agentCmd: `Read ${SITE}/SKILL.md and publish my game to the DSH Game Store`, copy: 'Copy', copied: 'Copied', copyCmd: 'Copy',
-    agentHint: 'Works with Claude Code, Codex, DSH and other agents. The rules and every game entry are public on GitHub.',
-    pubSteps: [['Pack', 'A game is an npm package: game files, a manifest, a cover, screenshots, a description.'], ['Check', 'CI compares it with the spec point by point. Your code is downloaded, never run.'], ['Listed', 'When the checks and the content review pass, the pull request merges by itself.']],
+    agentHint: 'Send this line to your agent (Claude Code, Codex or DSH). It reads the publishing guide, then packs, checks and publishes your game to npm and opens the pull request. The platform spec and the whole catalog are public on GitHub.',
+    pubSteps: [['Pack', 'Make the game an npm package holding the game files, a manifest (game.json), a cover, screenshots and a description.'], ['Check and review', 'Automatic checks compare the package with the platform spec; a content review looks for malicious code and unacceptable content. Both results are posted on the pull request.'], ['Listed', 'When both pass, the pull request merges by itself and the game appears in the store and on this site.']],
     pubGuide: 'Step-by-step guide', pubSpec: 'Platform spec',
     wsTitle: 'Workshop', wsLead: 'Everything is a plugin. Maps, commanders and language packs made for a game are listed like games, and installed, switched on and off with one click on the game page in the store.',
     wsMake: 'How to make an extension', wsFor: 'for', wsNone: 'No extensions yet.', wsIn: 'Install the game, then install and enable these on the game page in the DSH store.',
@@ -107,6 +109,8 @@ const TEXT = SITE => ({
 })
 
 export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }) {
+  /** Where a picture of a game package is read from: the npm CDN, or this site when the CDN cannot serve it. */
+  const pic = (g, rel) => (g.cdn && !g.local?.includes(rel) && !/\.html?$/i.test(rel) && !(g.keptPics ?? []).includes(rel) ? `${g.cdn}${rel}` : `/games/${g.id}/${rel}`)
   const T = TEXT(SITE)
   const BOARD_REPO = REPO.replace('https://github.com/', '')
   for (const f of ['style.css', 'site.js']) cpSync(join(root, 'site', f), join(out, f))
@@ -114,6 +118,7 @@ export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }
   cpSync(join(root, 'brand/logo-64.png'), join(out, 'favicon.png'))
   cpSync(join(root, 'brand/logo-180.png'), join(out, 'apple-touch-icon.png'))
   cpSync(join(root, 'brand/logo-256.png'), join(out, 'logo.png'))
+  cpSync(join(root, 'site/badge.svg'), join(out, 'badge.svg'))
   cpSync(join(root, 'SKILL.md'), join(out, 'SKILL.md'))
   // Sign-in and posting run as small server functions beside the static pages.
   if (existsSync(join(root, 'site/api'))) cpSync(join(root, 'site/api'), join(out, 'api'), { recursive: true })
@@ -174,8 +179,8 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
   function card(lang, g) {
     const t = T[lang], base = lang === 'zh' ? '/' : '/en/', m = g.manifest
     return `<article class="card">
-  <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="/games/${g.id}/${esc(m.cover)}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
-  <a class="cin" href="${base}games/${g.id}/"><img src="/games/${g.id}/${esc(m.icon)}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
+  <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="${esc(pic(g, m.cover))}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
+  <a class="cin" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
   <div class="meta"><span>${esc(m.author.name)} · v${esc(g.version)} · <a class="ghlink" href="${esc(g.repository)}" target="_blank" rel="noopener" aria-label="GitHub">${ICON.github}<span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a></span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
 </article>`
   }
@@ -189,18 +194,18 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
     // ---------------------------------------------------------------- home
     const hero = lead ? (() => {
       const m = lead.manifest, pics = [...(m.videos ?? []).slice(0, 1).map(v => ({ video: v.src, src: v.poster ?? m.cover })), { src: m.cover }, ...m.screenshots].slice(0, 4)
-      return `<section class="hero"><div class="bg" style="background-image:url('/games/${lead.id}/${esc(m.cover)}')"></div><div class="in">
+      return `<section class="hero"><div class="bg" style="background-image:url('${esc(pic(lead, m.cover))}')"></div><div class="in">
   <div class="copy">
     <span class="kicker">${esc(t.featured)} · ${esc(t.isNew)}</span>
-    <h2 class="h1"><img src="/games/${lead.id}/${esc(m.icon)}" alt="" width="64" height="64">${esc(pickText(m.name, t.lang))}</h2>
+    <h2 class="h1"><img src="${esc(pic(lead, m.icon))}" alt="" width="64" height="64">${esc(pickText(m.name, t.lang))}</h2>
     ${m.tagline ? `<p class="tagline">${esc(pickText(m.tagline, t.lang))}</p>` : ''}
     <p class="sum">${esc(pickText(m.summary, t.lang))}</p>
     <div class="chips">${chips(t, lead)}</div>
     <p class="row"><a class="btn gold big" href="${playHref(base, lead)}">${ICON.play}${esc(t.playNow)}</a><a class="btn ghost big" href="${base}games/${lead.id}/">${esc(t.details)}</a></p>
   </div>
   <div class="stage" data-gallery>
-    <a class="screen" href="${playHref(base, lead)}">${(m.videos ?? [])[0] ? `<video data-main autoplay muted loop playsinline preload="metadata" poster="/games/${lead.id}/${esc(m.cover)}" src="/games/${lead.id}/${esc(m.videos[0].src)}"></video>` : `<img data-main src="/games/${lead.id}/${esc(m.cover)}" alt="${esc(pickText(m.name, t.lang))}">`}<span class="go">${ICON.play}</span></a>
-    <div class="thumbs">${pics.map((p, i) => `<button type="button" ${p.video ? `class="vid${i ? '' : ' on'}" data-video="/games/${lead.id}/${esc(p.video)}" data-poster="/games/${lead.id}/${esc(p.src)}"` : `data-src="/games/${lead.id}/${esc(p.src)}"${i ? '' : ' class="on"'}`}><img src="/games/${lead.id}/${esc(p.src)}" alt="" loading="lazy">${p.video ? `<span class="badge">${ICON.play}</span>` : ''}</button>`).join('')}</div>
+    <a class="screen" href="${playHref(base, lead)}">${(m.videos ?? [])[0] ? `<video data-main autoplay muted loop playsinline preload="metadata" poster="${esc(pic(lead, m.cover))}" src="${esc(pic(lead, m.videos[0].src))}"></video>` : `<img data-main src="${esc(pic(lead, m.cover))}" alt="${esc(pickText(m.name, t.lang))}">`}<span class="go">${ICON.play}</span></a>
+    <div class="thumbs">${pics.map((p, i) => `<button type="button" ${p.video ? `class="vid${i ? '' : ' on'}" data-video="${esc(pic(lead, p.video))}" data-poster="${esc(pic(lead, p.src))}"` : `data-src="${esc(pic(lead, p.src))}"${i ? '' : ' class="on"'}`}><img src="${esc(pic(lead, p.src))}" alt="" loading="lazy">${p.video ? `<span class="badge">${ICON.play}</span>` : ''}</button>`).join('')}</div>
   </div>
 </div></section>`
     })() : `<section class="hero plain"><div class="in"><div class="copy"><h1>${esc(t.site)}</h1><p class="sum">${esc(t.lead)}</p></div></div></section>`
@@ -227,7 +232,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
   <div class="three">${t.dshSteps.map(([a, b], i) => `<div class="tile"><span class="n">${i + 1}</span><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div>
   ${cmdBox(t, t.dshCmd)}
   <p class="row"><a class="btn ghost" href="${base}install/">${esc(t.dshMore)}${ICON.arrow}</a></p>
-</div></section>`, { image: lead ? `/games/${lead.id}/${lead.manifest.cover}` : undefined, cls: 'home' })
+</div></section>`, { image: lead ? pic(lead, lead.manifest.cover) : undefined, cls: 'home' })
 
     // ---------------------------------------------------------------- one page per game
     for (const g of games) {
@@ -258,18 +263,18 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
       const label = `game:${g.id}`
       const listedGame = g.status === 'listed'
       page(lang, `games/${g.id}/`, name, `
-<section class="ghero"><div class="bg" style="background-image:url('/games/${g.id}/${esc(m.cover)}')"></div><div class="in">
+<section class="ghero"><div class="bg" style="background-image:url('${esc(pic(g, m.cover))}')"></div><div class="in">
   ${g.preview ? `<p class="note">${esc(t.preview)}</p>` : ''}${!listedGame ? `<p class="note warn">${esc(t.delisted + (g.reason ?? ''))}</p>` : ''}${m.network ? `<p class="note warn">${esc(t.netWarn(m.network.hosts.join(t.sep)))} ${esc(pickText(m.network.notes, t.lang))}</p>` : ''}
   <div class="gtop">
     <div class="viewer" data-gallery>
-      <div class="screen zoomable">${first.video ? `<video data-main autoplay muted loop playsinline preload="metadata"${first.poster ? ` poster="/games/${g.id}/${esc(first.poster)}"` : ''} src="/games/${g.id}/${esc(first.video)}"></video>` : `<img data-main src="/games/${g.id}/${esc(first.src)}" alt="${esc(name)}">`}</div>
+      <div class="screen zoomable">${first.video ? `<video data-main autoplay muted loop playsinline preload="metadata"${first.poster ? ` poster="${esc(pic(g, first.poster))}"` : ''} src="${esc(pic(g, first.video))}"></video>` : `<img data-main src="${esc(pic(g, first.src))}" alt="${esc(name)}">`}</div>
       <p class="cap" data-cap>${esc(pickText(first.caption, t.lang))}</p>
       <div class="thumbs">${media.map((p, i) => p.video
-        ? `<button type="button" class="vid${i === 0 ? ' on' : ''}" data-video="/games/${g.id}/${esc(p.video)}" data-poster="${p.poster ? `/games/${g.id}/${esc(p.poster)}` : ''}" data-cap="${esc(pickText(p.caption, t.lang))}">${p.poster ? `<img src="/games/${g.id}/${esc(p.poster)}" alt="" loading="lazy">` : ''}<span class="badge">${ICON.play}</span></button>`
-        : `<button type="button" data-src="/games/${g.id}/${esc(p.src)}" data-cap="${esc(pickText(p.caption, t.lang))}"${i === 0 ? ' class="on"' : ''}><img src="/games/${g.id}/${esc(p.src)}" alt="${esc(pickText(p.caption, t.lang))}" loading="lazy"></button>`).join('')}</div>
+        ? `<button type="button" class="vid${i === 0 ? ' on' : ''}" data-video="${esc(pic(g, p.video))}" data-poster="${p.poster ? `${esc(pic(g, p.poster))}` : ''}" data-cap="${esc(pickText(p.caption, t.lang))}">${p.poster ? `<img src="${esc(pic(g, p.poster))}" alt="" loading="lazy">` : ''}<span class="badge">${ICON.play}</span></button>`
+        : `<button type="button" data-src="${esc(pic(g, p.src))}" data-cap="${esc(pickText(p.caption, t.lang))}"${i === 0 ? ' class="on"' : ''}><img src="${esc(pic(g, p.src))}" alt="${esc(pickText(p.caption, t.lang))}" loading="lazy"></button>`).join('')}</div>
     </div>
     <aside class="buy">
-      <div class="id"><img src="/games/${g.id}/${esc(m.icon)}" alt="" width="72" height="72"><div><h1>${esc(name)}</h1>${m.tagline ? `<p class="tagline">${esc(pickText(m.tagline, t.lang))}</p>` : ''}</div></div>
+      <div class="id"><img src="${esc(pic(g, m.icon))}" alt="" width="72" height="72"><div><h1>${esc(name)}</h1>${m.tagline ? `<p class="tagline">${esc(pickText(m.tagline, t.lang))}</p>` : ''}</div></div>
       <p class="sum">${esc(pickText(m.summary, t.lang))}</p>
       <div class="chips">${chips(t, g)}</div>
       ${listedGame ? `<a class="btn gold big wide" href="${playHref(base, g)}">${ICON.play}${esc(t.playNow)}</a><a class="btn ghost wide" href="${base}install/">${esc(t.inDsh)}</a>${m.manual ? `<a class="btn ghost wide" href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}` : ''}
@@ -291,7 +296,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
     <p class="row"><a class="btn ghost" href="${REPO}/issues/new?template=message.yml&game=${encodeURIComponent(g.id)}">${ICON.github}${esc(t.boardPost)}</a><a class="more" href="${REPO}/issues?q=${encodeURIComponent(`is:issue label:${label}`)}">${esc(t.boardAll)}${ICON.arrow}</a></p>
   </div>
   <aside><h2 id="info">${esc(t.info)}</h2><dl class="info">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join('')}</dl></aside>
-</section>`, { description: pickText(m.summary, t.lang), image: `/games/${g.id}/${m.cover}`, cls: 'game' })
+</section>`, { description: pickText(m.summary, t.lang), image: pic(g, m.cover), cls: 'game' })
     }
 
     // ---------------------------------------------------------------- play pages: the game in a frame that fills the window
@@ -307,7 +312,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(name)} · ${esc(t.site)}</title>
 <meta name="theme-color" content="#000000">
-<link rel="icon" href="/games/${g.id}/${esc(m.icon)}">
+<link rel="icon" href="${esc(pic(g, m.icon))}">
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
@@ -323,7 +328,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
 <body>
 <iframe id="f" title="${esc(name)}" sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; gamepad; autoplay" allowfullscreen referrerpolicy="no-referrer"></iframe>
 <div class="hot" id="hot"><i></i></div>
-<div class="bar" id="bar"><b><img src="/games/${g.id}/${esc(m.icon)}" alt="">${esc(name)}</b><button id="full">${esc(t.playFull)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a></div>
+<div class="bar" id="bar"><b><img src="${esc(pic(g, m.icon))}" alt="">${esc(name)}</b><button id="full">${esc(t.playFull)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a></div>
 <script>
 // On the real site the game is served from its own subdomain; in a local preview, from a folder of this server.
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
@@ -349,7 +354,7 @@ document.getElementById('full').addEventListener('click', function () { if (docu
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(name)} · ${esc(t.manualOf)} · ${esc(t.site)}</title>
 <meta name="theme-color" content="#0b0d14">
-<link rel="icon" href="/games/${g.id}/${esc(m.icon)}">
+<link rel="icon" href="${esc(pic(g, m.icon))}">
 <style>
 html,body{margin:0;height:100%;background:#0b0d14;overflow:hidden}
 .bar{position:fixed;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:10px;padding:0 14px;background:#0b0d14;border-bottom:1px solid #252b3f;color:#f1f3f8;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap}
@@ -360,7 +365,7 @@ iframe{position:fixed;top:49px;left:0;width:100%;height:calc(100% - 49px);border
 </style>
 </head>
 <body>
-<div class="bar"><img src="/games/${g.id}/${esc(m.icon)}" alt=""><b>${esc(name)} · ${esc(t.manualOf)}</b><a href="${base}games/${g.id}/">${esc(t.playBack)}</a><a class="play" href="${base}games/${g.id}/play/">${esc(t.playNow)}</a></div>
+<div class="bar"><img src="${esc(pic(g, m.icon))}" alt=""><b>${esc(name)} · ${esc(t.manualOf)}</b><a href="${base}games/${g.id}/">${esc(t.playBack)}</a><a class="play" href="${base}games/${g.id}/play/">${esc(t.playNow)}</a></div>
 <iframe id="f" title="${esc(name)} ${esc(t.manualOf)}" sandbox="allow-scripts allow-same-origin allow-modals" referrerpolicy="no-referrer"></iframe>
 <script>
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
@@ -374,12 +379,12 @@ document.getElementById('f').src = (live ? 'https://' + ${JSON.stringify(g.id + 
     // ---------------------------------------------------------------- workshop: a store page of its own
     const wsGames = listed.filter(g => g.manifest.workshop)
     const tiles = list => `<div class="three">${list.map(([a, b], i) => `<div class="tile"><span class="n">${i + 1}</span><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div>`
-    const phero = (kicker, h1, lead, extra = '') => `<section class="phero"><div class="bg"${lead0 ? ` style="background-image:url('/games/${lead0.id}/${esc(lead0.manifest.cover)}')"` : ''}></div><div class="in"><span class="kicker">${esc(kicker)}</span><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p>${extra}</div></section>`
+    const phero = (kicker, h1, lead, extra = '') => `<section class="phero"><div class="bg"${lead0 ? ` style="background-image:url('${esc(pic(lead0, lead0.manifest.cover))}')"` : ''}></div><div class="in"><span class="kicker">${esc(kicker)}</span><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p>${extra}</div></section>`
     const lead0 = lead
     page(lang, 'workshop/', t.wsTitle, `${phero(t.wsTitle, t.wsHero, t.wsHeroLead, `<div class="chips"><span class="chip">${esc(t.wsCount(exts.length))}</span><span class="chip">${esc(t.free)}</span></div>`)}
 ${wsGames.map(g => {
   const m = g.manifest, items = (g.workshop ?? []).filter(x => x.status === 'listed')
-  return `<section class="in block"><div class="gamebar"><a class="who" href="${base}games/${g.id}/"><img src="/games/${g.id}/${esc(m.icon)}" alt="" width="48" height="48"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(t.wsCount(items.length))} · ${esc(t.wsTypes)} ${m.workshop.types.map(x => esc(TYPE_NAMES[lang][x] ?? x)).join(' / ')}</i></span></a><a class="btn ghost" href="${base}games/${g.id}/#workshop">${esc(t.details)}${ICON.arrow}</a></div>
+  return `<section class="in block"><div class="gamebar"><a class="who" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="48" height="48"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(t.wsCount(items.length))} · ${esc(t.wsTypes)} ${m.workshop.types.map(x => esc(TYPE_NAMES[lang][x] ?? x)).join(' / ')}</i></span></a><a class="btn ghost" href="${base}games/${g.id}/#workshop">${esc(t.details)}${ICON.arrow}</a></div>
   ${items.length ? `<div class="exts">${items.map(x => `<article class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(x.version)} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))}</span><a class="btn gold sm" href="${base}install/">${esc(t.wsGet)}</a></article>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}</section>`
 }).join('\n') || `<section class="in block"><p class="muted">${esc(t.wsNone)}</p></section>`}
 <section class="band" id="make"><div class="in two">
@@ -393,9 +398,9 @@ ${wsGames.map(g => {
     page(lang, 'publish/', t.pubTitle, `${phero(t.nav.publish, t.pubHero, t.pubHeroLead, `<div class="herocmd">${cmdBox(t, t.agentCmd, { gold: true })}<p class="hint">${esc(t.agentHint)}</p></div>`)}
 <section class="in block"><div class="head"><h2>${esc(t.pubTitle)}</h2></div>${tiles(t.pubSteps)}</section>
 <section class="in block"><div class="head"><h2>${esc(t.pubRulesTitle)}</h2></div><div class="four">${t.pubRules.map(([a, b]) => `<div class="tile"><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div></section>
-<section class="band"><div class="in two"><div><span class="kicker">GitHub</span><h2>${esc(t.pubAutoTitle)}</h2><p class="lead">${esc(t.pubAuto)}</p><p class="row"><a class="btn ghost" href="${REPO}/tree/main/catalog">${ICON.github}catalog/</a><a class="btn ghost" href="${base}spec/">${esc(t.pubSpec)}</a></p></div>
-  <div><span class="kicker">${esc(t.pubByHand)}</span>${cmdBox(t, 'npx dsh-game-store init dsh-game-my-game')}${cmdBox(t, 'npx dsh-game-store check dsh-game-my-game')}${cmdBox(t, 'npx dsh-game-store entry dsh-game-my-game@0.1.0')}<p class="row"><a class="btn ghost" href="${base}docs/publish/">${esc(t.pubGuide)}${ICON.arrow}</a></p></div>
-</div></section>`, { description: t.pubHeroLead, cls: 'landing' })
+<section class="band"><div class="in"><span class="kicker">GitHub</span><h2>${esc(t.pubAutoTitle)}</h2><p class="lead narrow" style="margin-top:12px">${esc(t.pubAuto)}</p><p class="row"><a class="btn ghost" href="${REPO}/tree/main/catalog">${ICON.github}catalog/</a><a class="btn ghost" href="${base}spec/">${esc(t.pubSpec)}</a></p></div></section>
+<section class="in block" id="by-hand"><div class="head"><h2>${esc(t.pubByHand)}</h2><a class="more" href="${base}docs/publish/">${esc(t.pubGuide)}${ICON.arrow}</a></div><p class="lead narrow">${esc(t.pubByHandLead)}</p>
+<ol class="hand">${t.handSteps.map(([a, b, c], i) => `<li><div class="what"><span class="n">${i + 1}</span><div><b>${esc(a)}</b><p>${esc(b)}</p></div></div>${cmdBox(t, c)}</li>`).join('')}</ol></section>`, { description: t.pubHeroLead, cls: 'landing' })
 
     // ---------------------------------------------------------------- get it in DSH
     page(lang, 'install/', t.nav.install, `${phero('DeepSeek Harness', t.insHero, t.insHeroLead, `<div class="herocmd">${cmdBox(t, t.dshCmd)}</div>`)}

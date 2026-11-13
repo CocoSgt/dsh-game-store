@@ -5,7 +5,7 @@
  "community": {
   "repo": "CocoSgt/dsh-game-store"
  },
- "generatedAt": "2026-11-13T12:39:32.720Z",
+ "generatedAt": "2026-11-13T13:22:03.887Z",
  "games": [
   {
    "id": "tidemark",
@@ -132,8 +132,12 @@
     "en": "**Classic turn-based strategy.** One map, a few armies, one turn each. Build units, capture cities, take the factories, and push the front line square by square to the enemy headquarters.\n\nThe rules are easy to learn: units counter each other, terrain decides attack and defence, and money comes from the cities you hold. The hard part is the choice you make every turn: capture or build, hold the bridge or go around, use your commander's power now or save it.\n\n## Features\n\n- **33 units on land, sea and air**: infantry capture, tanks advance, artillery fires over mountains, fighters take the sky, warships close the sea lanes, and transports land troops where nobody expects them.\n- **Four nations, 29 commanders**: each nation has its own commanders and technology. A commander with a full meter can use a power that turns a battle in one turn.\n- **A campaign in six acts**: one full story, mission after mission, with cutscenes.\n- **24 skirmish maps** for 2 to 4 sides. Each side is a player or the computer, and sides can form alliances.\n- **Fog of war**: switch it on and you see only what your units see. Scouting and ambushes start to matter.\n- **Research**: put part of your income into technology and your late-game army outclasses the enemy's.\n- **Codex**: look up every unit, terrain and commander at any time, with who counters whom.\n\n## Play with friends\n\nSeveral people take turns on one computer. Keyboard, mouse, touch and gamepad all work.\n\n## Ten languages\n\n简体中文, 繁體中文, English, 日本語, 한국어, Español, Français, Deutsch, Português and Русский. Switch at the top right of the title screen.\n\n## Install and play\n\nThe game runs on your own computer and stays offline. Saves are kept on this computer: uninstall, install again, and your progress is still there.\n\nThe package includes a manual in Chinese: the world, the rules, the units and the campaign. Open it with the Manual button on the game's store page.\n",
     "zh": "**经典 SLG 回合制战棋。** 一张地图，几支军队，你一回合，我一回合。造兵、占城、抢工厂，把战线一格一格推到对手的司令部。\n\n规则好懂：兵种互相克制，地形决定攻防，钱从占下的城市里来。难的是每一回合的取舍：先占城还是先造坦克，守桥还是绕后，指挥官技能留到哪一天放。\n\n## 游戏特色\n\n- **33 个兵种，陆海空三军同场**：步兵占城，坦克推进，火炮隔山打，战机夺制空，军舰封海路，运输单位把部队送到对手想不到的地方。\n- **四个国家，29 位指挥官**：赤焰、苍蓝、翠林、金沙。每个国家有自己的指挥官和阵营科技，指挥官攒满能量就能发动技能，一回合改写战局。\n- **六幕战役《黑潮》**：一条完整的故事线，一关一关打下去，带过场画面。\n- **24 张对战地图**：2 到 4 方混战。每一方可以是玩家，也可以交给电脑，还能结成同盟。\n- **战争迷雾**：打开以后只看得见自己部队的视野，侦察和埋伏都有了用处。\n- **科技研究**：把收入分一部分给科技，后期的部队会比对手强一截。\n- **图鉴**：兵种、地形、指挥官的数据随时查，克制关系一眼看清。\n\n## 和朋友一起玩\n\n几个人坐在同一台电脑前轮流走。键盘、鼠标、触屏、手柄都能操作。\n\n## 十种语言\n\n简体中文、繁體中文、English、日本語、한국어、Español、Français、Deutsch、Português、Русский。在标题页右上角切换。\n\n## 装好就能玩\n\n游戏在你自己的电脑上运行，全程离线。存档留在本机，卸载以后重装，进度还在。\n\n包里带一本中文手册，讲世界观、规则、兵种和战役。在商店的游戏页点“手册”打开。\n"
    },
-   "assets": "games/tidemark/",
-   "preview": true,
+   "assets": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.0/",
+   "cdn": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.0/",
+   "local": [
+    "game/index.html",
+    "manual/index.html"
+   ],
    "workshop": [
     {
      "id": "sample-map",
@@ -168,8 +172,7 @@
        "url": "https://github.com/CocoSgt"
       },
       "files": "mod"
-     },
-     "preview": true
+     }
     }
    ]
   }

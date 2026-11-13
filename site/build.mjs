@@ -16,6 +16,12 @@ import { fileURLToPath } from 'node:url'
 import { escapeHtml as esc, renderMarkdown } from '../lib/markdown.mjs'
 import { fetchPackage, localSources } from '../lib/packages.mjs'
 import { buildPages } from './pages.mjs'
+import { statSync } from 'node:fs'
+
+const CDN = 'https://cdn.jsdelivr.net/npm'
+/** jsDelivr refuses very large files (it turned down a 57.9 MB page); those stay on this site. */
+const CDN_FILE_LIMIT = 20 * 1024 * 1024
+const walkFiles = (dir, base = '') => readdirSync(join(dir, base), { withFileTypes: true }).flatMap(d => d.isDirectory() ? walkFiles(dir, base ? `${base}/${d.name}` : d.name) : [base ? `${base}/${d.name}` : d.name])
 import { checkCatalogEntry, checkExtension, checkPackage, checkWorkshopEntry, pickText } from '../lib/spec.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -49,21 +55,26 @@ for (const file of readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
     const m = check.manifest
     const about = {}
     for (const [lang, rel] of Object.entries(m.about)) about[lang] = readFileSync(join(got.dir, rel), 'utf8')
-    for (const rel of [m.icon, m.cover, ...m.screenshots.map(s => s.src), ...(m.videos ?? []).flatMap(v => [v.src, v.poster].filter(Boolean))]) {
-      mkdirSync(dirname(join(out, 'games', id, rel)), { recursive: true })
-      cpSync(join(got.dir, rel), join(out, 'games', id, rel))
-    }
-    // Play on the web: the game's own files, served from the game's own subdomain (see vercel.json below).
+    // Pictures and game files are read from the npm CDN, from the exact version the catalog names; the site keeps
+    // only what the CDN cannot serve: HTML pages (it answers them as plain text) and files over its size limit.
+    const cdn = got.source === 'local' ? null : `${CDN}/${entry.package}@${entry.version}/`
+    const keep = rel => /\.html?$/i.test(rel) || statSync(join(got.dir, rel)).size > CDN_FILE_LIMIT || !cdn
+    const pics = [m.icon, m.cover, ...m.screenshots.map(s => s.src), ...(m.videos ?? []).flatMap(v => [v.src, v.poster].filter(Boolean))]
+    for (const rel of pics.filter(keep)) { mkdirSync(dirname(join(out, 'games', id, rel)), { recursive: true }); cpSync(join(got.dir, rel), join(out, 'games', id, rel)) }
     const playDir = join(out, '_play', id)
     rmSync(playDir, { recursive: true, force: true })
-    cpSync(join(got.dir, 'game'), join(playDir, 'game'), { recursive: true })
-    if (m.manual) cpSync(join(got.dir, 'manual'), join(playDir, 'manual'), { recursive: true })
+    const localFiles = []
+    for (const top of ['game', ...(m.manual ? ['manual'] : [])]) for (const f of walkFiles(join(got.dir, top))) {
+      const rel = `${top}/${f}`
+      if (!keep(rel)) continue
+      mkdirSync(dirname(join(playDir, rel)), { recursive: true }); cpSync(join(got.dir, rel), join(playDir, rel)); localFiles.push(rel)
+    }
     games.push({
       id, package: entry.package, version: entry.version, integrity: entry.integrity, repository: entry.repository,
       status: entry.status ?? 'listed', ...(entry.reason ? { reason: entry.reason } : {}),
       addedAt: entry.addedAt, updatedAt: (got.publishedAt ?? '').slice(0, 10) || entry.addedAt,
       license: check.pkg.license, packageBytes: check.bytes, tarballBytes: got.tarballBytes,
-      manifest: m, about, assets: `games/${id}/`,
+      manifest: m, about, assets: cdn ?? `games/${id}/`, cdn, local: localFiles,
       ...(got.source === 'local' ? { preview: true } : {}),
     })
     console.log(`✓ ${id}  ${entry.package}@${entry.version}${got.source === 'local' ? '  (local tarball)' : ''}`)
@@ -120,7 +131,7 @@ writeFileSync(join(out, 'dsh-index.json'), JSON.stringify({
     { name: 'dsh-game-store', icon: 'logo.png', title: { en: 'Game Store', zh: '游戏商店' }, description: { en: storePkg.description, zh: 'DSH 上的游戏商店：浏览目录、看说明、安装、启动、更新、卸载。' }, author: 'CocoSgt', homepage: SITE, repository: { url: REPO }, metadata: { category: 'store' },
       versions: [{ version: storePkg.version, publishTimestamp: stamp(), source: { type: 'npm' }, engines: { dsh: storePkg.engines.dsh } }] },
     ...games.filter(g => g.status === 'listed').map(g => ({
-      name: g.package, title: g.manifest.name, description: g.manifest.summary, icon: `games/${g.id}/${g.manifest.icon}`, author: g.manifest.author.name,
+      name: g.package, title: g.manifest.name, description: g.manifest.summary, icon: g.cdn ? `${g.cdn}${g.manifest.icon}` : `games/${g.id}/${g.manifest.icon}`, author: g.manifest.author.name,
       homepage: `${SITE}/games/${g.id}/`, repository: { url: g.repository }, metadata: { category: 'game' },
       versions: [{ version: g.version, publishTimestamp: stamp(g.updatedAt), source: { type: 'npm' } }],
     })),
@@ -150,7 +161,10 @@ const routing = {
   cleanUrls: false,
   trailingSlash: true,
   // <id>.play.dsh-game-store.com/… serves the files of that one game, and nothing else.
-  rewrites: [{ source: '/:path*', has: [playHost], destination: '/_play/:game/:path*' }],
+  rewrites: games.flatMap(g => g.cdn ? [
+    ...g.local.map(rel => ({ source: `/${rel.split('/').map(encodeURIComponent).join('/')}`, has: [gameHost(g.id)], destination: `/_play/${g.id}/${rel}` })),
+    { source: '/:path*', has: [gameHost(g.id)], destination: `${g.cdn}:path*` },
+  ] : [{ source: '/:path*', has: [gameHost(g.id)], destination: `/_play/${g.id}/:path*` }]),
   // On the store's own address the game files are not served: a game never runs as the store's site.
   redirects: [
     // Someone opening a game host directly in the address bar lands on the page of this site instead:

@@ -44,7 +44,7 @@ You can also copy the [template folder](../template).
 2. **Edit `game.json`**: `id`, name, summary, author, languages, controls, players, content rating. Every field is described in [section 2.4 of the spec](../SPEC.en.md#24-the-game-manifest-gamejson).
 3. **Replace the pictures in `store/`**:
    - `icon.png`: square, at least 128×128, at most 256 KB.
-   - `cover.png`: 16:9, at least 1280×720, at most 2 MB. It is the largest picture on the store's front page.
+   - `cover.png`: 16:9, at least 1280×720, at most 2 MB. It is the largest picture on the store's front page. Make it a drawn key art, not a capture of the title screen, and leave out interface elements such as "click to start", buttons and version numbers. Full guidance in the cover section of [SKILL.md](https://dsh-game-store.com/SKILL.md).
    - 1 to 8 screenshots, each at least 960×540 and at most 2 MB. Use real pictures of the game.
 4. **Write the description** in `store/about.en.md` and `store/about.zh.md`. English is required. Use Markdown: what the game is, what is in it, how to play.
 5. **Edit `package.json`**: `name`, `author`, `repository`, `license`. Replace `LICENSE` with the license you chose.
@@ -104,6 +104,16 @@ npm accepts each version number once. For every later update, raise `version` in
 3. Open a pull request. CI checks it and shows the result on the pull request page.
 4. After the checks comes the content review; its outcome is written on the pull request, and the criteria are in the [review criteria](../SPEC.en.md#5-review-criteria). When it passes, the pull request merges by itself, usually within the hour.
 5. After the merge, the site and the catalog update by themselves. Players see your game in the store within a day.
+
+## After listing
+
+Add a play link at the top of your game repository's README, so people who find the repository can play:
+
+```markdown
+[![Play on the DSH Game Store](https://dsh-game-store.com/badge.svg)](https://dsh-game-store.com/games/my-game/play/)
+```
+
+Then set the repository's Website (in About) to `https://dsh-game-store.com/games/my-game/`.
 
 ## Update a game
 

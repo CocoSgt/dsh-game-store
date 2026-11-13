@@ -44,7 +44,7 @@ dsh-game-my-game/
 2. **改 `game.json`**：`id`、名字、一句话介绍、作者、语言、操作方式、人数、内容分级。每个字段的写法见[规范 2.4 节](../SPEC.md#24-游戏清单-gamejson)。
 3. **换掉 `store/` 里的图片**：
    - `icon.png`：正方形，至少 128×128，最大 256 KB。
-   - `cover.png`：16:9，至少 1280×720，最大 2 MB。它是商店首页最大的那张图。
+   - `cover.png`：16:9，至少 1280×720，最大 2 MB。它是商店首页最大的那张图。要专门画一张主视觉，不要直接截标题画面，画面里不要有“点击开始”、按钮、版本号这些界面元素。完整要求见 [SKILL.md 的“封面怎么做”](https://dsh-game-store.com/SKILL.md)。
    - 截图 1 到 8 张，每张至少 960×540，最大 2 MB。用真实的游戏画面。
 4. **写游戏说明** `store/about.en.md` 和 `store/about.zh.md`。英文必须有。用 Markdown 写：游戏是什么，有什么内容，怎么操作。
 5. **改 `package.json`**：`name`、`author`、`repository`、`license`。再把 `LICENSE` 换成你选的许可证。
@@ -104,6 +104,16 @@ npm 上同一个版本号只能发布一次。以后每次更新，先改 `packa
 3. 提 Pull Request。CI 会自动检查，结果显示在 Pull Request 页面上。
 4. 检查通过后是内容审核，结论会写在 Pull Request 里，标准见[审核标准](../SPEC.md#5-审核标准)。通过就自动合并，一般在一小时内。
 5. 合并以后，网站和目录自动更新。玩家的商店最晚一天后看到你的游戏。
+
+## 上架以后
+
+在你的游戏仓库 README 开头加上试玩链接，看到仓库的人能直接去玩：
+
+```markdown
+[![在 DSH 游戏商店试玩](https://dsh-game-store.com/badge.svg)](https://dsh-game-store.com/games/my-game/play/)
+```
+
+再把仓库 About 里的 Website 设成 `https://dsh-game-store.com/games/my-game/`。
 
 ## 更新游戏
 
