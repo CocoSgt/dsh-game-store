@@ -23,6 +23,7 @@ const TEXT = SITE => ({
   zh: {
     lang: 'zh-CN', other: 'English', site: 'DSH 游戏商店', title: 'DSH 游戏商店 · 大家用 Agent 做的游戏',
     lead: '这里的游戏，是大家用 Agent 做出来的。网页上点开就玩，也能装进 DeepSeek Harness 玩。',
+    slot: '你的游戏放这里', slotLead: '用 Agent 做的游戏，一句话就能投稿',
     introA: '大家用 Agent 做的游戏', introB: '网页上点开就玩，也能装进 DeepSeek Harness 玩。你的 Agent 做的游戏，也可以放进来。', introPlay: '看看有什么游戏', introSubmit: '把我的游戏放进来',
     nav: { games: '商店', workshop: '插件工坊', publish: '投稿', install: '装进 DSH', docs: '文档' },
     docNames: { install: '安装说明', publish: '发布游戏：分步说明', workshop: '做扩展：分步说明', spec: '平台规范' },
@@ -66,6 +67,7 @@ const TEXT = SITE => ({
   en: {
     lang: 'en', other: '中文', site: 'DSH Game Store', title: 'DSH Game Store · Games people built with agents',
     lead: 'The games here were built by people with their agents. Play in your browser with one click, or inside DeepSeek Harness.',
+    slot: 'Your game goes here', slotLead: 'Built a game with your agent? One line submits it',
     introA: 'Games people built with agents', introB: 'Play in your browser with one click, or inside DeepSeek Harness. A game your agent built can go here too.', introPlay: 'See the games', introSubmit: 'Add my game',
     nav: { games: 'Store', workshop: 'Workshop', publish: 'Submit', install: 'Get it in DSH', docs: 'Docs' },
     docNames: { install: 'Install guide', publish: 'Publish a game: step by step', workshop: 'Make an extension: step by step', spec: 'Platform spec' },
@@ -214,7 +216,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
 ${hero}
 <section class="strip"><div class="in"><span><b>${listed.length}</b> ${esc(t.statGames)}</span><span><b>${exts.length}</b> ${esc(t.statExts)}</span><span class="grow">${esc(t.lead)}</span><a href="${REPO}">${ICON.github}${esc(t.statOpen)}</a></div></section>
 <section class="in block" id="games"><div class="head"><h2>${esc(t.all)}</h2><span class="muted">${esc(t.count(listed.length))}</span></div>
-${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')}</div>` : `<p class="muted">${esc(t.none)}</p>`}
+<div class="grid">${listed.map(g => card(lang, g)).join('\n')}<a class="card slot" href="${base}publish/"><span class="plus">+</span><b>${esc(t.slot)}</b><span>${esc(t.slotLead)}</span></a></div>
 </section>
 <section class="band" id="publish"><div class="in two">
   <div><span class="kicker">${esc(t.nav.publish)}</span><h2>${esc(t.pubTitle)}</h2><p class="lead">${esc(t.pubLead)}</p>
