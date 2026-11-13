@@ -5,26 +5,26 @@
  "community": {
   "repo": "CocoSgt/dsh-game-store"
  },
- "generatedAt": "2026-11-13T12:13:49.805Z",
+ "generatedAt": "2026-11-13T12:39:32.720Z",
  "games": [
   {
    "id": "tidemark",
    "package": "dsh-game-tidemark",
    "version": "1.0.0",
-   "integrity": "sha512-6ZlfhMNeI8iXaVgHdPpY/PupAofo1fxZdfDnLkzYOYn2VVJFbzdjZ6lm1re5jMROMe/YH/xTKlkGeEtQ91TnTw==",
+   "integrity": "sha512-FqvcGzaF9GX1gqvWn9Z4N2oMGhTqFswQkxWAZkZBw3dUimoZJLpJIrt3xC57hFm+o7fehW+trJgTgt2dFWLUmg==",
    "repository": "https://github.com/CocoSgt/dsh-game-tidemark",
    "status": "listed",
    "addedAt": "2026-11-13",
    "updatedAt": "2026-11-13",
    "license": "SEE LICENSE IN LICENSE.md",
-   "packageBytes": 105572829,
-   "tarballBytes": 86013771,
+   "packageBytes": 105477127,
+   "tarballBytes": 85855633,
    "manifest": {
     "spec": 1,
     "id": "tidemark",
     "name": {
      "en": "Tidemark",
-     "zh": "潮汐前线"
+     "zh": "潮汐战线"
     },
     "tagline": {
      "en": "Where the tide leaves its mark.",
@@ -140,7 +140,7 @@
      "game": "tidemark",
      "package": "dsh-game-tidemark-sample-map",
      "version": "1.0.0",
-     "integrity": "sha512-ZTkLuJjcpL6nkRQyRDTfTJns3oXdcLQ54Yfwsd9Q3Srtm0hUJGnqNSiQc7pSj5yAYwAN9TwkN6xjdBrmHFVEgg==",
+     "integrity": "sha512-fNuTUlk7wOz27K0Txk18wd47LDqSXqOAzCaonucqb514JQdpGITwd0v/5MfxSqeMvgDwvf0/tv2I5ekacxBKqg==",
      "repository": "https://github.com/CocoSgt/dsh-game-tidemark-sample-map",
      "status": "listed",
      "addedAt": "2026-11-13",
