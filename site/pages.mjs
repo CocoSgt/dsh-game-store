@@ -62,7 +62,9 @@ const TEXT = SITE => ({
     preview: '预览：这个游戏的包还没有发布到 npm，页面内容来自本地的包。', delisted: '这个游戏已下架：',
     footAbout: '开源的游戏平台，建在 DeepSeek Harness 和 GitHub 上。', footPlay: '玩', footMake: '做', footRepo: 'GitHub 仓库',
     star: '在 GitHub 点个星', starStore: '给商店点个星', viewSource: '看源码',
-    playBack: '回到游戏页', playFull: '全屏', playManual: '手册', manualOf: '手册', docs: '文档', onThisPage: '本页内容',
+    playBack: '回到游戏页', playFull: '全屏', playManual: '手册', manualOf: '手册', playMenu: '菜单',
+    playTip: '左边的圆形按钮是菜单：可以全屏、看手册、回到游戏页。按住能拖到任意位置',
+    escLocked: '全屏下短按 Esc 是游戏里的取消，长按 Esc 退出全屏', escFree: '全屏下按 Esc 会退出全屏。游戏里取消请用右键或 Backspace', docs: '文档', onThisPage: '本页内容',
   },
   en: {
     lang: 'en', other: '中文', site: 'DSH Game Store', title: 'DSH Game Store · Games people built with agents',
@@ -106,7 +108,9 @@ const TEXT = SITE => ({
     preview: 'Preview: this game is not on npm yet. The page is built from a local package.', delisted: 'This game was taken down: ',
     footAbout: 'An open game platform built on DeepSeek Harness and GitHub.', footPlay: 'Play', footMake: 'Make', footRepo: 'GitHub repository',
     star: 'Star on GitHub', starStore: 'Star the store', viewSource: 'View source',
-    playBack: 'Back to the game page', playFull: 'Full screen', playManual: 'Manual', manualOf: 'Manual', docs: 'Docs', onThisPage: 'On this page',
+    playBack: 'Back to the game page', playFull: 'Full screen', playManual: 'Manual', manualOf: 'Manual', playMenu: 'Menu',
+    playTip: 'The round button on the left is the menu: full screen, manual, back to the game page. Hold and drag it anywhere',
+    escLocked: 'In full screen a short Esc is the game\'s cancel; hold Esc to leave full screen', escFree: 'In full screen Esc leaves full screen. Cancel in the game with right-click or Backspace', docs: 'Docs', onThisPage: 'On this page',
   },
 })
 
@@ -318,8 +322,11 @@ ${hero}
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
-.hot{position:fixed;top:0;left:50%;width:260px;height:12px;transform:translateX(-50%);z-index:2;display:flex;justify-content:center}
-.hot i{width:44px;height:4px;margin-top:4px;border-radius:4px;background:rgba(255,255,255,.35);box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.hot{position:fixed;top:0;left:30%;right:30%;height:6px;z-index:2}
+.handle{position:fixed;z-index:2;width:40px;height:40px;margin-top:-20px;border-radius:50%;padding:0;display:grid;place-items:center;background:rgba(12,14,22,.72);border:1px solid rgba(255,201,60,.5);box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:grab;touch-action:none;opacity:.88}
+.handle:hover{opacity:1}.handle.left{left:8px}.handle.right{right:8px}
+.handle i{display:block;width:15px;height:2.2px;margin:1.5px 0;border-radius:2px;background:#ffc93c;pointer-events:none}
+.tip{position:fixed;top:64px;left:50%;z-index:3;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:rgba(12,14,22,.88);color:#ffe19a;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s}.tip.on{opacity:1}
 .bar{position:fixed;top:10px;left:50%;z-index:3;display:flex;align-items:center;gap:2px;padding:5px 6px 5px 12px;border-radius:999px;background:rgba(14,16,24,.88);color:#fff;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.45);backdrop-filter:blur(8px);transform:translate(-50%,-64px);opacity:0;transition:transform .22s,opacity .22s}
 .bar.on{transform:translate(-50%,0);opacity:1}
 .bar b{display:flex;align-items:center;gap:8px;margin-right:8px}.bar img{width:20px;height:20px;border-radius:5px}
@@ -329,7 +336,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
 </head>
 <body>
 <iframe id="f" title="${esc(name)}" sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; gamepad; autoplay" allowfullscreen referrerpolicy="no-referrer"></iframe>
-<div class="hot" id="hot"><i></i></div>
+<div class="hot" id="hot"></div><button class="handle" id="handle" aria-label="${esc(t.playMenu)}" title="${esc(t.playMenu)}"><span><i></i><i></i><i></i></span></button><div class="tip" id="tip"></div>
 <div class="bar" id="bar"><b><img src="${esc(pic(g, m.icon))}" alt="">${esc(name)}</b><button id="full">${esc(t.playFull)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a></div>
 <script>
 // On the real site the game is served from its own subdomain; in a local preview, from a folder of this server.
@@ -340,7 +347,22 @@ f.src = root + ${JSON.stringify(enc(m.entry))};
 f.addEventListener('load', function () { try { f.focus(); } catch (e) {} });
 function show(ms) { bar.classList.add('on'); clearTimeout(timer); timer = setTimeout(function () { bar.classList.remove('on'); }, ms || 2500); }
 document.getElementById('hot').addEventListener('mouseenter', function () { show(); });
-document.getElementById('hot').addEventListener('click', function () { show(4000); });
+// The menu handle: dragged along the sides, remembered; a click opens the strip.
+var hd = document.getElementById('handle'), tip = document.getElementById('tip'), pos = { side: 'left', y: 50 }, dr = null, tipTimer;
+try { var sv = JSON.parse(localStorage.getItem('dsh-game-store.handle') || 'null'); if (sv && (sv.side === 'left' || sv.side === 'right')) pos = sv; } catch (e) {}
+function place() { hd.className = 'handle ' + pos.side; hd.style.top = pos.y + '%'; }
+place();
+hd.addEventListener('pointerdown', function (e) { dr = { x: e.clientX, y: e.clientY, moved: false }; try { hd.setPointerCapture(e.pointerId); } catch (x) {} });
+hd.addEventListener('pointermove', function (e) { if (!dr) return; if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) < 5) return; dr.moved = true; pos = { side: e.clientX < innerWidth / 2 ? 'left' : 'right', y: Math.max(4, Math.min(96, e.clientY / innerHeight * 100)) }; place(); });
+hd.addEventListener('pointerup', function () { if (!dr) return; var moved = dr.moved; dr = null; if (moved) { try { localStorage.setItem('dsh-game-store.handle', JSON.stringify(pos)); } catch (x) {} } else show(5000); try { f.focus(); } catch (x) {} });
+function say(text, ms) { tip.textContent = text; tip.classList.add('on'); clearTimeout(tipTimer); tipTimer = setTimeout(function () { tip.classList.remove('on'); }, ms || 4500); }
+say(${JSON.stringify(t.playTip)});
+document.addEventListener('fullscreenchange', function () {
+  if (!document.fullscreenElement) { try { navigator.keyboard && navigator.keyboard.unlock(); } catch (x) {} return; }
+  // Keyboard Lock: a short Esc goes to the game; holding Esc leaves full screen.
+  var locked = false; try { if (navigator.keyboard && navigator.keyboard.lock) { navigator.keyboard.lock(['Escape']).catch(function () {}); locked = true; } } catch (x) {}
+  say(locked ? ${JSON.stringify(t.escLocked)} : ${JSON.stringify(t.escFree)}, 5000);
+});
 bar.addEventListener('mouseenter', function () { clearTimeout(timer); });
 bar.addEventListener('mouseleave', function () { show(1200); });
 document.getElementById('full').addEventListener('click', function () { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function () {}); try { f.focus(); } catch (e) {} });

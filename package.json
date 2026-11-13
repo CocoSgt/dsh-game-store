@@ -1,6 +1,6 @@
 {
   "name": "dsh-game-store",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A game store for DeepSeek Harness: browse the catalog, read about a game, install, play, update and uninstall",
   "type": "module",
   "license": "MIT",
