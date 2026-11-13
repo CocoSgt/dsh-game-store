@@ -58,10 +58,10 @@ DSH 有一个实验功能“自定义插件索引”：一个 JSON 文件列出�
 - 装商店：`dsh plugin --profile store-test add /Users/admin/agentswork/dsh-workspace/dsh-game-store`（链接到源码目录，改了刷新页面就生效；主机端改了要重启这个测试进程）。
 - 启动：`dsh store-test --port 3092 --no-open`，终端会打印带 token 的地址。
 - 不要在 `~/.dsh` 上再跑一个 DSH，那是桌面版在用的。
-- profile 的 `cordis.patch.yml` 里给商店配了 `devSources`，让它从本地 tarball 装《潮汐前线》（npm 上还没有这个包）；校验值照样比对。
+- profile 的 `cordis.patch.yml` 里给商店配了 `devSources`，让它从本地 tarball 装《潮汐战线》（npm 上还没有这个包）；校验值照样比对。
 
 ## 七、插件工坊的做法（2026-11-13 补）
 
 - 扩展包和游戏包一样是空 patch 的组合包，用 `pluginManager.installBundle` 安装。（实测过）
-- 商店没有把扩展文件拷进游戏包：`node_modules` 里的包由 pnpm 管，改了以后校验值就对不上，更新时也会被覆盖。改成在游戏的本地地址上叠一层：`<mount>/<扩展 id>/…` 的请求从扩展包的文件夹里取，清单文件由商店现场生成。对游戏来说效果一样。（实测过：《潮汐前线》装上示例地图后地图从 27 张变 28 张，停用、卸载后恢复）
+- 商店没有把扩展文件拷进游戏包：`node_modules` 里的包由 pnpm 管，改了以后校验值就对不上，更新时也会被覆盖。改成在游戏的本地地址上叠一层：`<mount>/<扩展 id>/…` 的请求从扩展包的文件夹里取，清单文件由商店现场生成。对游戏来说效果一样。（实测过：《潮汐战线》装上示例地图后地图从 27 张变 28 张，停用、卸载后恢复）
 - 用本地 tarball 装的包 `updatable` 是 false，更新走“先卸后装”。（实测过）从 npm 装的包走 `updateBundle`，这条路这次没测。
