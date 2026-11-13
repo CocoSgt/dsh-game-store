@@ -30,21 +30,21 @@ const TEXT = SITE => ({
     wsCmd: `阅读 ${SITE}/SKILL.md，把我给游戏做的扩展发布到 DSH 游戏商店的插件工坊`,
     wsSteps: [['看游戏接受什么', '每个游戏自己规定能扩展什么。《潮汐战线》现在接受地图、语言、指挥官、数值。'], ['写内容，打成包', '一个扩展就是一个小 npm 包，里面是交给游戏的文件。'], ['提 Pull Request', '检查全过自动合并，扩展出现在游戏页的“插件工坊”里。']],
     wsGuide: '做扩展的分步说明',
-    pubHero: '你的游戏，放进来', pubHeroLead: '能在浏览器里离线运行，就能上架。免费，开源，不用等人审批。',
-    pubRulesTitle: '四条规矩', pubRules: [['离线', '游戏用到的文件全部打进包里。上架的游戏联不了网。'], ['占满窗口', '窗口多大画多大。玩家点开就是全屏。'], ['一个包装完', '没有依赖，没有安装脚本。玩家装到的就是审过的那一份。'], ['有头有脸', '封面、截图、一段说明、一个许可证。']],
+    pubHero: '你的游戏，放进来', pubHeroLead: '能在浏览器里运行的游戏，就能上架。免费，开源，审核是自动的。',
+    pubRulesTitle: '四条规矩', pubRules: [['文件自带', '游戏用到的文件全部打进包里。要联机，就在清单里写明连哪几个服务器，玩家会看到。'], ['占满窗口', '窗口多大画多大。玩家点开就是全屏。'], ['一个包装完', '没有依赖，没有安装脚本。玩家装到的就是审过的那一份。'], ['有头有脸', '封面、截图、一段说明、一个许可证。']],
     pubAutoTitle: '检查全过，自动上架', pubAuto: '只改了自己的条目、提交的 GitHub 账号就是游戏仓库的主人、自动检查全绿、内容审核通过：Pull Request 自己合并，网站和商店自动更新，一般在一小时内。别人改不了你的条目。',
     pubByHand: '想自己动手',
     insHero: '装进 DSH，全屏玩', insHeroLead: '网页上试过了？装进 DeepSeek Harness，游戏占满整个窗口，存档留在你的电脑上，还能装扩展。',
-    insFaq: [['存档在哪', '在你的电脑上。更新游戏、卸载重装，进度都在。'], ['安全吗', '商店只装目录里登记的版本，并核对校验值。游戏联不了网，碰不到 DSH 的数据和你的文件。'], ['怎么卸载', '打开游戏页点“卸载”。存档会保留。']],
+    insFaq: [['存档在哪', '在你的电脑上。更新游戏、卸载重装，进度都在。'], ['安全吗', '商店只装目录里登记的版本，并核对校验值。游戏碰不到 DSH 的数据和你的文件；会联网的游戏，游戏页上写明了它连哪些服务器。'], ['怎么卸载', '打开游戏页点“卸载”。存档会保留。']],
     insMore: '完整的安装说明', backTo: '回到',
     signIn: '用 GitHub 登录', signOut: '退出', featured: '精选', isNew: '新上架',
     playNow: '立即试玩', details: '游戏详情', inDsh: '装进 DSH', all: '全部游戏', none: '目录里还没有游戏。', count: n => `${n} 个游戏`,
-    free: '免费', offline: '离线运行', players: n => (n > 1 ? `1–${n} 人` : '单人'), langs: n => `${n} 种语言`,
+    free: '免费', offline: '离线运行', online: '联网', network: '联网', netOff: '不联网', netWarn: h => `这个游戏会联网，连接的是开发者自己的服务器：${h}。联网的风险请你自己判断。`, players: n => (n > 1 ? `1–${n} 人` : '单人'), langs: n => `${n} 种语言`,
     statGames: '个游戏', statExts: '个扩展', statOpen: '目录和规则全部公开在 GitHub',
     dshTitle: '装进 DSH，全屏玩', dshLead: '游戏商店是 DeepSeek Harness 的一个插件。装上以后，游戏在你自己的电脑上运行，占满整个窗口，存档留在本机。',
     dshSteps: [['装上商店', '在 DSH 的插件页里安装 dsh-game-store，或者运行下面这条命令。'], ['挑一个游戏', '看截图和说明，点“安装”。商店只装目录里登记的版本，并核对校验值。'], ['开始游戏', '游戏占满窗口并进入全屏。给游戏装扩展，在游戏页的“插件工坊”里点一下。']],
     dshCmd: 'dsh plugin --profile web add dsh-game-store', dshMore: '完整的安装说明',
-    pubTitle: '把你的游戏放进来', pubLead: '一个能在浏览器里离线运行的游戏，就能上架。把下面这句话交给你的 agent，它会打包、检查、发布，再提一个 Pull Request。',
+    pubTitle: '把你的游戏放进来', pubLead: '一个能在浏览器里运行的游戏，就能上架。把下面这句话交给你的 agent，它会打包、检查、发布，再提一个 Pull Request。',
     agentCmd: `阅读 ${SITE}/SKILL.md，把我的游戏发布到 DSH 游戏商店`, copy: '复制指令', copied: '已复制', copyCmd: '复制',
     agentHint: '适用于 Claude Code、Codex、DSH 等 agent。题目、规则、每个游戏的条目，全部公开在 GitHub。',
     pubSteps: [['打包', '一个游戏是一个 npm 包：游戏文件、清单、封面、截图、说明。'], ['检查', 'CI 逐项对照规范。只下载，不运行你的代码。'], ['上架', '检查和内容审核都通过，Pull Request 自动合并。']],
@@ -72,21 +72,21 @@ const TEXT = SITE => ({
     wsCmd: `Read ${SITE}/SKILL.md and publish my extension for a game to the DSH Game Store workshop`,
     wsSteps: [['See what the game accepts', 'Each game decides what can be extended. Tidemark accepts maps, languages, commanders and balance changes.'], ['Write it, pack it', 'An extension is a small npm package holding the files handed to the game.'], ['Open a pull request', 'When every check passes it merges by itself and shows in the Workshop section of the game page.']],
     wsGuide: 'Step-by-step guide',
-    pubHero: 'Your game, on the store', pubHeroLead: 'If it runs offline in a browser, it can be listed. Free, open, and nobody to wait for.',
-    pubRulesTitle: 'Four rules', pubRules: [['Offline', 'Every file the game needs is in the package. Listed games have no network access.'], ['Fill the window', 'Draw at whatever size the window is. Players get full screen from the first click.'], ['One package', 'No dependencies, no install scripts. Players get exactly what was checked.'], ['A face', 'A cover, screenshots, a description and a license.']],
+    pubHero: 'Your game, on the store', pubHeroLead: 'If it runs in a browser, it can be listed. Free, open, and reviewed automatically.',
+    pubRulesTitle: 'Four rules', pubRules: [['Self-contained', 'Every file the game needs is in the package. To go online, name your servers in the manifest; players see them.'], ['Fill the window', 'Draw at whatever size the window is. Players get full screen from the first click.'], ['One package', 'No dependencies, no install scripts. Players get exactly what was checked.'], ['A face', 'A cover, screenshots, a description and a license.']],
     pubAutoTitle: 'Pass the checks, get listed', pubAuto: 'A pull request that changes only your own entry, comes from the GitHub account that owns the game\'s repository, is green in CI and passes the content review merges by itself, usually within the hour. The site and the store update on their own. Nobody else can change your entry.',
     pubByHand: 'Prefer to do it by hand',
     insHero: 'Install into DSH, play full screen', insHeroLead: 'Tried it in the browser? In DeepSeek Harness the game fills the whole window, keeps its saves on your computer, and takes extensions.',
-    insFaq: [['Where are saves kept', 'On your computer. They survive updates and reinstalls.'], ['Is it safe', 'The store installs only versions registered in the catalog and compares the checksum. A game has no network access and cannot reach DSH data or your files.'], ['How to uninstall', 'Open the game page and click Uninstall. Saves are kept.']],
+    insFaq: [['Where are saves kept', 'On your computer. They survive updates and reinstalls.'], ['Is it safe', 'The store installs only versions registered in the catalog and compares the checksum. A game cannot reach DSH data or your files; a game that goes online names its servers on its page.'], ['How to uninstall', 'Open the game page and click Uninstall. Saves are kept.']],
     insMore: 'Full install guide', backTo: 'Back to',
     signIn: 'Sign in with GitHub', signOut: 'Sign out', featured: 'Featured', isNew: 'New',
     playNow: 'Play now', details: 'Game page', inDsh: 'Get it in DSH', all: 'All games', none: 'The catalog has no games yet.', count: n => `${n} game${n === 1 ? '' : 's'}`,
-    free: 'Free', offline: 'Runs offline', players: n => (n > 1 ? `1–${n} players` : 'Single player'), langs: n => `${n} languages`,
+    free: 'Free', offline: 'Runs offline', online: 'Online', network: 'Network', netOff: 'Offline', netWarn: h => `This game goes online and connects to its developer’s own servers: ${h}. The risk of going online is yours to judge.`, players: n => (n > 1 ? `1–${n} players` : 'Single player'), langs: n => `${n} languages`,
     statGames: 'games', statExts: 'extensions', statOpen: 'The catalog and the rules are public on GitHub',
     dshTitle: 'Install into DSH, play full screen', dshLead: 'The Game Store is a plugin for DeepSeek Harness. Games run on your own computer, fill the whole window, and keep their saves on your machine.',
     dshSteps: [['Install the store', 'Install dsh-game-store on DSH\'s Plugins page, or run the command below.'], ['Pick a game', 'Look at the screenshots and the description, then click Install. The store installs only the version registered in the catalog and compares its checksum.'], ['Play', 'The game fills the window and goes full screen. Extensions are one click away in the Workshop section of the game page.']],
     dshCmd: 'dsh plugin --profile web add dsh-game-store', dshMore: 'Full install guide',
-    pubTitle: 'Add your game', pubLead: 'Any game that runs offline in a browser can be listed. Give the line below to your agent: it packs, checks and publishes the game, then opens a pull request.',
+    pubTitle: 'Add your game', pubLead: 'Any game that runs in a browser can be listed. Give the line below to your agent: it packs, checks and publishes the game, then opens a pull request.',
     agentCmd: `Read ${SITE}/SKILL.md and publish my game to the DSH Game Store`, copy: 'Copy', copied: 'Copied', copyCmd: 'Copy',
     agentHint: 'Works with Claude Code, Codex, DSH and other agents. The rules and every game entry are public on GitHub.',
     pubSteps: [['Pack', 'A game is an npm package: game files, a manifest, a cover, screenshots, a description.'], ['Check', 'CI compares it with the spec point by point. Your code is downloaded, never run.'], ['Listed', 'When the checks and the content review pass, the pull request merges by itself.']],
@@ -167,7 +167,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
   const cmdBox = (t, cmd, { gold = false, label } = {}) => `<div class="cmd${gold ? ' gold' : ''}"><span class="prompt">${gold ? '&gt;_' : '$'}</span><code>${esc(cmd)}</code><button type="button" data-copy="${esc(cmd)}" data-done="${esc(t.copied)}">${esc(label ?? (gold ? t.copy : t.copyCmd))}</button></div>`
   const chips = (t, g) => {
     const m = g.manifest
-    return [t.free, t.players(m.players.max), t.langs(m.languages.length), ...m.controls.map(c => t.control[c]), t.offline].map(c => `<span class="chip">${esc(c)}</span>`).join('')
+    return [t.free, t.players(m.players.max), t.langs(m.languages.length), ...m.controls.map(c => t.control[c]), m.network ? t.online : t.offline].map(c => `<span class="chip">${esc(c)}</span>`).join('')
   }
   const playHref = (base, g) => `${base}games/${g.id}/play/`
 
@@ -244,6 +244,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
         [t.controls, esc(m.controls.map(c => t.control[c]).join(t.sep))],
         [t.playersLabel, m.players.max > 1 ? t.playersRange(m.players.min, m.players.max) : t.playersOne],
         [t.rating, esc([t.ratingName[m.content.rating], pickText(m.content.notes, t.lang)].filter(Boolean).join(' · '))],
+        [t.network, m.network ? esc(m.network.hosts.join(t.sep)) : t.netOff],
         [t.pkg, `<a href="https://www.npmjs.com/package/${esc(g.package)}">${esc(g.package)}</a>`],
         [t.source, `<a href="${esc(g.repository)}">${esc(g.repository.replace('https://github.com/', ''))}</a>`],
         [t.checksum, `<span class="mono">${esc(g.integrity)}</span>`],
@@ -258,7 +259,7 @@ ${listed.length ? `<div class="grid">${listed.map(g => card(lang, g)).join('\n')
       const listedGame = g.status === 'listed'
       page(lang, `games/${g.id}/`, name, `
 <section class="ghero"><div class="bg" style="background-image:url('/games/${g.id}/${esc(m.cover)}')"></div><div class="in">
-  ${g.preview ? `<p class="note">${esc(t.preview)}</p>` : ''}${!listedGame ? `<p class="note warn">${esc(t.delisted + (g.reason ?? ''))}</p>` : ''}
+  ${g.preview ? `<p class="note">${esc(t.preview)}</p>` : ''}${!listedGame ? `<p class="note warn">${esc(t.delisted + (g.reason ?? ''))}</p>` : ''}${m.network ? `<p class="note warn">${esc(t.netWarn(m.network.hosts.join(t.sep)))} ${esc(pickText(m.network.notes, t.lang))}</p>` : ''}
   <div class="gtop">
     <div class="viewer" data-gallery>
       <div class="screen zoomable">${first.video ? `<video data-main autoplay muted loop playsinline preload="metadata"${first.poster ? ` poster="/games/${g.id}/${esc(first.poster)}"` : ''} src="/games/${g.id}/${esc(first.video)}"></video>` : `<img data-main src="/games/${g.id}/${esc(first.src)}" alt="${esc(name)}">`}</div>

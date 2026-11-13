@@ -1,6 +1,8 @@
 # 怎么发布你的游戏
 
-你需要：一个能在浏览器里离线运行的游戏（HTML + JavaScript），一个 npm 账号，一个 GitHub 账号，Node.js 22 以上。
+你需要：一个能在浏览器里运行的游戏（HTML + JavaScript），一个 npm 账号，一个 GitHub 账号，Node.js 22 以上。
+
+上架要过两关：自动检查，和一次内容审核（查恶意代码和不能接受的内容），都通过就自动合并。
 
 整个过程分五步：建游戏包、放进游戏、检查、发布到 npm、提 Pull Request。
 
@@ -34,7 +36,8 @@ dsh-game-my-game/
 ## 第二步：放进你的游戏
 
 1. **把游戏文件放进 `game/`**，入口页是 `game/index.html`。四件事要做到：
-   - 用到的脚本、字体、图片、声音都在 `game/` 里，用相对路径引用。商店里的游戏联不了网。
+   - 用到的脚本、字体、图片、声音都在 `game/` 里，用相对路径引用。
+   - 游戏要联网（联机、排行榜），在 `game.json` 里加 `network`，写明连哪几个服务器：`"network": { "hosts": ["https://api.example.com"], "notes": { "en": "Leaderboards.", "zh": "排行榜。" } }`。服务器用你自己的；没写进去的地址连不上。
    - 画面占满窗口，窗口大小变了跟着变，页面没有滚动条。商店启动游戏时会给它整个窗口并进入全屏。
    - 存档用 `localStorage` 或 `IndexedDB`。
    - 游戏自己处理语言。可以读 `navigator.language`，也可以在游戏里放语言选项。
@@ -99,7 +102,7 @@ npm 上同一个版本号只能发布一次。以后每次更新，先改 `packa
 
 2. Fork [dsh-game-store 仓库](https://github.com/CocoSgt/dsh-game-store)，把这段存成 `catalog/games/my-game.json`。文件名就是游戏的 `id`。
 3. 提 Pull Request。CI 会自动检查，结果显示在 Pull Request 页面上。
-4. 维护者会装上玩一下，按[审核标准](../SPEC.md#5-审核标准)看一遍。有问题会在 Pull Request 里说。
+4. 检查通过后是内容审核，结论会写在 Pull Request 里，标准见[审核标准](../SPEC.md#5-审核标准)。通过就自动合并，一般在一小时内。
 5. 合并以后，网站和目录自动更新。玩家的商店最晚一天后看到你的游戏。
 
 ## 更新游戏
@@ -131,5 +134,5 @@ npm 上同一个版本号只能发布一次。以后每次更新，先改 `packa
 | `package.json main: not allowed` | 删掉 `main`、`exports`、`bin` |
 | `game.json cover: … must be 16:9` | 把封面裁成 16:9，至少 1280×720 |
 | `game.json name.en: English text is required` | 多语言文字里补上 `en` |
-| `network: … load from the internet` | 把那些文件下载下来放进 `game/`，改成相对路径 |
+| `network: … load from the internet` | 把那些文件下载下来放进 `game/`，改成相对路径；确实要联网的，在 `game.json` 里声明 `network` |
 | `integrity: the catalog says …, npm says …` | 重新运行 `npx dsh-game-store entry <包名>@<版本>`，用它打印的值 |

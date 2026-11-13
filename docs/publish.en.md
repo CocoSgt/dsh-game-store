@@ -1,6 +1,8 @@
 # Publish your game
 
-You need: a game that runs offline in a browser (HTML + JavaScript), an npm account, a GitHub account, and Node.js 22 or newer.
+You need: a game that runs in a browser (HTML + JavaScript), an npm account, a GitHub account, and Node.js 22 or newer.
+
+A game passes two gates: the automatic checks, and a content review (malicious code, unacceptable content). When both pass it merges by itself.
 
 There are five steps: create the package, put your game in, check it, publish to npm, open a pull request.
 
@@ -34,7 +36,8 @@ You can also copy the [template folder](../template).
 ## Step 2: put your game in
 
 1. **Put the game's files in `game/`**. The entry page is `game/index.html`. Four things to get right:
-   - Every script, font, picture and sound is in `game/` and loaded by a relative path. Games in the store have no network access.
+   - Every script, font, picture and sound is in `game/` and loaded by a relative path.
+   - If the game goes online (multiplayer, leaderboards), add `network` to `game.json` and name the servers: `"network": { "hosts": ["https://api.example.com"], "notes": { "en": "Leaderboards." } }`. Use your own servers; an address that is not listed cannot be reached.
    - The game fills the window and follows it when it is resized, with no scroll bars. The store gives a running game the whole window and goes full screen.
    - Saves go in `localStorage` or `IndexedDB`.
    - The game handles its own languages. Read `navigator.language`, or offer a language choice inside the game.
@@ -99,7 +102,7 @@ npm accepts each version number once. For every later update, raise `version` in
 
 2. Fork the [dsh-game-store repository](https://github.com/CocoSgt/dsh-game-store) and save that as `catalog/games/my-game.json`. The file name is the game's `id`.
 3. Open a pull request. CI checks it and shows the result on the pull request page.
-4. A maintainer installs the game, plays it, and goes through the [review criteria](../SPEC.en.md#5-review-criteria). Questions come as comments on the pull request.
+4. After the checks comes the content review; its outcome is written on the pull request, and the criteria are in the [review criteria](../SPEC.en.md#5-review-criteria). When it passes, the pull request merges by itself, usually within the hour.
 5. After the merge, the site and the catalog update by themselves. Players see your game in the store within a day.
 
 ## Update a game
@@ -131,5 +134,5 @@ Or open an issue in the repository. The rules are in [section 6 of the spec](../
 | `package.json main: not allowed` | Delete `main`, `exports`, `bin` |
 | `game.json cover: … must be 16:9` | Crop the cover to 16:9, at least 1280×720 |
 | `game.json name.en: English text is required` | Add `en` to the text |
-| `network: … load from the internet` | Download those files into `game/` and load them by relative path |
+| `network: … load from the internet` | Download those files into `game/` and load them by relative path; if the game really goes online, declare `network` in `game.json` |
 | `integrity: the catalog says …, npm says …` | Run `npx dsh-game-store entry <package>@<version>` again and use the value it prints |

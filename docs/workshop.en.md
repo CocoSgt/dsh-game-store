@@ -102,4 +102,4 @@ Three things to get right:
 
 ## Safety
 
-An extension has the same limits as a game: no network, no access to DSH data. Its code runs in the same page as the game, so it can read and write that game's saves and change how the game behaves. The store installs only versions registered in the catalog and compares the checksum. More in [section 9 of the spec](../SPEC.en.md#9-safety).
+An extension has the same limits as a game: only the servers the game declared, no access to DSH data. Its code runs in the same page as the game, so it can read and write that game's saves and change how the game behaves. The store installs only versions registered in the catalog and compares the checksum. More in [section 9 of the spec](../SPEC.en.md#9-safety).

@@ -131,6 +131,7 @@ It tells DSH that the package adds no plugin code to DSH.
 | `controls` | yes | Any of `keyboard`, `mouse`, `touch`, `gamepad` |
 | `players` | yes | `{ "min": 1, "max": 4 }` |
 | `content.rating` | yes | `everyone`, `teen` (13 and up) or `mature` (18 and up) |
+| `network` | no | Present when the game goes online; see section 2.6. Without it the game is offline |
 | `workshop` | no | Present when the game takes extensions; see section 8 |
 | `content.notes` | sometimes | Content notes, at most 200 characters. Required for `teen` and `mature`: say what the content is |
 
@@ -155,7 +156,19 @@ When a player clicks Play, the store opens a local address for the game (`http:/
 What a game must do:
 
 - **Fill the window.** Draw at whatever size the window is and follow it when it changes. No scroll bars.
-- **Work offline.** A game reads only the files in its own package. Fonts, scripts, pictures and sounds are in `game/` and loaded by relative paths.
+- **Ship your files.** Fonts, scripts, pictures and sounds are in `game/` and loaded by relative paths.
+- **Offline by default; declare it to go online.** Online matches, leaderboards and save sync are all fine. Name the servers in the manifest:
+
+  ```json
+  "network": {
+    "hosts": ["https://api.example.com", "wss://play.example.com"],
+    "notes": { "en": "Online matches and leaderboards." }
+  }
+  ```
+
+  `hosts` holds up to 8 addresses: `https://` or `wss://` plus a host name (a port is fine, a path is not). The game can reach these and nothing else. `notes` tells players in one sentence what the connection is for, at most 200 characters.
+
+  The servers are the developer's own: the platform gives games no server, `dsh-game-store.com` and its subdomains cannot be listed, and neither can addresses on the player's machine or local network. The game page says that the game goes online and names the addresses; the risk of going online is the player's to judge.
 - **Save with `localStorage` or `IndexedDB`.** Each game has its own fixed address, so saves are separate, and they survive updates and reinstalls.
 - **Use relative paths.** The entry page is under `/game/…`: write `src="main.js"`, never `src="/main.js"`.
 - A game runs in a restricted frame: it can run scripts, lock the pointer, read gamepads and go full screen; it cannot open windows or navigate elsewhere.
@@ -235,7 +248,7 @@ CI does the following for every entry. All of it must pass before a merge:
 3. The package is downloaded (downloaded only; nothing in it is run) and compared with section 2 point by point: the required and forbidden parts of `package.json`, the standard `cordis.patch.yml`, every manifest field, the entry file, the format, dimensions and size of pictures, the English description, a license file, total size, no symbolic links, no programs or script files (`.exe`, `.sh`, `.node` and the like).
 4. The package is installed into an empty folder with install scripts switched off, to confirm it installs and brings in no other package.
 
-When game files load something from the internet, CI warns: the store blocks those requests, so the game would be missing things for players.
+When a game declares no network use and its files load something from the internet, CI warns: the store blocks those requests, so the game would be missing things for players.
 
 Developers run the same checks on their own computer: `npx dsh-game-store check <folder or package@version>`.
 
@@ -262,7 +275,7 @@ Beyond that, maintainers spot-check listed games and confirm:
 - **The description is true**: summary, screenshots and content rating match the game.
 - **You may publish it**: it is your own work or you have permission. Assets, fonts and code follow their licenses. A maintainer reads any license that is not on the list of common ones.
 - **The content is acceptable**: nothing illegal, no hate aimed at a person or a group, no gambling for real money.
-- **It follows the rules**: no attempt to use the network, collect player data, mine coins or get around the store's limits, and no code obfuscated to avoid review. Minified code is fine when the source repository has the original source or says how it was built.
+- **It follows the rules**: no connection to an address it did not declare, no collecting player data unrelated to the game, mine coins or get around the store's limits, and no code obfuscated to avoid review. Minified code is fine when the source repository has the original source or says how it was built.
 
 For an update, the review looks at what changed.
 
@@ -494,7 +507,8 @@ Installing someone else's game means running someone else's code on your compute
 
 - Each game has its own local address (a fixed port on `127.0.0.1`). To the browser it is a different site from DSH and from every other game: a game cannot read anything in the DSH page or another game's saves.
 - The address is open to this computer only. It serves the files in the package's `game/`, `manual/` and `store/` folders, read-only.
-- Game pages carry a content security policy: scripts, pictures, fonts, sounds and network requests may come only from the game's own address. Requests to the internet and to DSH's API are stopped by the browser.
+- Game pages carry a content security policy: scripts, pictures, fonts and sounds may come only from the game's own address; network requests may go only to that address and to the servers declared in the manifest. Requests to anywhere else and to DSH's API are stopped by the browser.
+- A declared server cannot be one of the platform's own domains or an address on the player's machine or local network. The platform relays no traffic for games.
 - A game is in a sandboxed frame: it cannot open windows, take the DSH page elsewhere or submit forms.
 - Playing on the site has the same separation: one subdomain per game, the same content security policy, and only pages of `dsh-game-store.com` may embed it. The site's own address does not serve game files.
 - The store's own API answers local addresses only, and its write operations accept JSON requests only, so another web page cannot click Install or Uninstall for the player.
@@ -516,14 +530,15 @@ Installing someone else's game means running someone else's code on your compute
 
 ### 9.2 What the store cannot do
 
-- **Review misses things.** The automatic checks look at the package's structure; the content review is an AI model reading code and assets. It can overlook a problem or be fooled by carefully disguised code. The limits at run time (no network, no access to DSH) are the floor.
-- **A game's JavaScript really runs on your computer.** It is held inside what a browser allows a web page: it cannot touch your files or use the network. It can use CPU and memory, and a security hole in the browser engine could let it out. Keep DSH up to date.
+- **Review misses things.** The automatic checks look at the package's structure; the content review is an AI model reading code and assets. It can overlook a problem or be fooled by carefully disguised code. The limits at run time (only declared servers, no access to DSH) are the floor.
+- **The store has no say over an online game's servers.** A game that declares servers can send them what it has inside the game (your moves, your saves, what you type into it), and they see your network address. The review stops obvious data theft, but the platform cannot see what a server does. If you do not trust a game, do not install it.
+- **A game's JavaScript really runs on your computer.** It is held inside what a browser allows a web page: it cannot touch your files and can reach only the servers it declared. It can use CPU and memory, and a security hole in the browser engine could let it out. Keep DSH up to date.
 - **Navigation cannot be stopped.** A game can make its own frame load another address (it can send the request but not read the answer). DSH's own API needs a sign-in token and the store's write operations accept JSON only, so nothing changes that way; but another unprotected service on your computer could receive such a request.
 - **Connections such as WebRTC are outside the content security policy.** A game has none of your data to send, but in theory it could talk to the outside this way.
 - **The catalog is where trust starts.** The store trusts the catalog on `dsh-game-store.com` (over HTTPS) and npm. If the catalog repository or the site were taken over, a malicious version registered there would look like a normal one.
-- **An extension's code runs in the same page as the game.** It has the same limits as the game (no network, no DSH), but it can read and write that game's saves and change how the game behaves. Install only extensions you trust.
+- **An extension's code runs in the same page as the game.** It has the same limits as the game (only the servers the game declared, no DSH), but it can read and write that game's saves and change how the game behaves. Install only extensions you trust.
 - **Packages installed by hand are not covered.** A "game package" outside the catalog, installed with `dsh plugin add`, is an ordinary plugin if it has a `main` or its own patch: its code runs inside DSH. The store only tells you it is not in the catalog.
-- **The store page itself contacts two places**: `dsh-game-store.com` (catalog, pictures, videos) and GitHub (messages and avatars). Both see your network address. Games themselves have no network access.
+- **The store page itself contacts two places**: `dsh-game-store.com` (catalog, pictures, videos) and GitHub (messages and avatars). Both see your network address.
 - **Saves made on the site stay in that browser.** They are separate from the saves inside DSH, and clearing the browser's data removes them.
 - **The desktop app has not been fully tested.** The limits above were tested in DSH's web UI. The desktop app uses the same browser engine, but they have not been checked there one by one.
 

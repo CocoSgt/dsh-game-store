@@ -142,7 +142,10 @@ buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX })
 // ------------------------------------------------------------------ hosting (Vercel)
 const host = DOMAIN.replaceAll('.', '\\.')
 const playHost = { type: 'host', value: `(?<game>[a-z0-9-]+)\\.play\\.${host}` }
-const GAME_CSP = `default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://${DOMAIN} https://www.${DOMAIN}`
+// Each game host answers with that game's own policy: its files, plus the servers its manifest declares.
+const cspBase = extra => `default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:${extra}; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://${DOMAIN} https://www.${DOMAIN}`
+const cspOf = g => cspBase(g.status === 'listed' ? (g.manifest.network?.hosts ?? []).map(h => ` ${h}`).join('') : '')
+const gameHost = id => ({ type: 'host', value: `${id.replaceAll('-', '\\-')}\\.play\\.${host}` })
 const routing = {
   cleanUrls: false,
   trailingSlash: true,
@@ -157,7 +160,8 @@ const routing = {
     { source: '/_play/:game/:path*', has: [{ type: 'host', value: `(www\\.)?${host}` }], destination: `https://:game.play.${DOMAIN}/:path*`, permanent: false },
   ],
   headers: [
-    { source: '/(.*)', has: [playHost], headers: [{ key: 'Content-Security-Policy', value: GAME_CSP }, { key: 'X-Content-Type-Options', value: 'nosniff' }, { key: 'Referrer-Policy', value: 'no-referrer' }] },
+    { source: '/(.*)', has: [playHost], headers: [{ key: 'X-Content-Type-Options', value: 'nosniff' }, { key: 'Referrer-Policy', value: 'no-referrer' }] },
+    ...games.map(g => ({ source: '/(.*)', has: [gameHost(g.id)], headers: [{ key: 'Content-Security-Policy', value: cspOf(g) }] })),
     // Game files keep their names between releases, so they are cached for a while and refreshed in the background:
     // pictures, fonts and sounds for a day, scripts for an hour. The entry page is always asked for again.
     { source: '/(.*)\\.(webp|png|jpg|jpeg|gif|avif|woff2|woff|ttf|otf|mp3|ogg|wav|m4a|mp4|webm)', has: [playHost], headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }] },

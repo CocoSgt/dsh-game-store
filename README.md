@@ -58,7 +58,7 @@ Then publish to npm and open a pull request here that adds one file to `catalog/
 - **CI checks every pull request**: the entry, the checksum on npm, the package's structure, description, pictures, size and license. Packages are downloaded, never run.
 - **The site is static**, generated from the catalog together with the `catalog.json` the store reads.
 - **The store installs only versions registered in the catalog**, and compares the checksum before and after installing.
-- **Each game runs at its own local address**, fills the window, has no network access and cannot reach DSH data.
+- **Each game runs at its own local address**, fills the window and cannot reach DSH data; it is offline unless its manifest declares the servers it talks to.
 - **Games also play on the site**, each on its own subdomain `<id>.play.dsh-game-store.com`.
 - **The Workshop**: everything is a plugin. An extension for a game (a map, a commander, a language pack) is an npm package too, registered in `catalog/workshop/<game>/` and installed, switched on and off in the Workshop section of the game page. See the [Workshop guide](docs/workshop.en.md).
 - **Automatic merge**: a pull request that changes only its author's own entries and passes every check merges by itself.

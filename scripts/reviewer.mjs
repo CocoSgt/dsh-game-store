@@ -56,13 +56,14 @@ const PROMPT = `你是 DSH 游戏商店的内容审核员。当前目录是一�
 只读不改，不要运行包里的任何代码。逐项检查，然后给出结论。
 
 一、恶意代码（看 game/ 和 mod/ 下的脚本和页面）
-- 想联网：fetch、XMLHttpRequest、WebSocket、EventSource、sendBeacon、WebRTC、动态插入外部 script/img/iframe、跳转到别的网址。
+- 没声明的联网：游戏可以联网，但只能连 game.json 的 network.hosts 里写明的地址（那是开发者自己的服务器，联机对战、排行榜、存档同步都算正常用途）。连接没声明的地址、动态插入外部 script/iframe、跳转到别的网址，算问题。
+- 借联网偷东西：把和游戏无关的数据发出去（整个 localStorage、别的游戏的数据、和游戏无关的浏览器信息）、下载并执行远程代码。
 - 想离开自己的框：window.top / parent 的访问或跳转、window.open、postMessage 给外层。
 - 访问本机服务：127.0.0.1、localhost、内网地址。
 - 挖矿、长期占满 CPU 的无关计算、故意卡死或耗尽内存。
 - 收集玩家信息：读取剪贴板、定位、摄像头、麦克风、指纹识别。
 - 为了躲避检查做的混淆：大段 eval / Function 字符串、atob 后执行、把网址拆开拼接。普通的压缩（minify）不算。
-- 游戏正常运行用得到的东西（画布、声音、localStorage 存档、键盘鼠标手柄、全屏）不算问题。
+- 游戏正常运行用得到的东西（画布、声音、localStorage 存档、键盘鼠标手柄、全屏、连接已声明的服务器）不算问题。
 
 二、内容（看 game.json / extension.json、store/ 下的说明和图片、游戏里的文字和图片，图片挑有代表性的打开看）
 - 侮辱、丑化某个国家、民族、种族、宗教或地区的人；歪曲或美化侵略、屠杀、殖民；带歧视含义的符号、旗帜、称呼。

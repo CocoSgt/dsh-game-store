@@ -11,7 +11,7 @@ English speakers: the steps and commands below are the same in any language; the
 
 ## 先弄清三件事
 
-1. **游戏在哪**：用户电脑上的一个文件夹。它得是能在浏览器里离线运行的网页游戏，有一个入口 HTML 文件。
+1. **游戏在哪**：用户电脑上的一个文件夹。它得是能在浏览器里运行的网页游戏，有一个入口 HTML 文件。
 2. **两个账号**：`npm whoami` 和 `gh auth status` 都要能通过。有一个没登录，就请用户登录后再继续。
 3. **游戏叫什么**：定一个 `id`，小写字母、数字、连字符，如 `star-catch`。先看 <https://dsh-game-store.com/catalog.json>，目录里已有的 `id` 换一个。
 
@@ -35,7 +35,8 @@ npx dsh-game-store init dsh-game-<id>
 
 1. 删掉 `game/` 里的示例，把用户游戏运行需要的文件拷进去。入口页放在 `game/index.html`（入口叫别的名字，就改 `game.json` 的 `entry`）。只拷运行要用的文件：源素材、备份、测试文件留在原处。
 2. 逐条确认，有一条不满足就先改游戏：
-   - **离线**：脚本、字体、图片、声音都在 `game/` 里，用相对路径引用。搜一遍 `http://`、`https://`、`//cdn`，把从网上加载的东西下载进来。商店里的游戏联不了网。
+   - **文件自带**：脚本、字体、图片、声音都在 `game/` 里，用相对路径引用。搜一遍 `http://`、`https://`、`//cdn`，把从网上加载的东西下载进来。
+   - **联网要声明**：游戏确实要连服务器（联机、排行榜）时，在 `game.json` 里加 `"network": { "hosts": ["https://…", "wss://…"], "notes": { "en": "…", "zh": "…" } }`，`hosts` 写用户自己的服务器（最多 8 个，不带路径），`notes` 用一句话说联网做什么。没写进去的地址在商店里连不上。和用户确认这些地址。
    - **占满窗口**：窗口多大画多大，窗口变了跟着变，页面没有滚动条。商店会给游戏整个窗口并进入全屏。
    - **相对路径**：写 `src="main.js"`。以 `/` 开头的路径在商店里会找不到文件。
    - **存档**：用 `localStorage` 或 `IndexedDB`。
@@ -135,7 +136,7 @@ npx dsh-game-store init-extension dsh-game-<游戏 id>-<扩展名> --game <游�
 | `package.json main: not allowed` | 删掉 `main`、`exports`、`bin` |
 | `game.json cover: … must be 16:9` | 把封面裁成 16:9，至少 1280×720 |
 | `game.json name.en: English text is required` | 多语言文字里补上 `en` |
-| `network: … load from the internet` | 把那些文件下载进 `game/`，改成相对路径 |
+| `network: … load from the internet` | 把那些文件下载进 `game/`，改成相对路径；确实要联网的，在 `game.json` 里声明 `network` |
 | `integrity: the catalog says …, npm says …` | 重新运行 `entry`，用它打印的值 |
 
 规则的出处：<https://dsh-game-store.com/spec/>（规范全文）。

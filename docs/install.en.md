@@ -32,7 +32,7 @@ Saves stay on your computer, kept by the browser engine inside DSH. They survive
 
 ## Are games safe
 
-The store installs only versions registered in the catalog. A game runs at its own local address: it has no network access and cannot read DSH data or your files. What the store does and what it cannot do is written in [the Safety section of the spec](../SPEC.en.md#9-safety).
+The store installs only versions registered in the catalog, and each was checked for malicious code before listing. A game runs at its own local address and cannot read DSH data or your files. Most games stay offline; for one that goes online, its page names the servers it connects to, and whether to install it is your call. What the store does and what it cannot do is written in [the Safety section of the spec](../SPEC.en.md#9-safety).
 
 ## Uninstall
 
