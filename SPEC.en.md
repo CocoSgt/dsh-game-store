@@ -192,7 +192,7 @@ What a game must do:
   ```
 
   `messages` alternate `user` and `assistant` and end with `user`: at most 100 of them and 60,000 characters in one request, and `maxTokens` up to 4000. The helper is optional: `POST /__dsh/ai` with the same JSON answers with one `{"text": "…"}` per line and a last line of `{"done": true}` or `{"error": "…"}`; add `"stream": false` for a single `{"text": "…"}`. `GET /__dsh/ai` says whether the player's DSH has a model ready. With no model, or when played on the website, `available()` is `false` and the game should still be playable. Each game may run 3 requests at a time. What it uses counts against the player's own DSH account, and the game page shows "Uses your DSH model".
-- **Save with `localStorage` or `IndexedDB`.** Each game has its own fixed address, so saves are separate, and they survive updates and reinstalls.
+- **Save with `localStorage` or `IndexedDB`.** Each game has its own fixed address, so saves are separate, and they survive updates and reinstalls. In DSH the store also keeps a copy of the game's `localStorage`, refreshed every few seconds; if the game ever opens with nothing saved (its port taken by another program, the browser engine keying storage differently), the store puts the copy back before the game runs. `IndexedDB` is not copied.
 - **Use relative paths.** The entry page is under `/game/…`: write `src="main.js"`, never `src="/main.js"`.
 - A game runs in a restricted frame: it can run scripts, lock the pointer, read gamepads and go full screen; it cannot open windows or navigate elsewhere.
 
