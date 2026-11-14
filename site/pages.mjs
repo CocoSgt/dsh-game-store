@@ -63,7 +63,7 @@ const TEXT = SITE => ({
     footAbout: '开源的游戏平台，建在 DeepSeek Harness 和 GitHub 上。', footPlay: '玩', footMake: '做', footRepo: 'GitHub 仓库',
     star: '在 GitHub 点个星', starStore: '给商店点个星', viewSource: '看源码',
     playBack: '回到游戏页', playFull: '全屏', playManual: '手册', manualOf: '手册', playMenu: '菜单',
-    playTip: '左边的圆形按钮是菜单：可以全屏、看手册、回到游戏页。按住能拖到任意位置',
+    playTip: '菜单可以全屏、看手册、回到游戏页。按住左边的图标能拖到任意位置；勾上“自动隐藏”，鼠标靠近时才显示', playAuto: '自动隐藏',
     escLocked: '全屏下短按 Esc 是游戏里的取消，长按 Esc 退出全屏', escFree: '全屏下按 Esc 会退出全屏。游戏里取消请用右键或 Backspace', docs: '文档', onThisPage: '本页内容',
   },
   en: {
@@ -109,7 +109,7 @@ const TEXT = SITE => ({
     footAbout: 'An open game platform built on DeepSeek Harness and GitHub.', footPlay: 'Play', footMake: 'Make', footRepo: 'GitHub repository',
     star: 'Star on GitHub', starStore: 'Star the store', viewSource: 'View source',
     playBack: 'Back to the game page', playFull: 'Full screen', playManual: 'Manual', manualOf: 'Manual', playMenu: 'Menu',
-    playTip: 'The round button on the left is the menu: full screen, manual, back to the game page. Hold and drag it anywhere',
+    playTip: 'The menu goes full screen, opens the manual and goes back to the game page. Drag the icon on its left to move it; with “Auto-hide” on, it shows when the pointer comes near', playAuto: 'Auto-hide',
     escLocked: 'In full screen a short Esc is the game\'s cancel; hold Esc to leave full screen', escFree: 'In full screen Esc leaves full screen. Cancel in the game with right-click or Backspace', docs: 'Docs', onThisPage: 'On this page',
   },
 })
@@ -322,13 +322,12 @@ ${hero}
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
 iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
-.hot{position:fixed;top:0;left:30%;right:30%;height:6px;z-index:2}
-.handle{position:fixed;z-index:2;width:40px;height:40px;margin-top:-20px;border-radius:50%;padding:0;display:grid;place-items:center;background:rgba(12,14,22,.72);border:1px solid rgba(255,201,60,.5);box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:grab;touch-action:none;opacity:.88}
-.handle:hover{opacity:1}.handle.left{left:8px}.handle.right{right:8px}
-.handle i{display:block;width:15px;height:2.2px;margin:1.5px 0;border-radius:2px;background:#ffc93c;pointer-events:none}
-.tip{position:fixed;top:64px;left:50%;z-index:3;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:rgba(12,14,22,.88);color:#ffe19a;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s}.tip.on{opacity:1}
-.bar{position:fixed;top:10px;left:50%;z-index:3;display:flex;align-items:center;gap:2px;padding:5px 6px 5px 12px;border-radius:999px;background:rgba(14,16,24,.88);color:#fff;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.45);backdrop-filter:blur(8px);transform:translate(-50%,-64px);opacity:0;transition:transform .22s,opacity .22s}
-.bar.on{transform:translate(-50%,0);opacity:1}
+.tip{position:absolute;top:calc(100% + 10px);left:50%;z-index:3;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:rgba(12,14,22,.88);color:#ffe19a;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s}.tip.on{opacity:1}.bar.low .tip{top:auto;bottom:calc(100% + 10px)}.bar.l .tip{left:0;transform:none}.bar.r .tip{left:auto;right:0;transform:none}
+.bar{position:fixed;top:10px;left:10px;z-index:3;display:flex;align-items:center;gap:2px;padding:5px 6px 5px 12px;border-radius:999px;background:rgba(14,16,24,.88);color:#fff;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);transition:opacity .25s}
+.bar.ghost{opacity:0}
+.bar::before{content:"";position:absolute;inset:-18px;border-radius:999px;z-index:-1}
+.bar b{cursor:move;touch-action:none;user-select:none;-webkit-user-select:none}.bar b img{pointer-events:none}
+.bar .auto{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.75)}.bar .auto .box{display:grid;place-items:center;width:13px;height:13px;border-radius:4px;border:1.5px solid rgba(255,255,255,.55);font-size:10px;line-height:1;color:#1a1405}.bar .auto.on{color:#fff}.bar .auto.on .box{background:#ffc93c;border-color:#ffc93c}
 .bar b{display:flex;align-items:center;gap:8px;margin-right:8px}.bar img{width:20px;height:20px;border-radius:5px}
 .bar a,.bar button{padding:5px 12px;border-radius:999px;color:#fff;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer}
 .bar a:hover,.bar button:hover{background:rgba(255,255,255,.16)}
@@ -336,8 +335,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
 </head>
 <body>
 <iframe id="f" title="${esc(name)}" sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; gamepad; autoplay" allowfullscreen referrerpolicy="no-referrer"></iframe>
-<div class="hot" id="hot"></div><button class="handle" id="handle" aria-label="${esc(t.playMenu)}" title="${esc(t.playMenu)}"><span><i></i><i></i><i></i></span></button><div class="tip" id="tip"></div>
-<div class="bar" id="bar"><b><img src="${esc(pic(g, m.icon))}" alt="">${esc(name)}</b><button id="full">${esc(t.playFull)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a></div>
+<div class="bar" id="bar"><b id="grip" title="${esc(t.playMenu)}"><img src="${esc(pic(g, m.icon))}" alt="" draggable="false">${esc(name)}</b><button id="full">${esc(t.playFull)}</button><button class="auto" id="auto"><span class="box"></span>${esc(t.playAuto)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a><div class="tip" id="tip"></div></div>
 <script>
 // On the real site the game is served from its own subdomain; in a local preview, from a folder of this server.
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
@@ -345,26 +343,39 @@ var root = live ? 'https://' + ${JSON.stringify(g.id + PLAY_SUFFIX)} + '/' : '/_
 var f = document.getElementById('f'), bar = document.getElementById('bar'), timer;
 f.src = root + ${JSON.stringify(enc(m.entry))};
 f.addEventListener('load', function () { try { f.focus(); } catch (e) {} });
-function show(ms) { bar.classList.add('on'); clearTimeout(timer); timer = setTimeout(function () { bar.classList.remove('on'); }, ms || 2500); }
-document.getElementById('hot').addEventListener('mouseenter', function () { show(); });
-// The menu handle: dragged along the sides, remembered; a click opens the strip.
-var hd = document.getElementById('handle'), tip = document.getElementById('tip'), pos = { side: 'left', y: 50 }, dr = null, tipTimer;
-try { var sv = JSON.parse(localStorage.getItem('dsh-game-store.handle') || 'null'); if (sv && (sv.side === 'left' || sv.side === 'right')) pos = sv; } catch (e) {}
-function place() { hd.className = 'handle ' + pos.side; hd.style.top = pos.y + '%'; }
-place();
-hd.addEventListener('pointerdown', function (e) { dr = { x: e.clientX, y: e.clientY, moved: false }; try { hd.setPointerCapture(e.pointerId); } catch (x) {} });
-hd.addEventListener('pointermove', function (e) { if (!dr) return; if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) < 5) return; dr.moved = true; pos = { side: e.clientX < innerWidth / 2 ? 'left' : 'right', y: Math.max(4, Math.min(96, e.clientY / innerHeight * 100)) }; place(); });
-hd.addEventListener('pointerup', function () { if (!dr) return; var moved = dr.moved; dr = null; if (moved) { try { localStorage.setItem('dsh-game-store.handle', JSON.stringify(pos)); } catch (x) {} } else show(5000); try { f.focus(); } catch (x) {} });
+// The menu: dragged by its icon anywhere in the window, remembered; with auto-hide on it shows only when the pointer comes near.
+var grip = document.getElementById('grip'), autoBtn = document.getElementById('auto'), tip = document.getElementById('tip'), tipTimer, leaveT, peekT;
+var menu = { x: 50, y: 0, auto: true }, near = false, peek = true, dr = null, swallow = false;
+try { var sv = JSON.parse(localStorage.getItem('dsh-game-store.menu') || 'null'); if (sv && sv.x >= 0 && sv.x <= 100 && sv.y >= 0 && sv.y <= 100) menu = { x: sv.x, y: sv.y, auto: sv.auto !== false }; } catch (e) {}
+function save() { try { localStorage.setItem('dsh-game-store.menu', JSON.stringify(menu)); } catch (x) {} }
+function shown() { return !menu.auto || near || peek || !!(dr && dr.moved); }
+function paint() { bar.classList.toggle('ghost', !shown()); bar.classList.toggle('low', menu.y > 50); bar.classList.toggle('l', menu.x < 34); bar.classList.toggle('r', menu.x > 66); autoBtn.classList.toggle('on', menu.auto); autoBtn.firstChild.textContent = menu.auto ? '✓' : ''; }
+function place() { var w = bar.offsetWidth, hh = bar.offsetHeight; bar.style.left = (10 + menu.x / 100 * Math.max(0, innerWidth - w - 20)) + 'px'; bar.style.top = (10 + menu.y / 100 * Math.max(0, innerHeight - hh - 20)) + 'px'; }
+function peekFor(ms) { peek = true; paint(); clearTimeout(peekT); peekT = setTimeout(function () { peek = false; paint(); }, ms); }
+place(); peekFor(4500); addEventListener('resize', place);
+bar.addEventListener('mouseenter', function () { clearTimeout(leaveT); near = true; paint(); });
+bar.addEventListener('mouseleave', function () { clearTimeout(leaveT); leaveT = setTimeout(function () { near = false; paint(); }, 700); });
+// A touch on the hidden menu only shows it; the next touch uses it.
+bar.addEventListener('pointerdown', function (e) { if (!shown() && e.pointerType !== 'mouse') { swallow = true; near = true; paint(); clearTimeout(leaveT); leaveT = setTimeout(function () { near = false; paint(); }, 4000); } }, true);
+bar.addEventListener('click', function (e) { if (swallow) { swallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
+grip.addEventListener('pointerdown', function (e) { dr = { x: e.clientX, y: e.clientY, left: bar.offsetLeft, top: bar.offsetTop, moved: false }; try { grip.setPointerCapture(e.pointerId); } catch (x) {} });
+grip.addEventListener('pointermove', function (e) {
+  if (!dr) return; if (!dr.moved && Math.hypot(e.clientX - dr.x, e.clientY - dr.y) < 4) return; dr.moved = true;
+  var rx = Math.max(1, innerWidth - bar.offsetWidth - 20), ry = Math.max(1, innerHeight - bar.offsetHeight - 20);
+  menu.x = Math.max(0, Math.min(100, (dr.left + e.clientX - dr.x - 10) / rx * 100)); menu.y = Math.max(0, Math.min(100, (dr.top + e.clientY - dr.y - 10) / ry * 100)); place(); paint();
+});
+grip.addEventListener('pointerup', function () { if (dr && dr.moved) save(); dr = null; paint(); try { f.focus(); } catch (x) {} });
+grip.addEventListener('pointercancel', function () { dr = null; paint(); });
+autoBtn.addEventListener('click', function () { menu.auto = !menu.auto; save(); paint(); try { f.focus(); } catch (x) {} });
 function say(text, ms) { tip.textContent = text; tip.classList.add('on'); clearTimeout(tipTimer); tipTimer = setTimeout(function () { tip.classList.remove('on'); }, ms || 4500); }
 say(${JSON.stringify(t.playTip)});
 document.addEventListener('fullscreenchange', function () {
+  peekFor(5000); setTimeout(place, 50);
   if (!document.fullscreenElement) { try { navigator.keyboard && navigator.keyboard.unlock(); } catch (x) {} return; }
   // Keyboard Lock: a short Esc goes to the game; holding Esc leaves full screen.
   var locked = false; try { if (navigator.keyboard && navigator.keyboard.lock) { navigator.keyboard.lock(['Escape']).catch(function () {}); locked = true; } } catch (x) {}
   say(locked ? ${JSON.stringify(t.escLocked)} : ${JSON.stringify(t.escFree)}, 5000);
 });
-bar.addEventListener('mouseenter', function () { clearTimeout(timer); });
-bar.addEventListener('mouseleave', function () { show(1200); });
 document.getElementById('full').addEventListener('click', function () { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function () {}); try { f.focus(); } catch (e) {} });
 </script>
 </body>
