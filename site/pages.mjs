@@ -7,6 +7,8 @@ import { dirname, join } from 'node:path'
 import { escapeHtml as esc, renderMarkdown } from '../lib/markdown.mjs'
 import { pickText } from '../lib/spec.mjs'
 
+/** Versions are shown as x.y.z; a pre-release tag (-alpha.3) stays inside. */
+const showV = v => String(v ?? '').replace(/[-+].*$/, '')
 const LANG_NAMES = { 'zh-cn': '简体中文', 'zh-tw': '繁體中文', zh: '中文', en: 'English', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', 'pt-br': 'Português', pt: 'Português', ru: 'Русский', it: 'Italiano' }
 /** Names for the usual kinds of extensions; a kind a game invents shows as it is written. */
 const TYPE_NAMES = { zh: { map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' } }
@@ -198,7 +200,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
     return `<article class="card">
   <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="${esc(pic(g, m.cover))}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
   <a class="cin" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
-  <div class="meta"><span>${esc(m.author.name)} · v${esc(g.version)} · <a class="ghlink" href="${esc(g.repository)}" target="_blank" rel="noopener" aria-label="GitHub">${ICON.github}<span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a></span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
+  <div class="meta"><span>${esc(m.author.name)} · <a class="ghlink" href="${esc(g.repository)}" target="_blank" rel="noopener" aria-label="GitHub">${ICON.github}<span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a></span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
 </article>`
   }
 
@@ -242,7 +244,7 @@ ${hero}
 </div></section>
 <section class="in block" id="workshop"><div class="head"><h2>${esc(t.wsTitle)}</h2><a class="more" href="${base}workshop/">${esc(t.wsMake)}${ICON.arrow}</a></div>
   <p class="lead narrow">${esc(t.wsLead)}</p>
-  ${exts.length ? `<div class="exts">${exts.map(x => `<a class="ext" href="${base}games/${x.game}/#workshop"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(t.wsFor)} ${esc(x.gameName)} · ${esc(x.manifest.author.name)} · v${esc(x.version)}</span></a>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}
+  ${exts.length ? `<div class="exts">${exts.map(x => `<a class="ext" href="${base}games/${x.game}/#workshop"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(t.wsFor)} ${esc(x.gameName)} · ${esc(x.manifest.author.name)} · v${esc(showV(x.version))}</span></a>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}
 </section>
 <section class="band dark" id="dsh"><div class="in">
   <span class="kicker">DeepSeek Harness</span><h2>${esc(t.dshTitle)}</h2><p class="lead narrow">${esc(t.dshLead)}</p>
@@ -256,7 +258,7 @@ ${hero}
       const m = g.manifest
       const name = pickText(m.name, t.lang)
       const rows = [
-        [t.version, esc(g.version)],
+        [t.version, esc(showV(g.version))],
         [t.updated, esc(g.updatedAt ?? '')],
         [t.author, m.author.url ? `<a href="${esc(m.author.url)}">${esc(m.author.name)}</a>` : esc(m.author.name)],
         [t.license, esc(g.license)],
@@ -281,14 +283,14 @@ ${hero}
       const listedGame = g.status === 'listed'
       page(lang, `games/${g.id}/`, name, `
 <section class="ghero"><div class="bg" style="background-image:url('${esc(pic(g, m.cover))}')"></div><div class="in">
-  ${g.preview ? `<p class="note">${esc(t.preview)}</p>` : ''}${!listedGame ? `<p class="note warn">${esc(t.delisted + (g.reason ?? ''))}</p>` : ''}${m.network ? `<p class="note warn">${esc(t.netWarn(m.network.hosts.join(t.sep)))} ${esc(pickText(m.network.notes, t.lang))}</p>` : ''}
+  ${g.preview ? `<p class="note">${esc(t.preview)}</p>` : ''}${!listedGame ? `<p class="note warn">${esc(t.delisted + (g.reason ?? ''))}</p>` : ''}
   <div class="gtop">
     <div class="viewer" data-gallery>
       <div class="screen zoomable">${first.video ? `<video data-main autoplay muted loop playsinline preload="metadata"${first.poster ? ` poster="${esc(pic(g, first.poster))}"` : ''} src="${esc(pic(g, first.video))}"></video>` : `<img data-main src="${esc(pic(g, first.src))}" alt="${esc(name)}">`}</div>
       <p class="cap" data-cap>${esc(pickText(first.caption, t.lang))}</p>
       <div class="thumbs">${media.map((p, i) => p.video
-        ? `<button type="button" class="vid${i === 0 ? ' on' : ''}" data-video="${esc(pic(g, p.video))}" data-poster="${p.poster ? `${esc(pic(g, p.poster))}` : ''}" data-cap="${esc(pickText(p.caption, t.lang))}">${p.poster ? `<img src="${esc(pic(g, p.poster))}" alt="" loading="lazy">` : ''}<span class="badge">${ICON.play}</span></button>`
-        : `<button type="button" data-src="${esc(pic(g, p.src))}" data-cap="${esc(pickText(p.caption, t.lang))}"${i === 0 ? ' class="on"' : ''}><img src="${esc(pic(g, p.src))}" alt="${esc(pickText(p.caption, t.lang))}" loading="lazy"></button>`).join('')}</div>
+        ? `<button type="button" class="vid${i === 0 ? ' on' : ''}" data-video="${esc(pic(g, p.video))}" data-poster="${p.poster ? `${esc(pic(g, p.poster))}` : ''}" data-cap="${esc(pickText(p.caption, t.lang))}">${p.poster ? `<img src="${esc(pic(g, p.poster))}" alt=""${i > 7 ? ' loading="lazy"' : ''}>` : ''}<span class="badge">${ICON.play}</span></button>`
+        : `<button type="button" data-src="${esc(pic(g, p.src))}" data-cap="${esc(pickText(p.caption, t.lang))}"${i === 0 ? ' class="on"' : ''}><img src="${esc(pic(g, p.src))}" alt="${esc(pickText(p.caption, t.lang))}"${i > 7 ? ' loading="lazy"' : ''}></button>`).join('')}</div>
     </div>
     <aside class="buy">
       <div class="id"><img src="${esc(pic(g, m.icon))}" alt="" width="72" height="72"><div><h1>${esc(name)}</h1>${m.tagline ? `<p class="tagline">${esc(pickText(m.tagline, t.lang))}</p>` : ''}</div></div>
@@ -296,7 +298,7 @@ ${hero}
       <div class="chips">${chips(t, g)}</div>
       ${listedGame ? `<a class="btn gold big wide" href="${playHref(base, g)}">${ICON.play}${esc(t.playNow)}</a><a class="btn ghost wide" href="${base}install/">${esc(t.inDsh)}</a>${m.manual ? `<a class="btn ghost wide" href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}` : ''}
       <a class="btn star wide" href="${esc(g.repository)}" target="_blank" rel="noopener">${ICON.github}<span>${esc(t.star)}</span><span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a>
-      <dl class="facts"><div><dt>${esc(t.author)}</dt><dd>${esc(m.author.name)}</dd></div><div><dt>${esc(t.version)}</dt><dd>${esc(g.version)}</dd></div><div><dt>${esc(t.download)}</dt><dd>${mb(g.tarballBytes)}</dd></div><div><dt>${esc(t.rating)}</dt><dd>${esc(t.ratingName[m.content.rating])}</dd></div></dl>
+      <dl class="facts"><div><dt>${esc(t.author)}</dt><dd>${esc(m.author.name)}</dd></div><div><dt>${esc(t.version)}</dt><dd>${esc(showV(g.version))}</dd></div><div><dt>${esc(t.download)}</dt><dd>${mb(g.tarballBytes)}</dd></div><div><dt>${esc(t.rating)}</dt><dd>${esc(t.ratingName[m.content.rating])}</dd></div></dl>
     </aside>
   </div>
 </div></section>
@@ -305,7 +307,7 @@ ${hero}
   <div>
     <h2 id="about">${esc(t.about)}</h2><div class="md">${renderMarkdown(pickText(g.about, t.lang), { link: href => (/^https:\/\//.test(href) ? href : ''), image: () => '' })}</div>
     ${m.workshop ? `<h2 id="workshop">${esc(t.wsTitle)}</h2><p class="muted">${esc(t.wsIn)} <a href="${base}workshop/">${esc(t.wsMake)}</a></p>
-    ${items.length ? `<div class="exts one">${items.map(x => `<div class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(x.version)} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))} · <a href="https://www.npmjs.com/package/${esc(x.package)}">${esc(x.package)}</a></span></div>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}` : ''}
+    ${items.length ? `<div class="exts one">${items.map(x => `<div class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))} · <a href="https://www.npmjs.com/package/${esc(x.package)}">${esc(x.package)}</a></span></div>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}` : ''}
     <h2 id="board">${esc(t.board)}</h2>
     <form class="post" data-game="${esc(g.id)}" data-sent="${esc(t.boardSent)}" data-err="${esc(t.boardErr)}" hidden><input name="title" maxlength="120" required placeholder="${esc(t.boardTitle)}"><textarea name="body" rows="4" maxlength="4000" required placeholder="${esc(t.boardBody)}"></textarea><div class="row"><button class="btn gold" type="submit">${esc(t.boardSend)}</button><span class="status muted"></span></div></form>
     <p class="muted signin-hint" hidden>${esc(t.boardSignIn)}</p>
@@ -431,7 +433,7 @@ document.getElementById('f').src = (live ? ${playRoot(g)} : '/_play/' + ${JSON.s
 ${wsGames.map(g => {
   const m = g.manifest, items = (g.workshop ?? []).filter(x => x.status === 'listed')
   return `<section class="in block"><div class="gamebar"><a class="who" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="48" height="48"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(t.wsCount(items.length))} · ${esc(t.wsTypes)} ${m.workshop.types.map(x => esc(TYPE_NAMES[lang][x] ?? x)).join(' / ')}</i></span></a><a class="btn ghost" href="${base}games/${g.id}/#workshop">${esc(t.details)}${ICON.arrow}</a></div>
-  ${items.length ? `<div class="exts">${items.map(x => `<article class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(x.version)} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))}</span><a class="btn gold sm" href="${base}install/">${esc(t.wsGet)}</a></article>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}</section>`
+  ${items.length ? `<div class="exts">${items.map(x => `<article class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))}</span><a class="btn gold sm" href="${base}install/">${esc(t.wsGet)}</a></article>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}</section>`
 }).join('\n') || `<section class="in block"><p class="muted">${esc(t.wsNone)}</p></section>`}
 <section class="band" id="make"><div class="in two">
   <div><span class="kicker">${esc(t.nav.publish)}</span><h2>${esc(t.wsMakeTitle)}</h2><p class="lead">${esc(t.wsMakeLead)}</p>
