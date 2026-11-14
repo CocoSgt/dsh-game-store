@@ -302,17 +302,23 @@ ${hero}
     </aside>
   </div>
 </div></section>
-<nav class="subnav"><div class="in"><a href="#about">${esc(t.about)}</a>${m.workshop ? `<a href="#workshop">${esc(t.wsTitle)}${items.length ? ` <span class="count">${items.length}</span>` : ''}</a>` : ''}<a href="#board">${esc(t.board)}</a><a href="#info">${esc(t.info)}</a></div></nav>
-<section class="in cols">
-  <div>
-    <h2 id="about">${esc(t.about)}</h2><div class="md">${renderMarkdown(pickText(g.about, t.lang), { link: href => (/^https:\/\//.test(href) ? href : ''), image: () => '' })}</div>
-    ${m.workshop ? `<h2 id="workshop">${esc(t.wsTitle)}</h2><p class="muted">${esc(t.wsIn)} <a href="${base}workshop/">${esc(t.wsMake)}</a></p>
-    ${items.length ? `<div class="exts one">${items.map(x => `<div class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))} · <a href="https://www.npmjs.com/package/${esc(x.package)}">${esc(x.package)}</a></span></div>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}` : ''}
+<nav class="subnav"><div class="in">${m.workshop ? `<a href="#workshop">${esc(t.wsTitle)}${items.length ? ` <span class="count">${items.length}</span>` : ''}</a>` : ''}<a href="#board">${esc(t.board)}</a><a href="#about">${esc(t.about)}</a><a href="#info">${esc(t.info)}</a></div></nav>
+<section class="in row2${m.workshop ? '' : ' solo'}">
+  ${m.workshop ? `<div class="panel">
+    <h2 id="workshop">${esc(t.wsTitle)}</h2><p class="muted">${esc(t.wsIn)} <a href="${base}workshop/">${esc(t.wsMake)}</a></p>
+    ${items.length ? `<div class="exts one">${items.map(x => `<div class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))} · <a href="https://www.npmjs.com/package/${esc(x.package)}">${esc(x.package)}</a></span></div>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}
+  </div>` : ''}
+  <div class="panel">
     <h2 id="board">${esc(t.board)}</h2>
     <form class="post" data-game="${esc(g.id)}" data-sent="${esc(t.boardSent)}" data-err="${esc(t.boardErr)}" hidden><input name="title" maxlength="120" required placeholder="${esc(t.boardTitle)}"><textarea name="body" rows="4" maxlength="4000" required placeholder="${esc(t.boardBody)}"></textarea><div class="row"><button class="btn gold" type="submit">${esc(t.boardSend)}</button><span class="status muted"></span></div></form>
     <p class="muted signin-hint" hidden>${esc(t.boardSignIn)}</p>
     <div class="board" data-repo="${BOARD_REPO}" data-label="${esc(label)}" data-empty="${esc(t.boardEmpty)}" data-fail="${esc(t.boardFail)}" data-replies="${esc(t.replies)}"><p class="muted">${esc(t.boardLoading)}</p></div>
     <p class="row"><a class="btn ghost" href="${REPO}/issues/new?template=message.yml&game=${encodeURIComponent(g.id)}">${ICON.github}${esc(t.boardPost)}</a><a class="more" href="${REPO}/issues?q=${encodeURIComponent(`is:issue label:${label}`)}">${esc(t.boardAll)}${ICON.arrow}</a></p>
+  </div>
+</section>
+<section class="in cols">
+  <div>
+    <h2 id="about">${esc(t.about)}</h2><div class="md">${renderMarkdown(pickText(g.about, t.lang), { link: href => (/^https:\/\//.test(href) ? href : ''), image: () => '' })}</div>
   </div>
   <aside><h2 id="info">${esc(t.info)}</h2><dl class="info">${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v}</dd></div>`).join('')}</dl></aside>
 </section>`, { description: pickText(m.summary, t.lang), image: pic(g, m.cover), cls: 'game' })

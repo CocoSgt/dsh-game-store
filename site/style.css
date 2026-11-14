@@ -298,3 +298,10 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; box-sh
 .card.slot .plus { display: grid; place-items: center; width: 60px; height: 60px; margin-bottom: 8px; border-radius: 16px; background: rgba(255, 201, 60, .12); color: var(--gold); font-size: 34px; font-weight: 300; line-height: 1; }
 .card.slot b { color: var(--ink); font-size: 17px; }
 .card.slot span:last-child { font-size: 14px; }
+
+/* Game page: workshop and board side by side under the first screen. */
+.row2 { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; align-items: start; margin-top: 34px; margin-bottom: 8px; }
+.row2.solo { grid-template-columns: 1fr; }
+@media (max-width: 980px) { .row2 { grid-template-columns: 1fr; } }
+.row2 .panel { min-width: 0; padding: 4px 22px 20px; border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(255, 255, 255, .07); }
+.row2 .panel h2 { margin-top: 18px; }
