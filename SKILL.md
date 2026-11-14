@@ -64,6 +64,7 @@ npx dsh-game-store init dsh-game-<id>
 1. 删掉 `game/` 里的示例，把用户游戏运行需要的文件拷进去。入口页放在 `game/index.html`（入口叫别的名字，就改 `game.json` 的 `entry`）。只拷运行要用的文件：源素材、备份、测试文件留在原处。
 2. 逐条确认，有一条不满足就先改游戏：
    - **文件自带**：脚本、字体、图片、声音都在 `game/` 里，用相对路径引用。搜一遍 `http://`、`https://`、`//cdn`，把从网上加载的东西下载进来。
+   - **想让游戏里有大模型**（对话、NPC 回话、出题）：在 `game.json` 里加 `"ai": { "notes": { "en": "…", "zh": "…" } }`，页面里 `<script src="/__dsh/ai.js"></script>`，再用 `await dshAI.chat({ system, messages, maxTokens }, onText)`；先用 `await dshAI.available()` 判断，没有模型时游戏也要能玩。用的是玩家在 DSH 里选好的模型，不用 Key。细节见规范第 2.6 节。
    - **联网要声明**：游戏确实要连服务器（联机、排行榜）时，在 `game.json` 里加 `"network": { "hosts": ["https://…", "wss://…"], "notes": { "en": "…", "zh": "…" } }`，`hosts` 写用户自己的服务器（最多 8 个，不带路径），`notes` 用一句话说联网做什么。没写进去的地址在商店里连不上。和用户确认这些地址。
    - **占满窗口**：窗口多大画多大，窗口变了跟着变，页面没有滚动条。商店会给游戏整个窗口并进入全屏。
    - **相对路径**：写 `src="main.js"`。以 `/` 开头的路径在商店里会找不到文件。

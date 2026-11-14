@@ -132,6 +132,7 @@ dsh-game-<名字>/
 | `players` | 是 | 人数，`{ "min": 1, "max": 4 }` |
 | `content.rating` | 是 | 内容分级：`everyone`（所有人）、`teen`（13 岁以上）、`mature`（18 岁以上） |
 | `network` | 否 | 游戏要联网时填，见第 2.6 节。不填就是不联网 |
+| `ai` | 否 | 游戏要调用 DSH 的模型时填，见第 2.6 节 |
 | `workshop` | 否 | 游戏接受扩展时填，见第 8 节 |
 | `content.notes` | 看情况 | 内容提示，最多 200 个字符。分级是 `teen` 或 `mature` 时必填，写清有什么内容 |
 
@@ -169,6 +170,28 @@ dsh-game-<名字>/
   `hosts` 最多 8 个，写成 `https://` 或 `wss://` 加域名（可以带端口，不带路径）。游戏只能连这些地址，别的请求会被拦下。`notes` 用一句话告诉玩家联网做什么，最多 200 个字符。
 
   服务器是开发者自己的：平台不给游戏提供服务器，`dsh-game-store.com` 和它的子域名不能写进 `hosts`，玩家本机和内网的地址也不行。游戏页会写明“这个游戏会联网”和连接的地址，联网的风险由玩家自己判断。
+- **可以用 DSH 的模型**。游戏可以像别的 DSH 插件一样调用模型：对话、NPC 回话、出题、讲故事都行。用的是玩家在 DSH 里选好的模型和账号，开发者不用准备 Key。在清单里写上：
+
+  ```json
+  "ai": { "notes": { "en": "Characters answer what you say.", "zh": "角色会回答你说的话。" } }
+  ```
+
+  然后在页面里调用（游戏自己的地址上，不用写域名）：
+
+  ```html
+  <script src="/__dsh/ai.js"></script>
+  <script>
+    if (await dshAI.available()) {
+      const reply = await dshAI.chat({
+        system: '你是酒馆老板，说话简短。',
+        messages: [{ role: 'user', content: '今天有什么吃的？' }],
+        maxTokens: 300,
+      }, (piece, all) => { line.textContent = all })   // 边生成边显示
+    }
+  </script>
+  ```
+
+  `messages` 是 `user` 和 `assistant` 轮流的对话，最后一条是 `user`；一次最多 100 条、共 6 万个字符，`maxTokens` 最多 4000。不用辅助脚本也行：`POST /__dsh/ai`，正文是同样的 JSON，回来的是一行一个 `{"text": "…"}`，最后一行是 `{"done": true}` 或 `{"error": "…"}`；加上 `"stream": false` 就一次返回 `{"text": "…"}`。`GET /__dsh/ai` 说明玩家的 DSH 里有没有可用的模型。没有模型、或者在网页上试玩时，`available()` 是 `false`，游戏要能照常玩下去。每个游戏同时最多 3 个请求。用掉的额度算在玩家自己的 DSH 账号上，游戏页会标出“用 DSH 的模型”。
 - **存档用 `localStorage` 或 `IndexedDB`**。每个游戏有自己固定的地址，存档互不相通；游戏更新、卸载重装以后存档还在。
 - **用相对路径**。入口页在 `/game/…` 下面，写 `src="main.js"`，别写 `src="/main.js"`。
 - 游戏在一个受限的框里运行：能运行脚本、锁定鼠标、读手柄、全屏；不能弹出新窗口，不能跳转到别的网页。

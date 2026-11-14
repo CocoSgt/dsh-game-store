@@ -305,3 +305,11 @@ img.mark { display: block; width: 34px; height: 34px; border-radius: 9px; box-sh
 @media (max-width: 980px) { .row2 { grid-template-columns: 1fr; } }
 .row2 .panel { min-width: 0; padding: 4px 22px 20px; border-radius: 16px; background: rgba(255, 255, 255, .035); border: 1px solid rgba(255, 255, 255, .07); }
 .row2 .panel h2 { margin-top: 18px; }
+
+/* The author line of a game card: GitHub mark, name and star count, linking to the game's repository. */
+.ghmeta { display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 100%; padding: 4px 6px; margin-left: -6px; border-radius: 8px; color: var(--muted); text-decoration: none; transition: color .15s, background .15s; }
+.ghmeta:hover { color: var(--ink); background: rgba(255, 255, 255, .06); }
+.ghmeta svg { width: 14px; height: 14px; flex: none; }
+.ghmeta .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ghmeta .stars, .btn.star .stars { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 999px; background: rgba(255, 201, 60, .12); border: 1px solid rgba(255, 201, 60, .28); color: #ffd45a; font-size: 11.5px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.ghmeta .stars:empty, .btn.star .stars:empty { display: none; }

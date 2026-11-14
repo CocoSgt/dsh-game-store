@@ -61,6 +61,21 @@ async function oneExtension(gameId, id) {
   }
 }
 
+/** GitHub star counts, asked at most once an hour per repository; a failed ask keeps the last count. */
+const starCache = new Map()
+async function starsOf(repoUrl) {
+  const repo = String(repoUrl ?? '').replace('https://github.com/', '')
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return undefined
+  const hit = starCache.get(repo)
+  if (hit && Date.now() - hit.at < 3600_000) return hit.n
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}`, { headers: { ...UA, accept: 'application/vnd.github+json' }, signal: AbortSignal.timeout(5000) })
+    if (r.ok) { const n = (await r.json()).stargazers_count; if (typeof n === 'number') { starCache.set(repo, { n, at: Date.now() }); return n } }
+  } catch { /* keep the last count */ }
+  if (hit) hit.at = Date.now() - 3000_000
+  return hit?.n
+}
+
 /** All games in submission order, each with its listed extensions. A game that cannot be read is left out and logged. */
 export async function liveGames() {
   const index = await get(`${RAW}catalog/index.json`)
@@ -72,6 +87,7 @@ export async function liveGames() {
     const ok = list.filter(Boolean).filter(x => x.manifest.game === gameId && x.manifest.types.every(t => g.manifest.workshop.types.includes(t)))
     if (ok.length) g.workshop = ok
   }))
+  await Promise.all(games.map(async g => { const n = await starsOf(g.repository); if (typeof n === 'number') g.stars = n }))
   return games
 }
 

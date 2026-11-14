@@ -13,11 +13,13 @@
   for (const repo of new Set(starEls.map(e => e.dataset.stars))) {
     const put = n => { for (const e of starEls) if (e.dataset.stars === repo) e.textContent = `★ ${n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n}` }
     const key = `stars:${repo}`
-    let saved; try { saved = sessionStorage.getItem(key) } catch (e) {}
-    if (saved !== null && saved !== undefined) { put(Number(saved)); continue }
+    // The page usually arrives with the count already in it (the server asks GitHub every hour).
+    if (starEls.some(e => e.dataset.stars === repo && e.textContent.trim())) continue
+    let saved; try { saved = JSON.parse(sessionStorage.getItem(key) || 'null') } catch (e) {}
+    if (saved && Date.now() - saved.at < 600000) { put(saved.n); continue }
     fetch(`https://api.github.com/repos/${repo}`, { headers: { accept: 'application/vnd.github+json' } }).then(r => (r.ok ? r.json() : null)).then(j => {
       if (!j || typeof j.stargazers_count !== 'number') return
-      put(j.stargazers_count); try { sessionStorage.setItem(key, String(j.stargazers_count)) } catch (e) {}
+      put(j.stargazers_count); try { sessionStorage.setItem(key, JSON.stringify({ n: j.stargazers_count, at: Date.now() })) } catch (e) {}
     }).catch(() => {})
   }
 

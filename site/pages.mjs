@@ -9,6 +9,8 @@ import { pickText } from '../lib/spec.mjs'
 
 /** Versions are shown as x.y.z; a pre-release tag (-alpha.3) stays inside. */
 const showV = v => String(v ?? '').replace(/[-+].*$/, '')
+/** A star count as the site shows it: ★ 12, ★ 1.2k; empty until known. */
+const starText = n => (typeof n === 'number' ? `★ ${n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n}` : '')
 const LANG_NAMES = { 'zh-cn': '简体中文', 'zh-tw': '繁體中文', zh: '中文', en: 'English', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', 'pt-br': 'Português', pt: 'Português', ru: 'Русский', it: 'Italiano' }
 /** Names for the usual kinds of extensions; a kind a game invents shows as it is written. */
 const TYPE_NAMES = { zh: { map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' } }
@@ -43,7 +45,7 @@ const TEXT = SITE => ({
     insMore: '完整的安装说明', backTo: '回到',
     signIn: '用 GitHub 登录', signOut: '退出', featured: '精选', isNew: '新上架',
     playNow: '立即试玩', details: '游戏详情', inDsh: '装进 DSH', all: '全部游戏', none: '目录里还没有游戏。', count: n => `${n} 个游戏`,
-    free: '免费', offline: '离线运行', online: '联网', network: '联网', netOff: '不联网', netWarn: h => `这个游戏会联网，连接的是开发者自己的服务器：${h}。联网的风险请你自己判断。`, players: n => (n > 1 ? `1–${n} 人` : '单人'), langs: n => `${n} 种语言`,
+    free: '免费', offline: '离线运行', online: '联网', ai: '用 DSH 的模型', network: '联网', netOff: '不联网', netWarn: h => `这个游戏会联网，连接的是开发者自己的服务器：${h}。联网的风险请你自己判断。`, players: n => (n > 1 ? `1–${n} 人` : '单人'), langs: n => `${n} 种语言`,
     statGames: '个游戏', statExts: '个扩展', statOpen: '目录和规则全部公开在 GitHub',
     dshTitle: '装进 DSH，全屏玩', dshLead: '游戏商店是 DeepSeek Harness 的一个插件。装上以后，游戏在你自己的电脑上运行，占满整个窗口，存档留在本机。',
     dshSteps: [['装上商店', '在 DSH 的插件页里安装 dsh-game-store，或者运行下面这条命令。'], ['挑一个游戏', '看截图和说明，点“安装”。商店只装目录里登记的版本，并核对校验值。'], ['开始游戏', '游戏占满窗口并进入全屏。给游戏装扩展，在游戏页的“插件工坊”里点一下。']],
@@ -89,7 +91,7 @@ const TEXT = SITE => ({
     insMore: 'Full install guide', backTo: 'Back to',
     signIn: 'Sign in with GitHub', signOut: 'Sign out', featured: 'Featured', isNew: 'New',
     playNow: 'Play now', details: 'Game page', inDsh: 'Get it in DSH', all: 'All games', none: 'The catalog has no games yet.', count: n => `${n} game${n === 1 ? '' : 's'}`,
-    free: 'Free', offline: 'Runs offline', online: 'Online', network: 'Network', netOff: 'Offline', netWarn: h => `This game goes online and connects to its developer’s own servers: ${h}. The risk of going online is yours to judge.`, players: n => (n > 1 ? `1–${n} players` : 'Single player'), langs: n => `${n} languages`,
+    free: 'Free', offline: 'Runs offline', online: 'Online', ai: 'Uses your DSH model', network: 'Network', netOff: 'Offline', netWarn: h => `This game goes online and connects to its developer’s own servers: ${h}. The risk of going online is yours to judge.`, players: n => (n > 1 ? `1–${n} players` : 'Single player'), langs: n => `${n} languages`,
     statGames: 'games', statExts: 'extensions', statOpen: 'The catalog and the rules are public on GitHub',
     dshTitle: 'Install into DSH, play full screen', dshLead: 'The Game Store is a plugin for DeepSeek Harness. Games run on your own computer, fill the whole window, and keep their saves on your machine.',
     dshSteps: [['Install the store', 'Install dsh-game-store on DSH\'s Plugins page, or run the command below.'], ['Pick a game', 'Look at the screenshots and the description, then click Install. The store installs only the version registered in the catalog and compares its checksum.'], ['Play', 'The game fills the window and goes full screen. Extensions are one click away in the Workshop section of the game page.']],
@@ -118,7 +120,7 @@ const TEXT = SITE => ({
 
 /** The site's own files: styles, script, logo, badge, SKILL.md and the server functions. */
 export function copySiteAssets({ root, out }) {
-  for (const f of ['style.css', 'site.js']) cpSync(join(root, 'site', f), join(out, f))
+  for (const f of ['style.css', 'site.js', 'dsh-ai-web.js']) cpSync(join(root, 'site', f), join(out, f))
   // The logo, at the sizes pages and phones ask for.
   cpSync(join(root, 'brand/logo-64.png'), join(out, 'favicon.png'))
   cpSync(join(root, 'brand/logo-180.png'), join(out, 'apple-touch-icon.png'))
@@ -191,7 +193,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
   const cmdBox = (t, cmd, { gold = false, label } = {}) => `<div class="cmd${gold ? ' gold' : ''}"><span class="prompt">${gold ? '&gt;_' : '$'}</span><code>${esc(cmd)}</code><button type="button" data-copy="${esc(cmd)}" data-done="${esc(t.copied)}">${esc(label ?? (gold ? t.copy : t.copyCmd))}</button></div>`
   const chips = (t, g) => {
     const m = g.manifest
-    return [t.free, t.players(m.players.max), t.langs(m.languages.length), ...m.controls.map(c => t.control[c]), m.network ? t.online : t.offline].map(c => `<span class="chip">${esc(c)}</span>`).join('')
+    return [t.free, t.players(m.players.max), t.langs(m.languages.length), ...m.controls.map(c => t.control[c]), m.network ? t.online : t.offline, ...(m.ai ? [t.ai] : [])].map(c => `<span class="chip">${esc(c)}</span>`).join('')
   }
   const playHref = (base, g) => `${base}games/${g.id}/play/`
 
@@ -200,7 +202,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
     return `<article class="card">
   <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="${esc(pic(g, m.cover))}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
   <a class="cin" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
-  <div class="meta"><span>${esc(m.author.name)} · <a class="ghlink" href="${esc(g.repository)}" target="_blank" rel="noopener" aria-label="GitHub">${ICON.github}<span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a></span><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
+  <div class="meta"><a class="ghmeta" href="${esc(g.repository)}" target="_blank" rel="noopener" title="${esc(g.repository.replace('https://github.com/', ''))}">${ICON.github}<span class="who">${esc(m.author.name)}</span><span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}">${starText(g.stars)}</span></a><span class="tagrow">${(g.workshop ?? []).length ? `<span class="chip sm">${esc(t.nav.workshop)} ${(g.workshop ?? []).length}</span>` : ''}<span class="chip sm">${esc(t.free)}</span></span></div>
 </article>`
   }
 
@@ -287,7 +289,6 @@ ${hero}
   <div class="gtop">
     <div class="viewer" data-gallery>
       <div class="screen zoomable">${first.video ? `<video data-main autoplay muted loop playsinline preload="metadata"${first.poster ? ` poster="${esc(pic(g, first.poster))}"` : ''} src="${esc(pic(g, first.video))}"></video>` : `<img data-main src="${esc(pic(g, first.src))}" alt="${esc(name)}">`}</div>
-      <p class="cap" data-cap>${esc(pickText(first.caption, t.lang))}</p>
       <div class="thumbs">${media.map((p, i) => p.video
         ? `<button type="button" class="vid${i === 0 ? ' on' : ''}" data-video="${esc(pic(g, p.video))}" data-poster="${p.poster ? `${esc(pic(g, p.poster))}` : ''}" data-cap="${esc(pickText(p.caption, t.lang))}">${p.poster ? `<img src="${esc(pic(g, p.poster))}" alt=""${i > 7 ? ' loading="lazy"' : ''}>` : ''}<span class="badge">${ICON.play}</span></button>`
         : `<button type="button" data-src="${esc(pic(g, p.src))}" data-cap="${esc(pickText(p.caption, t.lang))}"${i === 0 ? ' class="on"' : ''}><img src="${esc(pic(g, p.src))}" alt="${esc(pickText(p.caption, t.lang))}"${i > 7 ? ' loading="lazy"' : ''}></button>`).join('')}</div>
@@ -297,7 +298,7 @@ ${hero}
       <p class="sum">${esc(pickText(m.summary, t.lang))}</p>
       <div class="chips">${chips(t, g)}</div>
       ${listedGame ? `<a class="btn gold big wide" href="${playHref(base, g)}">${ICON.play}${esc(t.playNow)}</a><a class="btn ghost wide" href="${base}install/">${esc(t.inDsh)}</a>${m.manual ? `<a class="btn ghost wide" href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}` : ''}
-      <a class="btn star wide" href="${esc(g.repository)}" target="_blank" rel="noopener">${ICON.github}<span>${esc(t.star)}</span><span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}"></span></a>
+      <a class="btn star wide" href="${esc(g.repository)}" target="_blank" rel="noopener">${ICON.github}<span>${esc(t.star)}</span><span class="stars" data-stars="${esc(g.repository.replace('https://github.com/', ''))}">${starText(g.stars)}</span></a>
       <dl class="facts"><div><dt>${esc(t.author)}</dt><dd>${esc(m.author.name)}</dd></div><div><dt>${esc(t.version)}</dt><dd>${esc(showV(g.version))}</dd></div><div><dt>${esc(t.download)}</dt><dd>${mb(g.tarballBytes)}</dd></div><div><dt>${esc(t.rating)}</dt><dd>${esc(t.ratingName[m.content.rating])}</dd></div></dl>
     </aside>
   </div>

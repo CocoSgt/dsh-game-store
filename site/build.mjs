@@ -197,6 +197,8 @@ const routing = {
   trailingSlash: true,
   rewrites: [
     ...(STATIC ? games.map(g => ({ source: `/v/:pkg/:path*`, has: [gameHost(g.id)], destination: `/_play/${g.id}/:path*` })) : [
+      // On the website a game has no DSH model: the helper says so, and the game carries on without it.
+      { source: '/__dsh/ai.js', has: [playHost], destination: '/dsh-ai-web.js' },
       { source: `/v/${PKG}/:path(.*\\.html?)`, has: [playHost], destination: 'https://unpkg.com/:pkg/:path' },
       { source: `/v/${PKG}/:path*`, has: [playHost], destination: 'https://cdn.jsdelivr.net/npm/:pkg/:path*' },
       // The store's own pages and catalog, rendered from the live catalog.

@@ -132,6 +132,7 @@ It tells DSH that the package adds no plugin code to DSH.
 | `players` | yes | `{ "min": 1, "max": 4 }` |
 | `content.rating` | yes | `everyone`, `teen` (13 and up) or `mature` (18 and up) |
 | `network` | no | Present when the game goes online; see section 2.6. Without it the game is offline |
+| `ai` | no | Present when the game calls the DSH model; see section 2.6 |
 | `workshop` | no | Present when the game takes extensions; see section 8 |
 | `content.notes` | sometimes | Content notes, at most 200 characters. Required for `teen` and `mature`: say what the content is |
 
@@ -169,6 +170,28 @@ What a game must do:
   `hosts` holds up to 8 addresses: `https://` or `wss://` plus a host name (a port is fine, a path is not). The game can reach these and nothing else. `notes` tells players in one sentence what the connection is for, at most 200 characters.
 
   The servers are the developer's own: the platform gives games no server, `dsh-game-store.com` and its subdomains cannot be listed, and neither can addresses on the player's machine or local network. The game page says that the game goes online and names the addresses; the risk of going online is the player's to judge.
+- **Use the DSH model.** A game can call the model like any other DSH plugin: dialogue, characters that answer, riddles, stories. It uses the model and account the player chose in DSH, so the developer needs no key. Declare it in the manifest:
+
+  ```json
+  "ai": { "notes": { "en": "Characters answer what you say.", "zh": "角色会回答你说的话。" } }
+  ```
+
+  Then call it from the page (on the game's own address, no domain needed):
+
+  ```html
+  <script src="/__dsh/ai.js"></script>
+  <script>
+    if (await dshAI.available()) {
+      const reply = await dshAI.chat({
+        system: 'You run the tavern. Keep it short.',
+        messages: [{ role: 'user', content: 'What is on the menu today?' }],
+        maxTokens: 300,
+      }, (piece, all) => { line.textContent = all })   // show it as it comes
+    }
+  </script>
+  ```
+
+  `messages` alternate `user` and `assistant` and end with `user`: at most 100 of them and 60,000 characters in one request, and `maxTokens` up to 4000. The helper is optional: `POST /__dsh/ai` with the same JSON answers with one `{"text": "…"}` per line and a last line of `{"done": true}` or `{"error": "…"}`; add `"stream": false` for a single `{"text": "…"}`. `GET /__dsh/ai` says whether the player's DSH has a model ready. With no model, or when played on the website, `available()` is `false` and the game should still be playable. Each game may run 3 requests at a time. What it uses counts against the player's own DSH account, and the game page shows "Uses your DSH model".
 - **Save with `localStorage` or `IndexedDB`.** Each game has its own fixed address, so saves are separate, and they survive updates and reinstalls.
 - **Use relative paths.** The entry page is under `/game/…`: write `src="main.js"`, never `src="/main.js"`.
 - A game runs in a restricted frame: it can run scripts, lock the pointer, read gamepads and go full screen; it cannot open windows or navigate elsewhere.
