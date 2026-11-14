@@ -8,6 +8,16 @@
   "trailingSlash": true,
   "rewrites": [
     {
+      "source": "/__dsh/ai.js",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
+        }
+      ],
+      "destination": "/dsh-ai-web.js"
+    },
+    {
       "source": "/v/:pkg([a-z0-9][a-z0-9._-]*@[0-9][0-9A-Za-z.+-]*)/:path(.*\\.html?)",
       "has": [
         {
