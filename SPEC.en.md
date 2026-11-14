@@ -369,6 +369,8 @@ These follow the same approach. They are written down to fix the direction, and 
 
 **Everything is a plugin.** The store is a DSH plugin, a game is a plugin, and an extension made for a game is a plugin too. All of them are npm packages, all are registered in the same catalog, and the store installs and removes all of them. An extension can be a map, a commander, a language pack, a skin, a balance change; which kinds exist is up to each game.
 
+**Every game takes mods.** Without declaring anything, a game takes "script mods" (type `script`): the extension's `files` folder holds a `mod.js` (and optionally a `mod.css`); once the player switches it on, the store runs them in order on the game's entry page, after the game's own scripts. A script mod runs inside the game's page under the same rules as the game (the same restricted frame, the same network rules) and changes numbers, adds interface or play at run time, without changing the game's files. `window.dshMods` lists the script mods switched on. Website play loads no mods. A game that wants mods to plug in more directly (map files, language packs) declares its own kinds as in 8.1.
+
 ### 8.1 How a game says it takes extensions
 
 A game adds `workshop` to its manifest `game.json`:

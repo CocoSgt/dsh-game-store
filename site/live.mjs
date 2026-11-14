@@ -82,9 +82,9 @@ export async function liveGames() {
   const games = (await Promise.all((index.games ?? []).map(id => oneGame(id).catch(err => { console.error(`game ${id}: ${err.message}`); return null })))).filter(Boolean)
   await Promise.all(Object.entries(index.workshop ?? {}).map(async ([gameId, ids]) => {
     const g = games.find(x => x.id === gameId)
-    if (!g || !g.manifest.workshop) return
+    if (!g) return
     const list = await Promise.all(ids.map(id => oneExtension(gameId, id).catch(err => { console.error(`extension ${gameId}/${id}: ${err.message}`); return null })))
-    const ok = list.filter(Boolean).filter(x => x.manifest.game === gameId && x.manifest.types.every(t => g.manifest.workshop.types.includes(t)))
+    const ok = list.filter(Boolean).filter(x => x.manifest.game === gameId && x.manifest.types.every(t => [...(g.manifest.workshop?.types ?? []), 'script'].includes(t)))
     if (ok.length) g.workshop = ok
   }))
   await Promise.all(games.map(async g => { const n = await starsOf(g.repository); if (typeof n === 'number') g.stars = n }))

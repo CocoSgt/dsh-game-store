@@ -100,7 +100,6 @@ for (const gameId of NEED_GAMES && existsSync(wdir) ? readdirSync(wdir).filter(f
     const id = file.replace(/\.json$/, ''), where = `workshop/${gameId}/${file}`
     try {
       if (!game) throw new Error(`there is no game "${gameId}" in the catalog`)
-      if (!game.manifest.workshop) throw new Error(`${gameId} does not accept extensions (no "workshop" in its game.json)`)
       const entry = JSON.parse(readFileSync(join(wdir, gameId, file), 'utf8'))
       const r = checkWorkshopEntry(entry, gameId, id)
       if (r.errors.length) throw new Error(r.errors.join('; '))
@@ -110,7 +109,7 @@ for (const gameId of NEED_GAMES && existsSync(wdir) ? readdirSync(wdir).filter(f
       const m = check.manifest
       if (m.id !== id || m.game !== gameId) throw new Error(`the package is extension "${m.id}" for game "${m.game}"`)
       if (check.pkg.name !== entry.package || check.pkg.version !== entry.version) throw new Error(`the tarball is ${check.pkg.name}@${check.pkg.version}`)
-      const extra = m.types.filter(t => !game.manifest.workshop.types.includes(t))
+      const extra = m.types.filter(t => ![...(game.manifest.workshop?.types ?? []), 'script'].includes(t))
       if (extra.length) throw new Error(`${gameId} does not accept extensions of type ${extra.join(', ')}`)
       ;(game.workshop ??= []).push({
         id, game: gameId, package: entry.package, version: entry.version, integrity: entry.integrity, repository: entry.repository,

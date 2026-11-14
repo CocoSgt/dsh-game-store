@@ -21,7 +21,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fetchPackage, localSources } from '../lib/packages.mjs'
-import { checkCatalogEntry, checkExtension, checkPackage, checkWorkshopEntry, gameVersionOk } from '../lib/spec.mjs'
+import { checkCatalogEntry, checkExtension, checkPackage, checkWorkshopEntry, gameVersionOk, modTypesOf } from '../lib/spec.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const argv = process.argv.slice(2)
@@ -105,8 +105,7 @@ for (const gameId of existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsW
       if (got.source === 'local') res.warnings.push('checked from a local tarball; the package is not on npm yet')
       if (check.manifest) {
         if (check.manifest.id !== id || check.manifest.game !== gameId) res.errors.push(`the package is extension "${check.manifest.id}" for game "${check.manifest.game}"`)
-        if (!game.manifest.workshop) res.errors.push(`${gameId} does not accept extensions`)
-        else { const extra = check.manifest.types.filter(t => !game.manifest.workshop.types.includes(t)); if (extra.length) res.errors.push(`${gameId} does not accept extensions of type ${extra.join(', ')}`) }
+        { const extra = check.manifest.types.filter(t => !modTypesOf(game.manifest).includes(t)); if (extra.length) res.errors.push(`${gameId} does not accept extensions of type ${extra.join(', ')}`) }
         if (!gameVersionOk(check.manifest.gameVersion, game.version)) res.warnings.push(`it asks for game version ${[].concat(check.manifest.gameVersion).join(', ')}; the catalog has ${gameId} ${game.version}, so it will stay switched off`)
       }
       if (check.pkg && (check.pkg.name !== entry.package || check.pkg.version !== entry.version)) res.errors.push(`the tarball is ${check.pkg.name}@${check.pkg.version}`)

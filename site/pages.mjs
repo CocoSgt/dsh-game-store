@@ -13,7 +13,7 @@ const showV = v => String(v ?? '').replace(/[-+].*$/, '')
 const starText = n => (typeof n === 'number' ? `★ ${n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n}` : '')
 const LANG_NAMES = { 'zh-cn': '简体中文', 'zh-tw': '繁體中文', zh: '中文', en: 'English', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', 'pt-br': 'Português', pt: 'Português', ru: 'Русский', it: 'Italiano' }
 /** Names for the usual kinds of extensions; a kind a game invents shows as it is written. */
-const TYPE_NAMES = { zh: { map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' } }
+const TYPE_NAMES = { zh: { script: '脚本', map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { script: 'Script', map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' } }
 const mb = n => (n >= 1048576 ? `${(n / 1048576).toFixed(n >= 104857600 ? 0 : 1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
 
 const ICON = {
@@ -56,7 +56,7 @@ const TEXT = SITE => ({
     pubSteps: [['打包', '把游戏做成一个 npm 包，包里有游戏文件、清单（game.json）、封面、截图和说明。'], ['检查与审核', '自动检查逐项对照平台规范；内容审核检查恶意代码和不能接受的内容。两项结论都写在 Pull Request 里。'], ['上架', '两项都通过后，Pull Request 自动合并，游戏出现在商店和网站上。']],
     pubGuide: '分步说明', pubSpec: '平台规范',
     wsTitle: '插件工坊', wsLead: '一切皆插件。给游戏做的地图、指挥官、语言包，和游戏一样上架，在商店的游戏页里一键安装、启用、停用。',
-    wsMake: '怎么给游戏做扩展', wsFor: '适用', wsNone: '还没有扩展。', wsIn: '装好游戏后，在 DSH 商店的游戏页里安装和启用。',
+    wsMake: '用 DSH 做一个 Mod', wsFor: '适用', wsNone: '还没有人做 Mod。在 DSH 里打开这个游戏，点“用 DSH 做一个 Mod”，第一个就是你。', wsIn: '装好游戏后，在 DSH 商店的游戏页里启用。',
     about: '游戏说明', info: '信息', board: '留言板', media: '截图和视频',
     boardPost: '去 GitHub 留言', boardEmpty: '还没有留言。来说第一句。', boardLoading: '正在读取留言…', boardFail: '现在读不到留言。', boardAll: '在 GitHub 上看全部', replies: '条回复',
     boardSignIn: '登录后可以直接在这里留言。', boardTitle: '标题', boardBody: '想说什么都可以：评价、攻略、问题、建议。', boardSend: '发布留言', boardSent: '已发布，稍后出现在这里。', boardErr: '没有发出去：',
@@ -102,7 +102,7 @@ const TEXT = SITE => ({
     pubSteps: [['Pack', 'Make the game an npm package holding the game files, a manifest (game.json), a cover, screenshots and a description.'], ['Check and review', 'Automatic checks compare the package with the platform spec; a content review looks for malicious code and unacceptable content. Both results are posted on the pull request.'], ['Listed', 'When both pass, the pull request merges by itself and the game appears in the store and on this site.']],
     pubGuide: 'Step-by-step guide', pubSpec: 'Platform spec',
     wsTitle: 'Workshop', wsLead: 'Everything is a plugin. Maps, commanders and language packs made for a game are listed like games, and installed, switched on and off with one click on the game page in the store.',
-    wsMake: 'How to make an extension', wsFor: 'for', wsNone: 'No extensions yet.', wsIn: 'Install the game, then install and enable these on the game page in the DSH store.',
+    wsMake: 'Make a mod with DSH', wsFor: 'for', wsNone: 'Nobody has made a mod yet. Open this game in DSH and press "Make a mod with DSH" to be the first.', wsIn: 'Install the game, then switch them on from the game page in the DSH store.',
     about: 'About this game', info: 'Information', board: 'Message board', media: 'Screenshots and videos',
     boardPost: 'Post on GitHub', boardEmpty: 'No messages yet. Say the first word.', boardLoading: 'Loading messages…', boardFail: 'Messages cannot be loaded right now.', boardAll: 'All messages on GitHub', replies: 'replies',
     boardSignIn: 'Sign in to post right here.', boardTitle: 'Title', boardBody: 'Reviews, tips, questions, ideas.', boardSend: 'Post message', boardSent: 'Posted. It will show here shortly.', boardErr: 'Not sent: ',
@@ -303,9 +303,9 @@ ${hero}
     </aside>
   </div>
 </div></section>
-<nav class="subnav"><div class="in">${m.workshop ? `<a href="#workshop">${esc(t.wsTitle)}${items.length ? ` <span class="count">${items.length}</span>` : ''}</a>` : ''}<a href="#board">${esc(t.board)}</a><a href="#about">${esc(t.about)}</a><a href="#info">${esc(t.info)}</a></div></nav>
-<section class="in row2${m.workshop ? '' : ' solo'}">
-  ${m.workshop ? `<div class="panel">
+<nav class="subnav"><div class="in"><a href="#workshop">${esc(t.wsTitle)}${items.length ? ` <span class="count">${items.length}</span>` : ''}</a><a href="#board">${esc(t.board)}</a><a href="#about">${esc(t.about)}</a><a href="#info">${esc(t.info)}</a></div></nav>
+<section class="in row2">
+  ${true ? `<div class="panel">
     <h2 id="workshop">${esc(t.wsTitle)}</h2><p class="muted">${esc(t.wsIn)} <a href="${base}workshop/">${esc(t.wsMake)}</a></p>
     ${items.length ? `<div class="exts one">${items.map(x => `<div class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))} · <a href="https://www.npmjs.com/package/${esc(x.package)}">${esc(x.package)}</a></span></div>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}
   </div>` : ''}
@@ -432,14 +432,14 @@ document.getElementById('f').src = (live ? ${playRoot(g)} : '/_play/' + ${JSON.s
     }
 
     // ---------------------------------------------------------------- workshop: a store page of its own
-    const wsGames = listed.filter(g => g.manifest.workshop)
+    const wsGames = listed
     const tiles = list => `<div class="three">${list.map(([a, b], i) => `<div class="tile"><span class="n">${i + 1}</span><b>${esc(a)}</b><p>${esc(b)}</p></div>`).join('')}</div>`
     const phero = (kicker, h1, lead, extra = '') => `<section class="phero"><div class="bg"${lead0 ? ` style="background-image:url('${esc(pic(lead0, lead0.manifest.cover))}')"` : ''}></div><div class="in"><span class="kicker">${esc(kicker)}</span><h1>${esc(h1)}</h1><p class="lead">${esc(lead)}</p>${extra}</div></section>`
     const lead0 = lead
     page(lang, 'workshop/', t.wsTitle, `${phero(t.wsTitle, t.wsHero, t.wsHeroLead, `<div class="chips"><span class="chip">${esc(t.wsCount(exts.length))}</span><span class="chip">${esc(t.free)}</span></div>`)}
 ${wsGames.map(g => {
   const m = g.manifest, items = (g.workshop ?? []).filter(x => x.status === 'listed')
-  return `<section class="in block"><div class="gamebar"><a class="who" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="48" height="48"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(t.wsCount(items.length))} · ${esc(t.wsTypes)} ${m.workshop.types.map(x => esc(TYPE_NAMES[lang][x] ?? x)).join(' / ')}</i></span></a><a class="btn ghost" href="${base}games/${g.id}/#workshop">${esc(t.details)}${ICON.arrow}</a></div>
+  return `<section class="in block"><div class="gamebar"><a class="who" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="48" height="48"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(t.wsCount(items.length))} · ${esc(t.wsTypes)} ${[...(m.workshop?.types ?? []), 'script'].map(x => esc(TYPE_NAMES[lang][x] ?? x)).join(' / ')}</i></span></a><a class="btn ghost" href="${base}games/${g.id}/#workshop">${esc(t.details)}${ICON.arrow}</a></div>
   ${items.length ? `<div class="exts">${items.map(x => `<article class="ext"><span class="types">${x.manifest.types.map(y => `<span class="chip sm gold">${esc(TYPE_NAMES[lang][y] ?? y)}</span>`).join('')}</span><b>${esc(pickText(x.manifest.name, t.lang))}</b><p>${esc(pickText(x.manifest.summary, t.lang))}</p><span class="meta">${esc(x.manifest.author.name)} · v${esc(showV(x.version))} · ${esc(t.wsFor)} ${esc([].concat(x.manifest.gameVersion).join(', '))}</span><a class="btn gold sm" href="${base}install/">${esc(t.wsGet)}</a></article>`).join('')}</div>` : `<p class="muted">${esc(t.wsNone)}</p>`}</section>`
 }).join('\n') || `<section class="in block"><p class="muted">${esc(t.wsNone)}</p></section>`}
 <section class="band" id="make"><div class="in two">
