@@ -8,79 +8,49 @@
   "trailingSlash": true,
   "rewrites": [
     {
-      "source": "/game/index.html",
+      "source": "/v/:pkg([a-z0-9][a-z0-9._-]*@[0-9][0-9A-Za-z.+-]*)/:path(.*\\.html?)",
       "has": [
         {
           "type": "host",
-          "value": "tidemark\\.play\\.dsh-game-store\\.com"
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
         }
       ],
-      "destination": "/_play/tidemark/game/index.html"
+      "destination": "https://unpkg.com/:pkg/:path"
     },
     {
-      "source": "/manual/index.html",
+      "source": "/v/:pkg([a-z0-9][a-z0-9._-]*@[0-9][0-9A-Za-z.+-]*)/:path*",
       "has": [
         {
           "type": "host",
-          "value": "tidemark\\.play\\.dsh-game-store\\.com"
+          "value": "(?<game>[a-z0-9-]+)\\.play\\.dsh-game-store\\.com"
         }
       ],
-      "destination": "/_play/tidemark/manual/index.html"
+      "destination": "https://cdn.jsdelivr.net/npm/:pkg/:path*"
     },
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "tidemark\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-tidemark@1.0.4/:path*"
+      "source": "/catalog.json",
+      "destination": "/api/page?f=catalog"
     },
     {
-      "source": "/game/index.html",
-      "has": [
-        {
-          "type": "host",
-          "value": "ai\\-fushengji\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "destination": "/_play/ai-fushengji/game/index.html"
+      "source": "/dsh-index.json",
+      "destination": "/api/page?f=index"
     },
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "ai\\-fushengji\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-ai-fushengji@0.11.1/:path*"
+      "source": "/",
+      "destination": "/api/page?p="
     },
     {
-      "source": "/game/index.html",
-      "has": [
-        {
-          "type": "host",
-          "value": "batto\\-neko\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "destination": "/_play/batto-neko/game/index.html"
+      "source": "/en/",
+      "destination": "/api/page?p=en/"
     },
     {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "batto\\-neko\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "destination": "https://cdn.jsdelivr.net/npm/dsh-game-batto-neko@0.11.2-alpha.3/:path*"
+      "source": "/:page((?:en/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)",
+      "destination": "/api/page?p=:page"
     }
   ],
   "redirects": [
     {
-      "source": "/manual/:path*",
+      "source": "/v/:pkg/manual/:path*",
       "has": [
         {
           "type": "host",
@@ -110,17 +80,6 @@
       ],
       "destination": "https://dsh-game-store.com/games/:game/play/",
       "permanent": false
-    },
-    {
-      "source": "/_play/:game/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "(www\\.)?dsh-game-store\\.com"
-        }
-      ],
-      "destination": "https://:game.play.dsh-game-store.com/:path*",
-      "permanent": false
     }
   ],
   "headers": [
@@ -140,51 +99,10 @@
         {
           "key": "Referrer-Policy",
           "value": "no-referrer"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "tidemark\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "headers": [
+        },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://dsh-game-store.com https://www.dsh-game-store.com"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "ai\\-fushengji\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://dsh-game-store.com https://www.dsh-game-store.com"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "batto\\-neko\\.play\\.dsh-game-store\\.com"
-        }
-      ],
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob: https://soya-knight-dsh.pages.dev; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://dsh-game-store.com https://www.dsh-game-store.com"
+          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob: *; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://dsh-game-store.com https://www.dsh-game-store.com"
         }
       ]
     },
@@ -230,28 +148,12 @@
           "value": "*"
         }
       ]
-    },
-    {
-      "source": "/(catalog|dsh-index)\\.json",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=300"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
-    },
-    {
-      "source": "/games/(.*)\\.(png|jpg|jpeg|webp|mp4|webm)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, stale-while-revalidate=86400"
-        }
-      ]
     }
-  ]
+  ],
+  "functions": {
+    "api/page.mjs": {
+      "includeFiles": "api/_lib/**",
+      "maxDuration": 30
+    }
+  }
 }

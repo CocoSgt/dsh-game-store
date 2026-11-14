@@ -292,6 +292,38 @@ async function reviewPr(pr) {
   } catch (err) { log(`#${pr.number}: ${String(err.message).split('\n')[0]}`) }
 }
 
+// ------------------------------------------------------------------ catalog/index.json: submission order for the site
+// The live site lists what this file names. Every entry on main that it misses is added at the end, in the order
+// the entries were merged; the file is written through the GitHub API, retried when two writes meet.
+async function syncIndex() {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      sh('git', ['fetch', '--quiet', 'origin', 'main'], { cwd: root })
+      const list = dir => { try { return sh('git', ['ls-tree', '--name-only', `origin/main:${dir}`], { cwd: root }).trim().split('\n').filter(f => f.endsWith('.json')).map(f => f.replace(/\.json$/, '')) } catch { return [] } }
+      const added = path => { try { return Date.parse(sh('git', ['log', '-1', '--diff-filter=A', '--format=%cI', 'origin/main', '--', path], { cwd: root }).trim()) || 0 } catch { return 0 } }
+      const meta = ghJson('api', `repos/${REPO}/contents/catalog/index.json?ref=main`)
+      const index = JSON.parse(Buffer.from(meta.content, 'base64').toString('utf8'))
+      index.games ??= []; index.workshop ??= {}
+      let changed = false
+      const games = list('catalog/games').filter(id => !index.games.includes(id)).sort((a, b) => added(`catalog/games/${a}.json`) - added(`catalog/games/${b}.json`))
+      if (games.length) { index.games.push(...games); changed = true }
+      let wsDirs = []
+      try { wsDirs = sh('git', ['ls-tree', '--name-only', 'origin/main:catalog/workshop'], { cwd: root }).trim().split('\n').filter(Boolean) } catch { /* none */ }
+      for (const game of wsDirs) {
+        const have = (index.workshop[game] ??= [])
+        const missing = list(`catalog/workshop/${game}`).filter(id => !have.includes(id)).sort((a, b) => added(`catalog/workshop/${game}/${a}.json`) - added(`catalog/workshop/${game}/${b}.json`))
+        if (missing.length) { have.push(...missing); changed = true }
+      }
+      if (!changed) return
+      if (DRY) return log(`[dry-run] index would add: ${JSON.stringify(index)}`)
+      const body = `${JSON.stringify(index, null, 2)}\n`
+      gh('api', '-X', 'PUT', `repos/${REPO}/contents/catalog/index.json`, '-f', `message=catalog/index.json: add ${[...games].join(', ') || 'workshop entries'}`, '-f', `content=${Buffer.from(body).toString('base64')}`, '-f', `sha=${meta.sha}`, '-f', 'branch=main')
+      log(`index: added ${JSON.stringify(index)}`)
+      return
+    } catch (err) { log(`index: ${String(err.message).split('\n')[0]}${attempt < 3 ? '; trying again' : ''}`) }
+  }
+}
+
 // All pull request heads in one fetch, then up to PARALLEL reviews at the same time.
 const waiting = prs.filter(pr => !pr.isDraft)
 if (waiting.length) {
@@ -301,6 +333,8 @@ if (waiting.length) {
   const queue = [...prs]
   await Promise.all(Array.from({ length: Math.max(1, PARALLEL) }, async () => { while (queue.length) await reviewPr(queue.shift()) }))
 }
+// After the merges (and on every run, for entries added by hand): the site lists the new games.
+await syncIndex()
 
 // ------------------------------------------------------------------ daily health check
 const today = new Date().toISOString().slice(0, 10)

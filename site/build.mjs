@@ -2,13 +2,16 @@
 /**
  * Build the site (dsh-game-store.com) and the catalog the store plugin reads, from catalog/games/*.json.
  *
- *   node site/build.mjs [--local <package>=<tarball>]... [--snapshot] [--out site/dist]
+ *   node site/build.mjs                      the site for deployment
+ *   node site/build.mjs --static [--local <package>=<tarball>]...   every page as a file, for a local preview
+ *   node site/build.mjs --snapshot           also refresh catalog-snapshot/, the copy shipped inside the plugin
  *
- * For every listed game the package is downloaded from npm (never installed, never run),
- * checked against the spec, and its manifest, description and pictures are copied into the site.
- *   site/dist/catalog.json    what the store plugin reads
- *   site/dist/dsh-index.json  the same games as a DSH plugin index (DSH's "Discover" tab can read it)
- * --snapshot also copies the catalog and pictures into catalog-snapshot/, the copy shipped inside the plugin.
+ * The deployed site reads the catalog live: the pages that show games, catalog.json (what the store plugin reads)
+ * and dsh-index.json (DSH's "Discover" tab) come from a server function (site/api/page.mjs, site/live.mjs), so a
+ * merged pull request shows within minutes without a new deployment. A deployment carries only the site's own
+ * files, the function and the routing.
+ * With --static or --snapshot every package is downloaded from npm (never installed, never run), checked against
+ * the spec, and the pages are written as files from it.
  */
 import { execFileSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -16,7 +19,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { escapeHtml as esc, renderMarkdown } from '../lib/markdown.mjs'
 import { fetchPackage, localSources } from '../lib/packages.mjs'
-import { buildPages } from './pages.mjs'
+import { buildPages, copySiteAssets } from './pages.mjs'
 import { statSync } from 'node:fs'
 
 const CDN = 'https://cdn.jsdelivr.net/npm'
@@ -36,13 +39,18 @@ const DOMAIN = 'dsh-game-store.com'
 const PLAY_SUFFIX = `.play.${DOMAIN}`
 const REPO = 'https://github.com/CocoSgt/dsh-game-store'
 const storePkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+const STATIC = argv.includes('--static')
+const SNAPSHOT = argv.includes('--snapshot')
+const NEED_GAMES = STATIC || SNAPSHOT
+/** Submission order, kept by the reviewer when it merges: { games: [ids], workshop: { game: [ids] } }. */
+const INDEX = JSON.parse(readFileSync(join(root, 'catalog/index.json'), 'utf8'))
 
 // ------------------------------------------------------------------ catalog
 const games = []
 const snapPics = []
 let failed = 0
 const dir = join(root, 'catalog/games')
-for (const file of readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
+for (const file of NEED_GAMES ? readdirSync(dir).filter(f => f.endsWith('.json')).sort() : []) {
   const id = file.replace(/\.json$/, '')
   let entry
   try { entry = JSON.parse(readFileSync(join(dir, file), 'utf8')) } catch { console.error(`✗ ${file}: not valid JSON`); failed++; continue }
@@ -86,7 +94,7 @@ for (const file of readdirSync(dir).filter(f => f.endsWith('.json')).sort()) {
 }
 // ------------------------------------------------------------------ workshop: extensions, grouped under their game
 const wdir = join(root, 'catalog/workshop')
-for (const gameId of existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsWith('.')).sort() : []) {
+for (const gameId of NEED_GAMES && existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsWith('.')).sort() : []) {
   const game = games.find(g => g.id === gameId)
   for (const file of readdirSync(join(wdir, gameId)).filter(f => f.endsWith('.json')).sort()) {
     const id = file.replace(/\.json$/, ''), where = `workshop/${gameId}/${file}`
@@ -115,32 +123,24 @@ for (const gameId of existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsW
   }
 }
 
-// Games are listed in the order they were submitted: the pull request that added the entry (the store's own first
-// game has none), then the time that entry first reached the repository.
-const submitted = id => {
-  try {
-    const line = execFileSync('git', ['log', '--diff-filter=A', '--format=%s%x09%aI', '--', `catalog/games/${id}.json`], { cwd: root, encoding: 'utf8' }).trim().split('\n').pop() ?? ''
-    const [subject, at] = line.split('\t')
-    return { pr: Number(/\(#(\d+)\)\s*$/.exec(subject ?? '')?.[1] ?? 0), at: Date.parse(at ?? '') || Infinity }
-  } catch { return { pr: 0, at: Infinity } }
-}
+// Games are listed in the order they were submitted (catalog/index.json); anything missing from it goes last.
 {
-  const key = new Map(games.map(g => [g.id, submitted(g.id)]))
-  games.sort((a, b) => { const x = key.get(a.id), y = key.get(b.id); return x.pr - y.pr || x.at - y.at || a.id.localeCompare(b.id) })
+  const at = id => { const i = (INDEX.games ?? []).indexOf(id); return i < 0 ? 1e9 : i }
+  games.sort((a, b) => at(a.id) - at(b.id) || a.id.localeCompare(b.id))
 }
 
 if (failed && !argv.includes('--keep-going')) { console.error(`\n${failed} game(s) failed. Nothing was written.`); process.exit(1) }
 
-rmSync(join(out, 'catalog.json'), { force: true })
+for (const f of ['catalog.json', 'dsh-index.json', 'index.html', 'en', 'games', 'workshop', 'publish', 'install', 'docs', 'spec', '_play', 'api']) rmSync(join(out, f), { recursive: true, force: true })
 mkdirSync(out, { recursive: true })
 // Message boards live on GitHub: one issue per message in this repository, labelled game:<id>.
 const BOARD_REPO = REPO.replace('https://github.com/', '')
 const catalog = { format: 1, title: 'DSH Game Store', site: SITE, community: { repo: BOARD_REPO }, generatedAt: new Date().toISOString(), games }
-writeFileSync(join(out, 'catalog.json'), JSON.stringify(catalog, null, 1))
+if (STATIC) writeFileSync(join(out, 'catalog.json'), JSON.stringify(catalog, null, 1))
 
 // The same list in DSH's own plugin index format, for DSH's "Discover" tab.
 const stamp = d => Math.floor(Date.parse(d || catalog.generatedAt) / 1000)
-writeFileSync(join(out, 'dsh-index.json'), JSON.stringify({
+if (STATIC) writeFileSync(join(out, 'dsh-index.json'), JSON.stringify({
   format: 1,
   title: { en: 'DSH Game Store', zh: 'DSH 游戏商店' },
   description: { en: 'The game store plugin and the games in its catalog.', zh: '游戏商店插件，以及目录里的游戏。' },
@@ -166,7 +166,20 @@ if (argv.includes('--snapshot')) {
 }
 
 // ------------------------------------------------------------------ pages
-buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX })
+if (STATIC) buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX })
+else {
+  copySiteAssets({ root, out })
+  // What the page function needs beside it: the renderer, the live catalog reader, the documents.
+  const lib = join(out, 'api', '_lib')
+  mkdirSync(join(lib, 'docs', 'docs'), { recursive: true })
+  const fix = src => src.replaceAll("'../lib/markdown.mjs'", "'./markdown.mjs'").replaceAll("'../lib/spec.mjs'", "'./spec.mjs'")
+  writeFileSync(join(lib, 'pages.mjs'), fix(readFileSync(join(root, 'site/pages.mjs'), 'utf8')))
+  for (const f of ['site/live.mjs', 'lib/markdown.mjs', 'lib/spec.mjs']) cpSync(join(root, f), join(lib, f.split('/').pop()))
+  writeFileSync(join(lib, 'store.json'), JSON.stringify({ version: storePkg.version, description: storePkg.description, engines: storePkg.engines }))
+  writeFileSync(join(lib, 'package.json'), '{"type":"module"}\n')
+  for (const f of ['SPEC.md', 'SPEC.en.md']) cpSync(join(root, f), join(lib, 'docs', f))
+  for (const f of readdirSync(join(root, 'docs')).filter(f => f.endsWith('.md'))) cpSync(join(root, 'docs', f), join(lib, 'docs', 'docs', f))
+}
 
 // ------------------------------------------------------------------ hosting (Vercel)
 const host = DOMAIN.replaceAll('.', '\\.')
@@ -175,33 +188,41 @@ const playHost = { type: 'host', value: `(?<game>[a-z0-9-]+)\\.play\\.${host}` }
 const cspBase = extra => `default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' data: blob:${extra}; object-src 'none'; form-action 'none'; base-uri 'self'; frame-ancestors https://${DOMAIN} https://www.${DOMAIN}`
 const cspOf = g => cspBase(g.status === 'listed' ? (g.manifest.network?.hosts ?? []).map(h => ` ${h}`).join('') : '')
 const gameHost = id => ({ type: 'host', value: `${id.replaceAll('-', '\\-')}\\.play\\.${host}` })
+// A game's files: /v/<package>@<version>/… on its host, from the npm CDN at exactly that version. HTML pages come from
+// unpkg (jsDelivr answers them as plain text), which also serves files over jsDelivr's size limit.
+const PKG = ':pkg([a-z0-9][a-z0-9._-]*@[0-9][0-9A-Za-z.+-]*)'
+const PAGE = ':page((?:en/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)'
 const routing = {
   cleanUrls: false,
   trailingSlash: true,
-  // <id>.play.dsh-game-store.com/… serves the files of that one game, and nothing else.
-  rewrites: games.flatMap(g => g.cdn ? [
-    ...g.local.map(rel => ({ source: `/${rel.split('/').map(encodeURIComponent).join('/')}`, has: [gameHost(g.id)], destination: `/_play/${g.id}/${rel}` })),
-    { source: '/:path*', has: [gameHost(g.id)], destination: `${g.cdn}:path*` },
-  ] : [{ source: '/:path*', has: [gameHost(g.id)], destination: `/_play/${g.id}/:path*` }]),
-  // On the store's own address the game files are not served: a game never runs as the store's site.
+  rewrites: [
+    ...(STATIC ? games.map(g => ({ source: `/v/:pkg/:path*`, has: [gameHost(g.id)], destination: `/_play/${g.id}/:path*` })) : [
+      { source: `/v/${PKG}/:path(.*\\.html?)`, has: [playHost], destination: 'https://unpkg.com/:pkg/:path' },
+      { source: `/v/${PKG}/:path*`, has: [playHost], destination: 'https://cdn.jsdelivr.net/npm/:pkg/:path*' },
+      // The store's own pages and catalog, rendered from the live catalog.
+      { source: '/catalog.json', destination: '/api/page?f=catalog' },
+      { source: '/dsh-index.json', destination: '/api/page?f=index' },
+      { source: '/', destination: '/api/page?p=' },
+      { source: '/en/', destination: '/api/page?p=en/' },
+      { source: `/${PAGE}`, destination: '/api/page?p=:page' },
+    ]),
+  ],
   redirects: [
     // Someone opening a game host directly in the address bar lands on the page of this site instead:
     // visitors only ever see dsh-game-store.com/… addresses. (Frames ask with another Sec-Fetch-Dest and are served.)
-    { source: '/manual/:path*', has: [playHost, { type: 'header', key: 'sec-fetch-dest', value: 'document' }], destination: `https://${DOMAIN}/games/:game/manual/`, permanent: false },
+    { source: '/v/:pkg/manual/:path*', has: [playHost, { type: 'header', key: 'sec-fetch-dest', value: 'document' }], destination: `https://${DOMAIN}/games/:game/manual/`, permanent: false },
     { source: '/:path*', has: [playHost, { type: 'header', key: 'sec-fetch-dest', value: 'document' }], destination: `https://${DOMAIN}/games/:game/play/`, permanent: false },
-    { source: '/_play/:game/:path*', has: [{ type: 'host', value: `(www\\.)?${host}` }], destination: `https://:game.play.${DOMAIN}/:path*`, permanent: false },
   ],
   headers: [
-    { source: '/(.*)', has: [playHost], headers: [{ key: 'X-Content-Type-Options', value: 'nosniff' }, { key: 'Referrer-Policy', value: 'no-referrer' }] },
-    ...games.map(g => ({ source: '/(.*)', has: [gameHost(g.id)], headers: [{ key: 'Content-Security-Policy', value: cspOf(g) }] })),
+    // Games may go online freely; the host keeps them in frames of this site and away from its sign-in cookie.
+    { source: '/(.*)', has: [playHost], headers: [{ key: 'X-Content-Type-Options', value: 'nosniff' }, { key: 'Referrer-Policy', value: 'no-referrer' }, { key: 'Content-Security-Policy', value: cspBase(' *') }] },
     // Game files keep their names between releases, so they are cached for a while and refreshed in the background:
-    // pictures, fonts and sounds for a day, scripts for an hour. The entry page is always asked for again.
+    // pictures, fonts and sounds for a day, scripts for an hour. A versioned path never changes, so the CDN keeps it.
     { source: '/(.*)\\.(webp|png|jpg|jpeg|gif|avif|woff2|woff|ttf|otf|mp3|ogg|wav|m4a|mp4|webm)', has: [playHost], headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }] },
     { source: '/(.*)\\.(js|mjs|css|json|wasm)', has: [playHost], headers: [{ key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' }] },
     { source: '/SKILL.md', headers: [{ key: 'Content-Type', value: 'text/markdown; charset=utf-8' }, { key: 'Access-Control-Allow-Origin', value: '*' }] },
-    { source: '/(catalog|dsh-index)\\.json', headers: [{ key: 'Cache-Control', value: 'public, max-age=300' }, { key: 'Access-Control-Allow-Origin', value: '*' }] },
-    { source: '/games/(.*)\\.(png|jpg|jpeg|webp|mp4|webm)', headers: [{ key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' }] },
   ],
+  ...(STATIC ? {} : { functions: { 'api/page.mjs': { includeFiles: 'api/_lib/**', maxDuration: 30 } } }),
 }
 // dist/vercel.json is for deploying the built folder as it is; the one at the repository root is for builds on Vercel from git.
 writeFileSync(join(out, 'vercel.json'), JSON.stringify({ $schema: 'https://openapi.vercel.sh/vercel.json', framework: null, ...routing }, null, 2))

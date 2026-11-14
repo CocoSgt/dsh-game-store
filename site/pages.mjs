@@ -114,11 +114,8 @@ const TEXT = SITE => ({
   },
 })
 
-export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }) {
-  /** Where a picture of a game package is read from: the npm CDN, or this site when the CDN cannot serve it. */
-  const pic = (g, rel) => (g.cdn && !g.local?.includes(rel) && !/\.html?$/i.test(rel) && !(g.keptPics ?? []).includes(rel) ? `${g.cdn}${rel}` : `/games/${g.id}/${rel}`)
-  const T = TEXT(SITE)
-  const BOARD_REPO = REPO.replace('https://github.com/', '')
+/** The site's own files: styles, script, logo, badge, SKILL.md and the server functions. */
+export function copySiteAssets({ root, out }) {
   for (const f of ['style.css', 'site.js']) cpSync(join(root, 'site', f), join(out, f))
   // The logo, at the sizes pages and phones ask for.
   cpSync(join(root, 'brand/logo-64.png'), join(out, 'favicon.png'))
@@ -128,12 +125,26 @@ export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX }
   cpSync(join(root, 'SKILL.md'), join(out, 'SKILL.md'))
   // Sign-in and posting run as small server functions beside the static pages.
   if (existsSync(join(root, 'site/api'))) cpSync(join(root, 'site/api'), join(out, 'api'), { recursive: true })
+}
 
-  const write = (lang, path, html) => {
+/**
+ * Write every page. With `write` given, pages go to it instead of to files and nothing is copied (the site's server
+ * function renders the pages this way from the live catalog); `docRoot` is where SPEC.md and docs/ are read from.
+ */
+export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX, write: writeTo, docRoot = root }) {
+  /** Where a picture of a game package is read from: the npm CDN, or this site when the CDN cannot serve it. */
+  const pic = (g, rel) => (g.cdn && !g.local?.includes(rel) && !/\.html?$/i.test(rel) && !(g.keptPics ?? []).includes(rel) ? `${g.cdn}${rel}` : `/games/${g.id}/${rel}`)
+  const T = TEXT(SITE)
+  const BOARD_REPO = REPO.replace('https://github.com/', '')
+  if (!writeTo) copySiteAssets({ root, out })
+
+  const write = writeTo ?? ((lang, path, html) => {
     const file = join(out, lang === 'zh' ? '' : 'en', path, 'index.html')
     mkdirSync(dirname(file), { recursive: true })
     writeFileSync(file, html)
-  }
+  })
+  /** On the real site a game runs from its own host, at the exact version the catalog names; locally, from a folder. */
+  const playRoot = g => `'https://' + ${JSON.stringify(g.id + PLAY_SUFFIX)} + '/v/' + ${JSON.stringify(`${g.package}@${g.version}`)} + '/'`
 
   /** One page in one language. `path` has no language prefix, e.g. "games/tidemark/". */
   function page(lang, path, title, body, { description, image, cls = '' } = {}) {
@@ -339,7 +350,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
 <script>
 // On the real site the game is served from its own subdomain; in a local preview, from a folder of this server.
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
-var root = live ? 'https://' + ${JSON.stringify(g.id + PLAY_SUFFIX)} + '/' : '/_play/' + ${JSON.stringify(g.id)} + '/';
+var root = live ? ${playRoot(g)} : '/_play/' + ${JSON.stringify(g.id)} + '/';
 var f = document.getElementById('f'), bar = document.getElementById('bar'), timer;
 f.src = root + ${JSON.stringify(enc(m.entry))};
 f.addEventListener('load', function () { try { f.focus(); } catch (e) {} });
@@ -404,7 +415,7 @@ iframe{position:fixed;top:49px;left:0;width:100%;height:calc(100% - 49px);border
 <iframe id="f" title="${esc(name)} ${esc(t.manualOf)}" sandbox="allow-scripts allow-same-origin allow-modals" referrerpolicy="no-referrer"></iframe>
 <script>
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
-document.getElementById('f').src = (live ? 'https://' + ${JSON.stringify(g.id + PLAY_SUFFIX)} + '/' : '/_play/' + ${JSON.stringify(g.id)} + '/') + ${JSON.stringify(enc(manualRel))};
+document.getElementById('f').src = (live ? ${playRoot(g)} : '/_play/' + ${JSON.stringify(g.id)} + '/') + ${JSON.stringify(enc(manualRel))};
 </script>
 </body>
 </html>
@@ -452,8 +463,8 @@ ${wsGames.map(g => {
     const side = cur => `<h4>${esc(t.nav.docs)}</h4>${docs.map(([p, , k]) => `<a class="doc${p === cur ? ' on' : ''}" href="${base}${p}">${esc(t.docNames[k])}</a>`).join('')}<a class="doc" href="/SKILL.md">SKILL.md</a>`
     page(lang, 'docs/', t.nav.docs, `<section class="in block"><div class="head"><h2>${esc(t.nav.docs)}</h2></div><div class="four">${docs.map(([p, , k]) => `<a class="tile link" href="${base}${p}"><b>${esc(t.docNames[k])}</b><p>${ICON.arrow}</p></a>`).join('')}<a class="tile link" href="/SKILL.md"><b>SKILL.md</b><p>${esc(t.agentHint.split(/[。.]/)[0])}</p></a></div></section>`, { cls: 'landing' })
     for (const [path, file] of docs) {
-      if (!existsSync(join(root, file))) { console.warn(`warning: ${file} is missing; ${path} was not built for ${lang}`); continue }
-      const src = readFileSync(join(root, file), 'utf8')
+      if (!existsSync(join(docRoot, file))) { console.warn(`warning: ${file} is missing; ${path} was not built for ${lang}`); continue }
+      const src = readFileSync(join(docRoot, file), 'utf8')
       const title = (/^#\s+(.+)$/m.exec(src) ?? [])[1] ?? path
       // Links between the documents become links between the pages.
       const link = href => {
