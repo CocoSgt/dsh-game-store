@@ -1,4 +1,13 @@
 {
-  "games": ["tidemark", "ai-fushengji", "batto-neko"],
-  "workshop": { "tidemark": ["sample-map"] }
+  "games": [
+    "tidemark",
+    "ai-fushengji",
+    "batto-neko",
+    "moyutang"
+  ],
+  "workshop": {
+    "tidemark": [
+      "sample-map"
+    ]
+  }
 }
