@@ -54,7 +54,31 @@
       "destination": "/api/page?p=en/"
     },
     {
-      "source": "/:page((?:en/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)",
+      "source": "/ja/",
+      "destination": "/api/page?p=ja/"
+    },
+    {
+      "source": "/es/",
+      "destination": "/api/page?p=es/"
+    },
+    {
+      "source": "/fr/",
+      "destination": "/api/page?p=fr/"
+    },
+    {
+      "source": "/de/",
+      "destination": "/api/page?p=de/"
+    },
+    {
+      "source": "/ru/",
+      "destination": "/api/page?p=ru/"
+    },
+    {
+      "source": "/pt/",
+      "destination": "/api/page?p=pt/"
+    },
+    {
+      "source": "/:page((?:(?:en|ja|es|fr|de|ru|pt)/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)",
       "destination": "/api/page?p=:page"
     }
   ],
