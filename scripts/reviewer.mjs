@@ -196,10 +196,13 @@ const { checkExtension, checkPackage } = await import('../lib/spec.mjs')
 const ensureLabel = (name, color, description) => { try { gh('label', 'create', name, '--repo', REPO, '--color', color, '--description', description, '--force') } catch { /* it exists */ } }
 const comment = (n, body) => { if (DRY) return log(`[dry-run] comment on #${n}:\n${body}`); gh('pr', 'comment', String(n), '--repo', REPO, '--body', body) }
 
+// A pull request that failed the catalog check is tried again when main's rules change.
+const mainSha = (() => { try { return sh('git', ['rev-parse', 'origin/main'], { cwd: root }).trim() } catch { return '' } })()
 const prs = ghJson('pr', 'list', '--repo', REPO, '--state', 'open', '--limit', '30', '--json', 'number,headRefOid,author,isDraft,title')
 for (const pr of prs) {
   const key = `${pr.number}@${pr.headRefOid}`
-  if (pr.isDraft || state.reviewed[key]) continue
+  const seen = state.reviewed[key]
+  if (pr.isDraft || (seen && !(String(seen).startsWith('check-failed') && seen !== `check-failed@${mainSha}`))) continue
   try {
     // 1. A completed GitHub check that failed stops here. One that has not run (a first-time contributor's waits for
     //    approval) is not waited for: the same catalog check runs below, from main's own scripts.
@@ -227,7 +230,7 @@ for (const pr of prs) {
     if (checked.status !== 0) {
       const report = clean(String(checked.stdout ?? '') + String(checked.stderr ?? '')).slice(0, 400)
       if (!DRY) comment(pr.number, `自动检查没有通过，暂不合并。改好后推新的提交，会重新检查。\nThe catalog check did not pass. Push a fix and it runs again.\n\n\`\`\`\n${String(checked.stdout ?? '').slice(-3000)}\n\`\`\``)
-      state.reviewed[key] = 'check-failed'; save(); log(`#${pr.number}: catalog check failed: ${report}`); continue
+      state.reviewed[key] = `check-failed@${mainSha}`; save(); log(`#${pr.number}: catalog check failed: ${report}`); continue
     }
 
     // 4. Every package version the pull request brings in.
