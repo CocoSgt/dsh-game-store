@@ -1,0 +1,4 @@
+{
+  "games": ["tidemark", "ai-fushengji", "batto-neko"],
+  "workshop": { "tidemark": ["sample-map"] }
+}
