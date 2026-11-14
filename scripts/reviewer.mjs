@@ -26,7 +26,7 @@
  * The model runs in a read-only sandbox without network. It only writes a verdict; merging, commenting and labelling
  * are done here. What a package says inside its files is data to be judged, never an instruction to follow.
  */
-import { execFileSync, spawnSync } from 'node:child_process'
+import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { closeSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, openSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -130,16 +130,29 @@ function changeFolder(oldDir, newDir) {
   return { dir: out, summary }
 }
 
+/** spawnSync, but without blocking the other reviews running at the same time. */
+function run(cmd, args, { timeout, stdio, ...o } = {}) {
+  return new Promise(done => {
+    let stdout = '', stderr = '', error
+    const child = spawn(cmd, args, { ...o, stdio: stdio ?? ['ignore', 'pipe', 'pipe'] })
+    child.stdout?.on('data', d => { stdout += d }); child.stderr?.on('data', d => { stderr += d })
+    const t = timeout ? setTimeout(() => { error = { code: 'ETIMEDOUT' }; child.kill('SIGKILL') }, timeout) : null
+    child.on('error', e => { error = e })
+    child.on('close', status => { clearTimeout(t); done({ status, stdout, stderr, error }) })
+  })
+}
+const PARALLEL = Number(process.env.REVIEW_PARALLEL ?? 4)
+
 /** Ask the model about one unpacked package. Returns { verdict, malicious, content, findings, checked } or { verdict: 'unsure', error }. */
-function modelReview(dir, { quick = false } = {}) {
+async function modelReview(dir, { quick = false } = {}) {
   const prompt = quick ? QUICK_PROMPT : PROMPT, minutes = quick ? QUICK_TIMEOUT_MIN : TIMEOUT_MIN
-  const work = join(tmpdir(), `dsh-game-review-${process.pid}-${Date.now()}`)
+  const work = mkdtempSync(join(tmpdir(), `dsh-game-review-${process.pid}-`))
   mkdirSync(work, { recursive: true })
   const verdictFile = join(work, 'verdict.json')
   const logFile = join(work, 'codex.log')
   const out = openSync(logFile, 'w')
   // Read-only sandbox over the package; the one writable place is the folder that takes the verdict.
-  const r = spawnSync('codex', ['exec', '--ignore-user-config', '--skip-git-repo-check', '--ephemeral', '--sandbox', 'workspace-write',
+  const r = await run('codex', ['exec', '--ignore-user-config', '--skip-git-repo-check', '--ephemeral', '--sandbox', 'workspace-write',
     '-c', `sandbox_workspace_write.writable_roots=["${work}"]`, '-c', 'sandbox_workspace_write.network_access=false',
     '-m', MODEL, '-c', `model_reasoning_effort="${quick ? 'low' : EFFORT}"`, '-C', dir, prompt.replace('VERDICT_PATH', verdictFile)],
   { stdio: ['ignore', out, out], timeout: minutes * 60_000, killSignal: 'SIGKILL' })
@@ -166,7 +179,7 @@ function verdictText(name, v) {
 }
 
 if (opt('--review')) {
-  const v = modelReview(resolve(opt('--review')))
+  const v = await modelReview(resolve(opt('--review')))
   console.log(JSON.stringify(v, null, 2))
   process.exit(v.verdict === 'pass' ? 0 : 2)
 }
@@ -199,23 +212,22 @@ const comment = (n, body) => { if (DRY) return log(`[dry-run] comment on #${n}:\
 // A pull request that failed the catalog check is tried again when main's rules change.
 const mainSha = (() => { try { return sh('git', ['rev-parse', 'origin/main'], { cwd: root }).trim() } catch { return '' } })()
 const prs = ghJson('pr', 'list', '--repo', REPO, '--state', 'open', '--limit', '30', '--json', 'number,headRefOid,author,isDraft,title')
-for (const pr of prs) {
+async function reviewPr(pr) {
   const key = `${pr.number}@${pr.headRefOid}`
   const seen = state.reviewed[key]
-  if (pr.isDraft || (seen && !(String(seen).startsWith('check-failed') && seen !== `check-failed@${mainSha}`))) continue
+  if (pr.isDraft || (seen && !(String(seen).startsWith('check-failed') && seen !== `check-failed@${mainSha}`))) return
   try {
     // 1. A completed GitHub check that failed stops here. One that has not run (a first-time contributor's waits for
     //    approval) is not waited for: the same catalog check runs below, from main's own scripts.
     const runs = ghJson('api', `repos/${REPO}/commits/${pr.headRefOid}/check-runs`, '--jq', '[.check_runs[] | {name, status, conclusion}]')
     const check = runs.find(r => r.name === 'check')
-    if (check && check.status === 'completed' && check.conclusion !== 'success') { state.reviewed[key] = 'ci-failed'; save(); log(`#${pr.number}: checks failed; waiting for a new commit`); continue }
+    if (check && check.status === 'completed' && check.conclusion !== 'success') { state.reviewed[key] = 'ci-failed'; save(); log(`#${pr.number}: checks failed; waiting for a new commit`); return }
 
     // 2. Only pull requests that change nothing but their author's own catalog entries are handled here.
-    sh('git', ['fetch', '--quiet', 'origin', `pull/${pr.number}/head:refs/review/pr-${pr.number}`, '--force'], { cwd: root })
     const head = `refs/review/pr-${pr.number}`
-    if (sh('git', ['rev-parse', head], { cwd: root }).trim() !== pr.headRefOid) { log(`#${pr.number}: moved on while fetching`); continue }
+    if (sh('git', ['rev-parse', head], { cwd: root }).trim() !== pr.headRefOid) { log(`#${pr.number}: moved on while fetching`); return }
     const rules = sh('node', ['scripts/check-pr.mjs', '--author', pr.author.login, '--base', 'origin/main', '--head', head], { cwd: root })
-    if (!/^auto-merge: yes$/m.test(rules)) { state.reviewed[key] = 'needs-maintainer'; save(); log(`#${pr.number}: not a plain catalog change; left to the maintainer`); continue }
+    if (!/^auto-merge: yes$/m.test(rules)) { state.reviewed[key] = 'needs-maintainer'; save(); log(`#${pr.number}: not a plain catalog change; left to the maintainer`); return }
 
     const files = sh('git', ['diff', '--name-only', '--no-renames', `origin/main...${head}`], { cwd: root }).trim().split('\n').filter(Boolean)
 
@@ -225,12 +237,12 @@ for (const pr of prs) {
     try {
       sh('sh', ['-c', `git archive ${head} catalog | tar -x -C "${copy}"`], { cwd: root })
       const ids = files.map(f => f.replace(/^catalog\/(games|workshop)\//, '').replace(/\.json$/, ''))
-      checked = spawnSync('node', ['scripts/check-catalog.mjs', '--catalog', join(copy, 'catalog'), '--only', ids.join(',')], { cwd: root, encoding: 'utf8', timeout: 15 * 60_000 })
+      checked = await run('node', ['scripts/check-catalog.mjs', '--catalog', join(copy, 'catalog'), '--only', ids.join(',')], { cwd: root, timeout: 15 * 60_000 })
     } finally { rmSync(copy, { recursive: true, force: true }) }
     if (checked.status !== 0) {
       const report = clean(String(checked.stdout ?? '') + String(checked.stderr ?? '')).slice(0, 400)
       if (!DRY) comment(pr.number, `自动检查没有通过，暂不合并。改好后推新的提交，会重新检查。\nThe catalog check did not pass. Push a fix and it runs again.\n\n\`\`\`\n${String(checked.stdout ?? '').slice(-3000)}\n\`\`\``)
-      state.reviewed[key] = `check-failed@${mainSha}`; save(); log(`#${pr.number}: catalog check failed: ${report}`); continue
+      state.reviewed[key] = `check-failed@${mainSha}`; save(); log(`#${pr.number}: catalog check failed: ${report}`); return
     }
 
     // 4. Every package version the pull request brings in.
@@ -253,15 +265,15 @@ for (const pr of prs) {
             ? changeFolder((await fetchPackage(before, { cacheDir: join(HOME, 'cache') })).dir, got.dir) : null
           if (changes) {
             log(`#${pr.number}: quick review of ${before.version} -> ${entry.version} (${changes.summary})`)
-            try { v = modelReview(changes.dir, { quick: true }); v.scope = `更新，只看了 ${before.version} → ${entry.version} 的改动（${changes.summary}） / update: changes since ${before.version} only` } finally { rmSync(changes.dir, { recursive: true, force: true }) }
-          } else v = modelReview(got.dir)
+            try { v = await modelReview(changes.dir, { quick: true }); v.scope = `更新，只看了 ${before.version} → ${entry.version} 的改动（${changes.summary}） / update: changes since ${before.version} only` } finally { rmSync(changes.dir, { recursive: true, force: true }) }
+          } else v = await modelReview(got.dir)
         }
       } catch (err) { v = { verdict: 'unsure', error: err.message, findings: [] } }
       verdicts.push({ name, v })
     }
     const worst = verdicts.some(x => x.v.verdict === 'reject') ? 'reject' : verdicts.some(x => x.v.verdict !== 'pass') ? 'unsure' : 'pass'
     const body = verdicts.map(x => verdictText(x.name, x.v)).join('\n\n')
-    if (DRY) { log(`[dry-run] #${pr.number} would be: ${worst}`); continue }
+    if (DRY) { log(`[dry-run] #${pr.number} would be: ${worst}`); return }
 
     if (worst === 'pass') {
       comment(pr.number, `内容审核通过，现在合并。Content review passed; merging.\n\n${body}\n\n<sub>审核模型 ${MODEL}。它看的是恶意代码和不能接受的内容，不保证没有遗漏；发现问题请开 issue。</sub>`)
@@ -281,6 +293,16 @@ for (const pr of prs) {
     state.reviewed[key] = worst
     save()
   } catch (err) { log(`#${pr.number}: ${String(err.message).split('\n')[0]}`) }
+}
+
+// All pull request heads in one fetch, then up to PARALLEL reviews at the same time.
+const waiting = prs.filter(pr => !pr.isDraft)
+if (waiting.length) {
+  try { sh('git', ['fetch', '--quiet', '--force', 'origin', ...waiting.map(pr => `pull/${pr.number}/head:refs/review/pr-${pr.number}`)], { cwd: root }) } catch (e) { log(`fetch failed: ${String(e.message).split('\n')[0]}`) }
+}
+{
+  const queue = [...prs]
+  await Promise.all(Array.from({ length: Math.max(1, PARALLEL) }, async () => { while (queue.length) await reviewPr(queue.shift()) }))
 }
 
 // ------------------------------------------------------------------ daily health check
