@@ -182,7 +182,14 @@ process.on('exit', () => rmSync(lock, { force: true }))
 const state = readJson(STATE, { reviewed: {}, patrolDay: '' })
 const save = () => { if (!DRY) writeFileSync(STATE, JSON.stringify(state, null, 2)) }
 
+const headBefore = (() => { try { return sh('git', ['rev-parse', 'HEAD'], { cwd: root }).trim() } catch { return '' } })()
 try { sh('git', ['pull', '--ff-only', '--quiet'], { cwd: root }) } catch (e) { log(`git pull failed: ${String(e.message).split('\n')[0]}`) }
+// New scripts came in: run them, not the copy already loaded.
+if (!process.env.REVIEWER_RESTARTED && headBefore && sh('git', ['rev-parse', 'HEAD'], { cwd: root }).trim() !== headBefore) {
+  rmSync(lock, { force: true })
+  const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...argv], { stdio: 'inherit', env: { ...process.env, REVIEWER_RESTARTED: '1' } })
+  process.exit(r.status ?? 1)
+}
 const { fetchPackage } = await import('../lib/packages.mjs')
 const { checkExtension, checkPackage } = await import('../lib/spec.mjs')
 
