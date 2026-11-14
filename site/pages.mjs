@@ -346,13 +346,16 @@ ${hero}
 <html lang="${t.lang}">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>${esc(name)} · ${esc(t.site)}</title>
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="${esc(pic(g, m.icon))}">
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden}
-iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
+iframe{position:fixed;top:env(safe-area-inset-top);right:env(safe-area-inset-right);bottom:env(safe-area-inset-bottom);left:env(safe-area-inset-left);width:calc(100% - env(safe-area-inset-left) - env(safe-area-inset-right));height:calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom));border:0;background:#000}
+html,body{touch-action:none;overscroll-behavior:none}
+.bar{max-width:calc(100vw - 20px);box-sizing:border-box;touch-action:none}
+@media (max-width:560px){.bar b span.nm{display:none}.bar b{margin-right:2px}.bar a,.bar button{padding:5px 9px;font-size:12px}.bar .auto .box{width:11px;height:11px}.tip{white-space:normal;width:calc(100vw - 40px);max-width:340px;text-align:center}}
 .tip{position:absolute;top:calc(100% + 10px);left:50%;z-index:3;transform:translateX(-50%);padding:8px 14px;border-radius:10px;background:rgba(12,14,22,.88);color:#ffe19a;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s}.tip.on{opacity:1}.bar.low .tip{top:auto;bottom:calc(100% + 10px)}.bar.l .tip{left:0;transform:none}.bar.r .tip{left:auto;right:0;transform:none}
 .bar{position:fixed;top:10px;left:10px;z-index:3;display:flex;align-items:center;gap:2px;padding:5px 6px 5px 12px;border-radius:999px;background:rgba(14,16,24,.88);color:#fff;font:13px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);transition:opacity .25s}
 .bar.ghost{opacity:0}
@@ -366,7 +369,7 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
 </head>
 <body>
 <iframe id="f" title="${esc(name)}" sandbox="allow-scripts allow-same-origin allow-pointer-lock" allow="fullscreen; gamepad; autoplay" allowfullscreen referrerpolicy="no-referrer"></iframe>
-<div class="bar" id="bar"><b id="grip" title="${esc(t.playMenu)}"><img src="${esc(pic(g, m.icon))}" alt="" draggable="false">${esc(name)}</b><button id="full">${esc(t.playFull)}</button><button class="auto" id="auto"><span class="box"></span>${esc(t.playAuto)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a><div class="tip" id="tip"></div></div>
+<div class="bar" id="bar"><b id="grip" title="${esc(t.playMenu)}"><img src="${esc(pic(g, m.icon))}" alt="" draggable="false"><span class="nm">${esc(name)}</span></b><button id="full">${esc(t.playFull)}</button><button class="auto" id="auto"><span class="box"></span>${esc(t.playAuto)}</button>${manualRel ? `<a href="${base}games/${g.id}/manual/">${esc(t.playManual)}</a>` : ''}<a href="${base}games/${g.id}/">${esc(t.playBack)}</a><div class="tip" id="tip"></div></div>
 <script>
 // On the real site the game is served from its own subdomain; in a local preview, from a folder of this server.
 var live = location.hostname === ${JSON.stringify(DOMAIN)} || location.hostname === ${JSON.stringify(`www.${DOMAIN}`)};
