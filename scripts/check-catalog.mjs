@@ -2,7 +2,9 @@
 /**
  * Check the game catalog. This is what CI runs on every pull request.
  *
- *   node scripts/check-catalog.mjs [--only <id>[,<id>]] [--local <package>=<tarball>]... [--no-install]
+ *   node scripts/check-catalog.mjs [--only <id>[,<id>]] [--local <package>=<tarball>]... [--no-install] [--catalog <folder>]
+ *
+ * --catalog checks another copy of catalog/ (the reviewer uses it on a pull request's files, with main's own scripts).
  *
  * For each catalog/games/<id>.json:
  *   1. the entry file is well formed, and no two entries share an id or a package;
@@ -26,7 +28,8 @@ const argv = process.argv.slice(2)
 const opt = name => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : undefined }
 const only = opt('--only')?.split(',').filter(Boolean)
 const local = localSources(argv, join(root, 'catalog/local.json'))
-const dir = join(root, 'catalog/games')
+const catalogDir = opt('--catalog') ? resolve(opt('--catalog')) : join(root, 'catalog')
+const dir = join(catalogDir, 'games')
 
 const results = []
 const seen = { id: new Map(), package: new Map() }
@@ -74,7 +77,7 @@ for (const file of files) {
 }
 
 // Workshop entries: catalog/workshop/<game>/<id>.json
-const wdir = join(root, 'catalog/workshop')
+const wdir = join(catalogDir, 'workshop')
 const manifests = new Map()
 for (const gameId of existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsWith('.')).sort() : []) {
   for (const file of readdirSync(join(wdir, gameId)).filter(f => f.endsWith('.json')).sort()) {
