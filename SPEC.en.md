@@ -209,14 +209,14 @@ At most 300 MB unpacked.
 | Install | One click installs the version registered in the catalog |
 | Play | The game fills the window and goes full screen. Moving the pointer to the top edge shows a small strip: Restart, Full screen, Quit game |
 | Manual | When the package has one, the game page shows a Manual button |
-| Update | Automatic. After it starts and once a day the store reads the catalog and updates installed games and extensions in the background; a game being played is updated after it closes. The next start runs the new version. "Update to x.y.z" on the game page does it by hand |
-| Updating the store | Also automatic: once a day the store checks npm and installs a release that has been out for a day through DSH's plugin manager. In the desktop app it takes effect after DSH restarts; the store says so at the top |
+| Update | Automatic. After it starts and every 3 hours the store reads the catalog and updates installed games and extensions in the background; a game being played is updated after it closes. The next start runs the new version. "Update to x.y.z" on the game page does it by hand |
+| Updating the store | Also automatic: every 3 hours the store checks npm and installs a new release through DSH's plugin manager. In the desktop app it takes effect after DSH restarts; the store says so at the top |
 | Uninstall | Removes the game's files and keeps the saves |
 | Workshop | A section of the game page: browse, install, switch on and off, and uninstall the game's extensions; see section 8 |
 | My Games | Lists the installed games |
 | Play in the browser | Every game page on `dsh-game-store.com` has "Play in the browser", which needs no DSH. The game runs on its own subdomain `<id>.play.dsh-game-store.com`, from the same files as the package |
 
-The store reads the catalog once a day from `https://dsh-game-store.com/catalog.json`. When it cannot be reached, the last saved copy is used; when there is none, the copy shipped inside the plugin.
+The store reads the catalog every 3 hours from `https://dsh-game-store.com/catalog.json`. When it cannot be reached, the last saved copy is used; when there is none, the copy shipped inside the plugin.
 
 A game package installed by hand (`dsh plugin add …`) also shows under My Games, with a note: it is not in the catalog and the store has not checked it.
 
@@ -251,7 +251,7 @@ A new game and an update go the same way:
 2. The developer opens a pull request against `dsh-game-store` that adds or changes the file of their game.
 3. CI checks it (section 5.1).
 4. Content review (section 5.2), then the merge. A pull request that changes only its author's own entry, comes from the GitHub account that owns the game's repository, and passes both the automatic checks and the content review merges by itself (section 5.3). Anything else waits for a maintainer.
-5. The site is rebuilt and the catalog with it. Players' stores see the change within a day, or at once with "Refresh catalog".
+5. The site is rebuilt and the catalog with it. Players' stores see the change within 3 hours, or at once with "Refresh catalog".
 
 **Every version goes through a pull request.** The catalog names one exact version and its checksum, and the store installs only that. A new version on npm changes nothing for players until the catalog changes.
 

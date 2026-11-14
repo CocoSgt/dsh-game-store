@@ -151,7 +151,7 @@ gh repo edit <用户名>/dsh-game-<id> --homepage https://dsh-game-store.com/gam
 告诉用户：
 
 - Pull Request 的链接，以及检查通过了没有（`gh pr checks <编号> --repo CocoSgt/dsh-game-store`）。
-- 合并以后游戏页在 `https://dsh-game-store.com/games/<id>/`，玩家的商店最晚一天后看到。
+- 合并以后游戏页在 `https://dsh-game-store.com/games/<id>/`，玩家的商店最晚 3 小时后看到。
 - 你替用户做了哪些决定（分级、截图、介绍的写法），请用户过目。
 
 ## 更新已上架的游戏
