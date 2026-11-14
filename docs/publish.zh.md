@@ -103,7 +103,7 @@ npm 上同一个版本号只能发布一次。以后每次更新，先改 `packa
 2. Fork [dsh-game-store 仓库](https://github.com/CocoSgt/dsh-game-store)，把这段存成 `catalog/games/my-game.json`。文件名就是游戏的 `id`。
 3. 提 Pull Request。CI 会自动检查，结果显示在 Pull Request 页面上。
 4. 检查通过后是内容审核，结论会写在 Pull Request 里，标准见[审核标准](../SPEC.md#5-审核标准)。通过就自动合并，一般在一小时内。
-5. 合并以后，网站和目录自动更新。玩家的商店最晚 3 小时后看到你的游戏。
+5. 合并以后，网站和目录自动更新。玩家的商店最晚 1 小时后看到你的游戏。
 
 ## 上架以后
 

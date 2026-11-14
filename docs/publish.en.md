@@ -103,7 +103,7 @@ npm accepts each version number once. For every later update, raise `version` in
 2. Fork the [dsh-game-store repository](https://github.com/CocoSgt/dsh-game-store) and save that as `catalog/games/my-game.json`. The file name is the game's `id`.
 3. Open a pull request. CI checks it and shows the result on the pull request page.
 4. After the checks comes the content review; its outcome is written on the pull request, and the criteria are in the [review criteria](../SPEC.en.md#5-review-criteria). When it passes, the pull request merges by itself, usually within the hour.
-5. After the merge, the site and the catalog update by themselves. Players see your game in the store within 3 hours.
+5. After the merge, the site and the catalog update by themselves. Players see your game in the store within an hour.
 
 ## After listing
 
