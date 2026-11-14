@@ -10,6 +10,7 @@
  *   site/dist/dsh-index.json  the same games as a DSH plugin index (DSH's "Discover" tab can read it)
  * --snapshot also copies the catalog and pictures into catalog-snapshot/, the copy shipped inside the plugin.
  */
+import { execFileSync } from 'node:child_process'
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -112,6 +113,20 @@ for (const gameId of existsSync(wdir) ? readdirSync(wdir).filter(f => !f.startsW
       console.log(`✓ ${gameId}/${id}  ${entry.package}@${entry.version}${got.source === 'local' ? '  (local tarball)' : ''}`)
     } catch (err) { console.error(`✗ ${where}: ${err.message}`); failed++ }
   }
+}
+
+// Games are listed in the order they were submitted: the pull request that added the entry (the store's own first
+// game has none), then the time that entry first reached the repository.
+const submitted = id => {
+  try {
+    const line = execFileSync('git', ['log', '--diff-filter=A', '--format=%s%x09%aI', '--', `catalog/games/${id}.json`], { cwd: root, encoding: 'utf8' }).trim().split('\n').pop() ?? ''
+    const [subject, at] = line.split('\t')
+    return { pr: Number(/\(#(\d+)\)\s*$/.exec(subject ?? '')?.[1] ?? 0), at: Date.parse(at ?? '') || Infinity }
+  } catch { return { pr: 0, at: Infinity } }
+}
+{
+  const key = new Map(games.map(g => [g.id, submitted(g.id)]))
+  games.sort((a, b) => { const x = key.get(a.id), y = key.get(b.id); return x.pr - y.pr || x.at - y.at || a.id.localeCompare(b.id) })
 }
 
 if (failed && !argv.includes('--keep-going')) { console.error(`\n${failed} game(s) failed. Nothing was written.`); process.exit(1) }
