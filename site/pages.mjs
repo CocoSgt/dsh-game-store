@@ -6,17 +6,29 @@ import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node
 import { dirname, join } from 'node:path'
 import { escapeHtml as esc, renderMarkdown } from '../lib/markdown.mjs'
 import { pickText } from '../lib/spec.mjs'
+import ja from './i18n/ja.mjs'
+import es from './i18n/es.mjs'
+import fr from './i18n/fr.mjs'
+import de from './i18n/de.mjs'
+import ru from './i18n/ru.mjs'
+import pt from './i18n/pt.mjs'
 
 /** Versions are shown as x.y.z; a pre-release tag (-alpha.3) stays inside. */
 const showV = v => String(v ?? '').replace(/[-+].*$/, '')
 /** A star count as the site shows it: ★ 12, ★ 1.2k; empty until known. */
 const starText = n => (typeof n === 'number' ? `★ ${n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n}` : '')
+/** The site's languages: Chinese at the root, every other under its own folder (/en/, /ja/, …). */
+export const LANGS = ['zh', 'en', 'ja', 'es', 'fr', 'de', 'ru', 'pt']
+const LANG_LABEL = { zh: '中文', en: 'English', ja: '日本語', es: 'Español', fr: 'Français', de: 'Deutsch', ru: 'Русский', pt: 'Português' }
+const prefix = lang => (lang === 'zh' ? '' : `${lang}/`)
+const baseOf = lang => `/${prefix(lang)}`
 const LANG_NAMES = { 'zh-cn': '简体中文', 'zh-tw': '繁體中文', zh: '中文', en: 'English', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', 'pt-br': 'Português', pt: 'Português', ru: 'Русский', it: 'Italiano' }
 /** Names for the usual kinds of extensions; a kind a game invents shows as it is written. */
-const TYPE_NAMES = { zh: { script: '脚本', map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { script: 'Script', map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' } }
+const TYPE_NAMES = { zh: { script: '脚本', map: '地图', language: '语言', commander: '指挥官', balance: '数值', campaign: '战役', skin: '皮肤', unit: '兵种' }, en: { script: 'Script', map: 'Map', language: 'Language', commander: 'Commander', balance: 'Balance', campaign: 'Campaign', skin: 'Skin', unit: 'Unit' }, ja: {"script":"スクリプト","map":"マップ","language":"言語","commander":"指揮官","balance":"バランス","campaign":"キャンペーン","skin":"スキン","unit":"ユニット"}, es: {"script":"Script","map":"Mapa","language":"Idioma","commander":"Comandante","balance":"Equilibrio","campaign":"Campaña","skin":"Aspecto","unit":"Unidad"}, fr: {"script":"Script","map":"Carte","language":"Langue","commander":"Commandant","balance":"Équilibrage","campaign":"Campagne","skin":"Skin","unit":"Unité"}, de: {"script":"Skript","map":"Karte","language":"Sprache","commander":"Kommandant","balance":"Balance","campaign":"Kampagne","skin":"Skin","unit":"Einheit"}, ru: {"script":"Скрипт","map":"Карта","language":"Язык","commander":"Командир","balance":"Баланс","campaign":"Кампания","skin":"Скин","unit":"Юнит"}, pt: {"script":"Script","map":"Mapa","language":"Idioma","commander":"Comandante","balance":"Balanceamento","campaign":"Campanha","skin":"Skin","unit":"Unidade"} }
 const mb = n => (n >= 1048576 ? `${(n / 1048576).toFixed(n >= 104857600 ? 0 : 1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
 
 const ICON = {
+  lang: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h9M8.5 3v2M11 5c-.9 3.6-3.4 6.4-6.5 8M6.5 8.5c1.3 2 3 3.4 5 4.3M13 20l4-9 4 9M14.3 17h5.4"/></svg>',
   play: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2Z"/></svg>',
   github: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>',
   arrow: '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -138,12 +150,12 @@ export function copySiteAssets({ root, out }) {
 export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX, write: writeTo, docRoot = root }) {
   /** Where a picture of a game package is read from: the npm CDN, or this site when the CDN cannot serve it. */
   const pic = (g, rel) => (g.cdn && !g.local?.includes(rel) && !/\.html?$/i.test(rel) && !(g.keptPics ?? []).includes(rel) ? `${g.cdn}${rel}` : `/games/${g.id}/${rel}`)
-  const T = TEXT(SITE)
+  const T = { ...TEXT(SITE), ja: ja(SITE), es: es(SITE), fr: fr(SITE), de: de(SITE), ru: ru(SITE), pt: pt(SITE) }
   const BOARD_REPO = REPO.replace('https://github.com/', '')
   if (!writeTo) copySiteAssets({ root, out })
 
   const write = writeTo ?? ((lang, path, html) => {
-    const file = join(out, lang === 'zh' ? '' : 'en', path, 'index.html')
+    const file = join(out, prefix(lang), path, 'index.html')
     mkdirSync(dirname(file), { recursive: true })
     writeFileSync(file, html)
   })
@@ -152,8 +164,7 @@ export function buildPages({ root, out, games, SITE, REPO, DOMAIN, PLAY_SUFFIX, 
 
   /** One page in one language. `path` has no language prefix, e.g. "games/tidemark/". */
   function page(lang, path, title, body, { description, image, cls = '' } = {}) {
-    const t = T[lang], base = lang === 'zh' ? '/' : '/en/'
-    const otherHref = (lang === 'zh' ? '/en/' : '/') + path
+    const t = T[lang], base = baseOf(lang)
     const on = p => (path.startsWith(p) ? ' class="on"' : '')
     write(lang, path, `<!doctype html>
 <html lang="${t.lang}">
@@ -168,14 +179,14 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
 <meta name="theme-color" content="#0b0d14">
 <link rel="icon" href="/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="alternate" hreflang="${T[lang === 'zh' ? 'en' : 'zh'].lang}" href="${otherHref}">
+${LANGS.filter(l => l !== lang).map(l => `<link rel="alternate" hreflang="${T[l].lang}" href="${baseOf(l)}${path}">`).join('\n')}
 <link rel="stylesheet" href="/style.css">
 </head>
 <body class="${cls}" data-signin="${esc(t.signIn)}" data-signout="${esc(t.signOut)}">
 <header class="top"><div class="in">
   <a class="brand" href="${base}"><img class="mark" src="/logo.png" alt="" width="34" height="34">${esc(t.site)}</a>
   <nav><a href="${base}#games"${path === '' ? ' class="on"' : ''}>${esc(t.nav.games)}</a><a href="${base}workshop/"${on('workshop/')}>${esc(t.nav.workshop)}</a><a href="${base}publish/"${on('publish/')}>${esc(t.nav.publish)}</a><a href="${base}install/"${on('install/')}>${esc(t.nav.install)}</a><a href="${base}docs/"${path.startsWith('docs/') || path.startsWith('spec/') ? ' class="on"' : ''}>${esc(t.nav.docs)}</a></nav>
-  <div class="tools"><a class="lang" href="${otherHref}">${esc(t.other)}</a><a class="gh" href="${REPO}" aria-label="${esc(t.starStore)}" title="${esc(t.starStore)}">${ICON.github}<span class="stars" data-stars="${REPO.replace('https://github.com/', '')}"></span></a><span id="auth"></span></div>
+  <div class="tools"><details class="langs"><summary aria-label="Language">${ICON.lang}<span>${esc(LANG_LABEL[lang])}</span></summary><div class="menu">${LANGS.map(l => `<a href="${baseOf(l)}${path}"${l === lang ? ' class="on"' : ''} lang="${T[l].lang}">${esc(LANG_LABEL[l])}</a>`).join('')}</div></details><a class="gh" href="${REPO}" aria-label="${esc(t.starStore)}" title="${esc(t.starStore)}">${ICON.github}<span class="stars" data-stars="${REPO.replace('https://github.com/', '')}"></span></a><span id="auth"></span></div>
 </div></header>
 <main>${body}</main>
 <footer class="foot"><div class="in">
@@ -198,7 +209,7 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
   const playHref = (base, g) => `${base}games/${g.id}/play/`
 
   function card(lang, g) {
-    const t = T[lang], base = lang === 'zh' ? '/' : '/en/', m = g.manifest
+    const t = T[lang], base = baseOf(lang), m = g.manifest
     return `<article class="card">
   <a class="shot" href="${playHref(base, g)}" aria-label="${esc(t.playNow)}: ${esc(pickText(m.name, t.lang))}"><img src="${esc(pic(g, m.cover))}" alt="" loading="lazy"><span class="go">${ICON.play}${esc(t.playNow)}</span></a>
   <a class="cin" href="${base}games/${g.id}/"><img src="${esc(pic(g, m.icon))}" alt="" width="44" height="44"><span><b>${esc(pickText(m.name, t.lang))}</b><i>${esc(pickText(m.summary, t.lang))}</i></span></a>
@@ -206,8 +217,8 @@ ${image ? `<meta property="og:image" content="${SITE}${esc(image)}">\n<meta name
 </article>`
   }
 
-  for (const lang of ['zh', 'en']) {
-    const t = T[lang], base = lang === 'zh' ? '/' : '/en/'
+  for (const lang of LANGS) {
+    const t = T[lang], base = baseOf(lang)
     const listed = games.filter(g => g.status === 'listed')
     const lead = listed.slice().sort((a, b) => String(b.updatedAt ?? '').localeCompare(String(a.updatedAt ?? '')))[0]
     const exts = listed.flatMap(g => (g.workshop ?? []).filter(x => x.status === 'listed').map(x => ({ ...x, gameName: pickText(g.manifest.name, t.lang) })))

@@ -173,6 +173,7 @@ else {
   mkdirSync(join(lib, 'docs', 'docs'), { recursive: true })
   const fix = src => src.replaceAll("'../lib/markdown.mjs'", "'./markdown.mjs'").replaceAll("'../lib/spec.mjs'", "'./spec.mjs'")
   writeFileSync(join(lib, 'pages.mjs'), fix(readFileSync(join(root, 'site/pages.mjs'), 'utf8')))
+  cpSync(join(root, 'site/i18n'), join(lib, 'i18n'), { recursive: true })
   for (const f of ['site/live.mjs', 'lib/markdown.mjs', 'lib/spec.mjs']) cpSync(join(root, f), join(lib, f.split('/').pop()))
   writeFileSync(join(lib, 'store.json'), JSON.stringify({ version: storePkg.version, description: storePkg.description, engines: storePkg.engines }))
   writeFileSync(join(lib, 'package.json'), '{"type":"module"}\n')
@@ -190,7 +191,7 @@ const gameHost = id => ({ type: 'host', value: `${id.replaceAll('-', '\\-')}\\.p
 // A game's files: /v/<package>@<version>/… on its host, from the npm CDN at exactly that version. HTML pages come from
 // unpkg (jsDelivr answers them as plain text), which also serves files over jsDelivr's size limit.
 const PKG = ':pkg([a-z0-9][a-z0-9._-]*@[0-9][0-9A-Za-z.+-]*)'
-const PAGE = ':page((?:en/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)'
+const PAGE = ':page((?:(?:en|ja|es|fr|de|ru|pt)/)?(?:games|workshop|publish|install|docs|spec)(?:/.*)?)'
 const routing = {
   cleanUrls: false,
   trailingSlash: true,
@@ -204,7 +205,7 @@ const routing = {
       { source: '/catalog.json', destination: '/api/page?f=catalog' },
       { source: '/dsh-index.json', destination: '/api/page?f=index' },
       { source: '/', destination: '/api/page?p=' },
-      { source: '/en/', destination: '/api/page?p=en/' },
+      ...['en', 'ja', 'es', 'fr', 'de', 'ru', 'pt'].map(l => ({ source: `/${l}/`, destination: `/api/page?p=${l}/` })),
       { source: `/${PAGE}`, destination: '/api/page?p=:page' },
     ]),
   ],

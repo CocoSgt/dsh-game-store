@@ -18,7 +18,7 @@ function render() {
   const work = (async () => {
     const games = await liveGames()
     const pages = new Map()
-    buildPages({ root: lib, out: lib, games, SITE, REPO, DOMAIN, PLAY_SUFFIX, docRoot: join(lib, 'docs'), write: (lang, path, html) => pages.set((lang === 'zh' ? '' : 'en/') + path, html) })
+    buildPages({ root: lib, out: lib, games, SITE, REPO, DOMAIN, PLAY_SUFFIX, docRoot: join(lib, 'docs'), write: (lang, path, html) => pages.set((lang === 'zh' ? '' : `${lang}/`) + path, html) })
     return { pages, catalog: JSON.stringify(catalogDoc(games), null, 1), index: JSON.stringify(dshIndex(games, storePkg), null, 1) }
   })()
   const prev = cache
@@ -51,7 +51,8 @@ export default async function handler(req, res) {
   if (!html) {
     res.statusCode = 404
     res.setHeader('Cache-Control', 'public, s-maxage=60')
-    return res.end(site.pages.get(path.startsWith('en/') ? 'en/' : '') ?? 'Not found')
+    const home = /^([a-z]{2})\//.exec(path)?.[1]
+    return res.end(site.pages.get(home ? `${home}/` : '') ?? 'Not found')
   }
   res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400')
   res.end(html)
