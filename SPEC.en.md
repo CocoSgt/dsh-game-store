@@ -170,7 +170,7 @@ What a game must do:
   `hosts` holds up to 8 addresses: `https://` or `wss://` plus a host name (a port is fine, a path is not). The game can reach these and nothing else. `notes` tells players in one sentence what the connection is for, at most 200 characters.
 
   The servers are the developer's own: the platform gives games no server, `dsh-game-store.com` and its subdomains cannot be listed, and neither can addresses on the player's machine or local network. The game page says that the game goes online and names the addresses; the risk of going online is the player's to judge.
-- **Use the DSH model.** A game can call the model like any other DSH plugin: dialogue, characters that answer, riddles, stories. It uses the model and account the player chose in DSH, so the developer needs no key. Declare it in the manifest:
+- **Use the DSH model.** A game can call the model like any other DSH plugin: dialogue, characters that answer, riddles, stories. It uses the model and account the player chose in DSH, so the developer needs no key. Whatever models DSH can use, the game can use: cloud or local (Ollama, for example), exactly as DSH is set up; the store adds no rules of its own, and the game never connects to a model address itself. Declare it in the manifest:
 
   ```json
   "ai": { "notes": { "en": "Characters answer what you say.", "zh": "角色会回答你说的话。" } }
