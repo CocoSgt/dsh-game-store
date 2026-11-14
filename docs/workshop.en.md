@@ -15,6 +15,17 @@ You can switch an extension off or on, or uninstall it, at any time. With severa
 
 After a game update, the store switches off extensions made for other versions until they are updated.
 
+## Make a mod in DSH
+
+The quickest way: install the game, open its page in the DSH Game Store, and press "Make a mod with DSH" in the workshop. Give it a name and say what you want.
+
+- DSH opens a new conversation that works in the mod's own folder (`~/DSH 游戏工坊/<game id>/<mod name>/`), with the model you chose in DSH; you can switch it in the conversation at any time.
+- Beside the conversation is the Mod workbench: the mod shows there once it is written, and "Play with this mod" starts the game with it. Say in the conversation what to change.
+- A mod you make stays on your computer and works right away, with nothing to publish. On the game page it carries a "Local" tag and can be switched on and off or worked on further.
+- To let others play it, press "Share to the workshop". DSH follows step 5 below: npm, a GitHub repository and a catalog pull request. Once reviewed, it shows in everyone's workshop.
+
+The full steps by hand follow.
+
 ## Developers: make an extension for a game
 
 You need an npm account, a GitHub account and Node.js 22 or newer. You do not need the game author's permission.

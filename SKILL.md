@@ -170,6 +170,8 @@ npx dsh-game-store init-extension dsh-game-<游戏 id>-<扩展名> --game <游�
 - 填 `extension.json`：`gameVersion`（适用的游戏版本，如 `"1.x"`）和 `types`（从游戏的 `workshop.types` 里选）。
 - 目录条目存成 `catalog/workshop/<游戏 id>/<扩展 id>.json`。
 
+用户在 DSH 游戏商店里点“用 DSH 做一个 Mod”时，Mod 文件夹已经建好（`~/DSH 游戏工坊/<游戏 id>/<名字>/`，含 `extension.json`、`package.json`、`mod/`），当前工作目录就是它：直接按游戏的扩展说明往 `mod/` 里写，改好 `extension.json` 的 `name` 和 `summary`，不要改游戏本身，先不要发布。本地的 Mod 立刻就能在游戏里用；用户说要分享时，再按上面的步骤补齐、检查、发布、提交目录。
+
 完整说明：<https://dsh-game-store.com/docs/workshop/>
 
 ## 常见的检查错误
