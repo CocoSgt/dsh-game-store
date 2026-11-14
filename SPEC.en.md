@@ -257,7 +257,7 @@ Developers run the same checks on their own computer: `npx dsh-game-store check 
 
 After the automatic checks and before the merge, every package goes through a content review. A review program on the maintainer's machine downloads the package (read only, nothing is run) and has an AI model read it file by file, looking for two things:
 
-- **Malicious code**: trying to use the network, to leave its frame, to reach services on the player's computer, to mine coins, to collect player data, or code obfuscated to avoid review.
+- **Code aimed at the store's servers**: online games may reach their own or any third-party servers freely; only code sending requests to dsh-game-store.com or its subdomains is stopped.
 - **Blatant content**: any subject is fine, dark, adult, satirical, war and violence included. Only problems plain to see in the description, the title screen and the game text are stopped: openly insulting the people of a nation, an ethnic group, a race or a religion, openly glorifying invasion or massacre, plainly denying a country's sovereignty and territorial integrity, explicit pornography and extreme gore, inciting real crime, gambling for real money, and attacks on named real people.
 
 A new version of a listed game is reviewed for its changes only, the added text and new pictures, so the answer comes quickly. A change of declared servers, or a very large change, gets the full review again.
