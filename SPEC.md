@@ -63,7 +63,7 @@ dsh-game-<名字>/
 
 必须有：
 
-- `name`、`version`（`x.y.z`）。
+- `name`、`version`（`x.y.z`，测试版可以带后缀，如 `0.11.2-alpha.3`；目录里的 `version` 照抄 npm 上的版本号）。
 - `license`：一个 SPDX 名字（如 `MIT`），或 `SEE LICENSE IN <文件名>`。包的根目录要有许可证文件。
 - `dsh.bundle.patch`：固定写 `"./cordis.patch.yml"`。
 - `dshGame`：固定写 `"./game.json"`。

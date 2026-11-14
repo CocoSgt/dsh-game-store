@@ -63,7 +63,7 @@ The store opens files from three folders only: `game/`, `manual/` and `store/`.
 
 Required:
 
-- `name` and `version` (`x.y.z`).
+- `name` and `version` (`x.y.z`; a pre-release may carry a suffix such as `0.11.2-alpha.3`; the catalog's `version` is the npm version as it is).
 - `license`: an SPDX id such as `MIT`, or `SEE LICENSE IN <file>`. The package root holds a license file.
 - `dsh.bundle.patch`: always `"./cordis.patch.yml"`.
 - `dshGame`: always `"./game.json"`.

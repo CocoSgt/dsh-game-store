@@ -14,6 +14,7 @@
  * The package checks themselves are scripts/check-catalog.mjs.
  */
 import { execFileSync } from 'node:child_process'
+import { compareVersions } from '../lib/spec.mjs'
 
 const argv = process.argv.slice(2)
 const opt = (name, fallback) => { const i = argv.indexOf(name); return i >= 0 ? argv[i + 1] : fallback }
@@ -25,7 +26,7 @@ if (!author || !base) { console.error('Usage: check-pr.mjs --author <login> --ba
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' })
 const show = (ref, file) => { try { return JSON.parse(git('show', `${ref}:${file}`)) } catch { return undefined } }
 const ownerOf = entry => (/^https:\/\/github\.com\/([\w.-]+)\/[\w.-]+$/.exec(entry?.repository ?? '') ?? [])[1]?.toLowerCase()
-const newer = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false }
+const newer = (a, b) => compareVersions(a, b) > 0
 
 const changed = git('diff', '--name-status', '--no-renames', `${base}...${head}`).trim().split('\n').filter(Boolean).map(l => { const [status, ...file] = l.split('\t'); return { status, file: file.join('\t') } })
 const reasons = []

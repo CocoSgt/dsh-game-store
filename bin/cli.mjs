@@ -47,7 +47,7 @@ async function unpacked(target) {
     const got = await fetchPackage({ package: pkgName, version: '0.0.0' }, { local: p, cacheDir: tmp })
     return { ...got, tmp }
   }
-  const m = /^(@?[^@]+)@(\d+\.\d+\.\d+)$/.exec(target)
+  const m = /^(@?[^@]+)@(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(target)
   if (!m) die(`Not a folder, a tarball or name@version: ${target}`)
   const tmp = mkdtempSync(join(tmpdir(), 'dsh-game-'))
   return { ...(await fetchPackage({ package: m[1], version: m[2] }, { cacheDir: tmp })), tmp }
