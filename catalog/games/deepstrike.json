@@ -1,0 +1,8 @@
+{
+  "id": "deepstrike",
+  "package": "@dsh-game-publish/dsh-game-deepstrike",
+  "version": "1.0.0",
+  "integrity": "sha512-dJKLKgP2Tr0mHCBbb4adDwAQCcUjaorJWtMV8HwtwukP96rV/PxUW1Pbfv5CRu1k0ogXHLcEQsjYTXDVpFc0jg==",
+  "repository": "https://github.com/wangshuwen57-source/dsh-game-deep-strike",
+  "addedAt": "2026-11-19"
+}
